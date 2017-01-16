@@ -7,6 +7,8 @@ import Log from "../Util";
 
 export default class InsightFacade implements IInsightFacade {
 
+    // Keeps track of what ids we have so far
+    private static ids: number[];
 
     constructor() {
         Log.trace('InsightFacadeImpl::init()');
