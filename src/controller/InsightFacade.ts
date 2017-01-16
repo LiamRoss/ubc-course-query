@@ -17,6 +17,11 @@ export default class InsightFacade implements IInsightFacade {
 
     }
 
+    // Helper function, needs implementation
+    addToDatabase(id: string, content: string) {
+
+    }
+
     // Content = zip data
     // id = id of the data being added
     addDataset(id: string, content: string): Promise<InsightResponse> {
@@ -42,6 +47,7 @@ export default class InsightFacade implements IInsightFacade {
                     if(that.dataAlreadyExists(id)) {
                         fulfill("201");
                     } else {
+                        that.addToDatabase(id, content);
                         fulfill("204");
                     }
                 })
