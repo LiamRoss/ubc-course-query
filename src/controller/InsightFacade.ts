@@ -7,19 +7,28 @@ import Log from "../Util";
 
 export default class InsightFacade implements IInsightFacade {
 
-    // Keeps track of what ids we have so far
-    private static ids: number[];
+    // Keeps trak of what ids we have
+    private ids: string[];
 
     constructor() {
         Log.trace('InsightFacadeImpl::init()');
     }
 
-    // Helper function, needs implementation
-    dataAlreadyExists(id: string) {
-
+    /**
+     * Returns true if the data already exists on disk
+     * @param id  the id to be checked
+     */
+    dataAlreadyExists(id: string): boolean {
+        for(let i of this.ids) {
+           if(i == id) return true;
+           Log.trace(id + " already exists in ids, returning true");
+        }
+        Log.trace(id + " does not exist in ids, returning false");
+        return false;
     }
 
     // Helper function, needs implementation
+    // Writes data to the disk
     addToDatabase(id: string, content: string) {
 
     }
@@ -46,9 +55,11 @@ export default class InsightFacade implements IInsightFacade {
                         * 204: the operation was successful and the id was new (not added in this
                         session or was previously cached).
                     */
+
                     if(that.dataAlreadyExists(id)) {
                         fulfill("201");
                     } else {
+                        // Unsure if we need to generate an id ourselves or get it from somewhere?
                         that.addToDatabase(id, content);
                         fulfill("204");
                     }
