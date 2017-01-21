@@ -7,7 +7,7 @@ import Log from "../Util";
 
 export default class InsightFacade implements IInsightFacade {
 
-    // Keeps trak of what ids we have
+    // Keeps track of what ids we have
     private ids: string[];
 
     constructor() {
@@ -16,9 +16,10 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Returns true if the data already exists on disk
-     * @param id  the id to be checked
+     * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
+        Log.trace("Checking if dataAlreadyExists(" + id + ")");
         for(let i of this.ids) {
            if(i == id) return true;
            Log.trace(id + " already exists in ids, returning true");
@@ -27,10 +28,35 @@ export default class InsightFacade implements IInsightFacade {
         return false;
     }
 
-    // Helper function, needs implementation
-    // Writes data to the disk
+    /**
+     *  Caches data to the disk
+     *  @param id  The id of the data being added
+     *  @param content  The dataset being added in .zip file form
+     */
     addToDatabase(id: string, content: string) {
-
+        Log.trace("Adding " + id + " to database with addToDatabase(" + content + ")");
+        let jsZip = require("jszip");
+        var zip = new jsZip();
+        zip.loadAsync(content)
+            .then(function(zip: any) {
+                Log.trace("zip.loadAsync(content) call success, zip = " + zip);
+                /*
+                 * Now, cache the data
+                 * localStorage is the browsers cache, see: http://stackoverflow.com/questions/14266730/js-how-to-cache-a-variable
+                 * The following line stores the zip contents in the cache at [id]
+                 * By using JSON stringify we can convert the data into a JSON structure
+                 * Can be read using:
+                 *      var data = localStorage[id]
+                 *      if(data) {
+                 *          parsedData = JSON.parse(id);
+                 *      }
+                 */
+                localStorage[id] = JSON.stringify(zip);
+                Log.trace(id + " has been cached.");
+            })
+            .catch(function(err: any) {
+                Log.trace("zip.loadAsync(content) call failed, err = " + err);
+            });
     }
 
     // Content = zip data
@@ -38,6 +64,7 @@ export default class InsightFacade implements IInsightFacade {
     addDataset(id: string, content: string): Promise<InsightResponse> {
         Log.trace("Inside addDataset()");
         let that = this;
+
         return new Promise(function(fulfill, reject) {
             var rp = require("request-promise-native");
             rp.debug = true;
@@ -57,10 +84,13 @@ export default class InsightFacade implements IInsightFacade {
                     */
 
                     if(that.dataAlreadyExists(id)) {
+                        // Even if the data already exists we want to re-cache it as it may have changed since last cache
+                        that.addToDatabase(id, content);
+                        Log.trace("dataAlreadyExists(" + id + ") == true, fulfilling with fulfill('201')");
                         fulfill("201");
                     } else {
-                        // Unsure if we need to generate an id ourselves or get it from somewhere?
                         that.addToDatabase(id, content);
+                        Log.trace("dataAlreadyExists(" + id + ") == false, fulfilling with fulfill('204')");
                         fulfill("204");
                     }
                 })
