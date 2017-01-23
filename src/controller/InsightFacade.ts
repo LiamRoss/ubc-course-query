@@ -61,6 +61,36 @@ export default class InsightFacade implements IInsightFacade {
         return false;
     }
 
+
+    /**
+     * Helper function
+     * Returns the InsightResponse with the error code, or throws an error if it doesn't exist
+     * @param code  The code of an InsightResponse error
+     *
+     * Valid codes:
+     * 
+     * SUCCESS CODES:
+     * 200: the query was successfully answered. The result should be sent in JSON according in the response body.
+     * 201: the operation was successful and the id already existed (was added in
+     * this session or was previously cached).
+     * 204: the operation was successful and the id was new (not added in this
+     * session or was previously cached).
+     * 
+     * ERROR CODES:
+     * 400: the operation failed. The body should contain {"error": "my text"}
+     * to explain what went wrong.
+     * 404: the operation was unsuccessful because the delete was for a resource that
+     * was not previously added.
+     * 424: the query failed because it depends on a resource that has not been PUT. The body should contain {"missing": ["id1", "id2"...]}.
+     */
+    insightResponseGenerator(code: number): InsightResponse {
+        var insightResponse: InsightResponse;
+        insightResponse.code = code;
+        insightResponse.body = {};
+        return insightResponse;
+    }
+
+
     /**
      * Helper function
      * Caches data to the disk
