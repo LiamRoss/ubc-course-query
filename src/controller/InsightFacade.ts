@@ -8,7 +8,7 @@ import Log from "../Util";
 export default class InsightFacade implements IInsightFacade {
 
     // Keeps track of what ids we have
-    private ids: string[];
+    private ids: any[];
 
     constructor() {
         Log.trace('InsightFacadeImpl::init()');
@@ -16,6 +16,7 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
+     * Unused, can be deleted
      * Converts the given base 64 zip string to a .zip
      * Reference: http://stackoverflow.com/questions/24532609/how-to-get-the-zip-file-from-base64-string-in-javascript
      * @param content  The base 64 encoded .zip to be converted
@@ -34,16 +35,29 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
+     * TODO: implement this function
+     * Takes the data in the zip file to store it to disk in a data structure
+     * @param data  The data to be added (contains the files in the zip)
+     */
+    storeToDisk(data: any) {
+        Log.trace("Inside storeToDisk()");
+        // Use hashtable to store data as keys/value pairs?
+    }
+
+    /**
+     * Helper function
      * Returns true if the data already exists on disk
      * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
         Log.trace("Checking if dataAlreadyExists(" + id + ")");
         for(let i of this.ids) {
-           if(i == id) return true;
-           Log.trace(id + " already exists in ids, returning true");
+           if(i == id) {
+               Log.trace(id + " already exists in ids! Returning true");
+               return true;
+           }
         }
-        Log.trace(id + " does not exist in ids, returning false");
+        Log.trace(id + " does not exist in ids! Returning false");
         return false;
     }
 
@@ -54,26 +68,20 @@ export default class InsightFacade implements IInsightFacade {
      * @param content  The dataset being added in .zip file form
      */
     addToDatabase(id: string, content: string) {
-        Log.trace("Adding " + id + " to database with addToDatabase(" + content + ")");
+        Log.trace("Inside addToDatabase, adding " + id);
+        // Add the id to ids[]
+        this.ids.push(id);
+        let that = this;
         let jsZip = require("jszip");
-        var buffer: ArrayBuffer = this.convertBase64Zip(content);
+        let fs = require("fs");
+        var options = { base64: true };
         var zip = new jsZip();
-        zip.loadAsync(buffer)
-            .then(function(zip: any) {
-                Log.trace("zip.loadAsync(content) call success, zip = " + zip);
-                /*
-                 * Now, cache the data
-                 * localStorage is the browsers cache, see: http://stackoverflow.com/questions/14266730/js-how-to-cache-a-variable
-                 * The following line stores the zip contents in the cache at [id]
-                 * By using JSON stringify we can convert the data into a JSON structure
-                 * Can be read using:
-                 *      var data = localStorage[id]
-                 *      if(data) {
-                 *          parsedData = JSON.parse(id);
-                 *      }
-                 */
-                localStorage[id] = JSON.stringify(zip);
-                Log.trace(id + " has been cached.");
+        zip.loadAsync(content, options)
+            .then(function(data: any) {
+                Log.trace("zip.loadAsync(content) call success, data = " + data);
+                Log.trace("typeOf(files) = " + data.constructor.name);
+                // data contains the files in the zip, now store it
+                that.storeToDisk(data);
             })
             .catch(function(err: any) {
                 Log.trace("zip.loadAsync(content) call failed, err = " + err);
@@ -128,6 +136,13 @@ export default class InsightFacade implements IInsightFacade {
 
     removeDataset(id: string): Promise<InsightResponse> {
         Log.trace("Inside removeDataset()");
+        // Remove id from ids[]
+        for(let i of this.ids) {
+            if(i == id) {
+                this.ids.splice(i, 1);
+            }
+        }
+
         return null;
     }
 
