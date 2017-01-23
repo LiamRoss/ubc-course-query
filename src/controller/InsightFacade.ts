@@ -15,6 +15,25 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     /**
+     * Helper function
+     * Converts the given base 64 zip string to a .zip
+     * Reference: http://stackoverflow.com/questions/24532609/how-to-get-the-zip-file-from-base64-string-in-javascript
+     * @param content  The base 64 encoded .zip to be converted
+     */
+    convertBase64Zip(content: string): ArrayBuffer {
+        Log.trace("inside convertBase64Zip()");
+        // First convert to an ASCII string
+        content = window.atob(content);
+        var buffer = new ArrayBuffer(content.length);
+        var view = new Uint8Array(buffer);
+        for(let i = 0; i < content.length; i++) {
+            view[i] = content.charCodeAt(i);
+        }
+        return buffer;
+    }
+
+    /**
+     * Helper function
      * Returns true if the data already exists on disk
      * @param id  The id to be checked
      */
@@ -29,15 +48,17 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     /**
-     *  Caches data to the disk
-     *  @param id  The id of the data being added
-     *  @param content  The dataset being added in .zip file form
+     * Helper function
+     * Caches data to the disk
+     * @param id  The id of the data being added
+     * @param content  The dataset being added in .zip file form
      */
     addToDatabase(id: string, content: string) {
         Log.trace("Adding " + id + " to database with addToDatabase(" + content + ")");
         let jsZip = require("jszip");
+        var buffer: ArrayBuffer = this.convertBase64Zip(content);
         var zip = new jsZip();
-        zip.loadAsync(content)
+        zip.loadAsync(buffer)
             .then(function(zip: any) {
                 Log.trace("zip.loadAsync(content) call success, zip = " + zip);
                 /*
