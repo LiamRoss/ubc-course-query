@@ -17,6 +17,14 @@ describe("EchoSpec", function () {
     }
 
     before(function () {
+
+        // convert the courses.zip file to base64 for testing
+        var fs = require('fs'),  
+        file = "../courses.zip",
+        data = fs.readFileSync(file);
+        var testBase64 = data.toString('base64');
+        console.log(testBase64);
+
         Log.test('Before: ' + (<any>this).test.parent.title);
     });
 
@@ -40,6 +48,23 @@ describe("EchoSpec", function () {
         sanityCheck(out);
         expect(out.code).to.equal(200);
         expect(out.body).to.deep.equal({message: 'echo...echo'});
+    });
+    
+    // converts zip to base64, then tests addDataset, passing in arbitrary ID Number 
+    it("Test description", function () {
+        
+
+
+
+
+
+        return math.add([]).then(function (value: number) {
+            Log.test('Value: ' + value);
+            expect(value).to.equal(0);
+        }).catch(function (err) {
+            Log.test('Error: ' + err);
+            expect.fail();
+        })
     });
 });
 
