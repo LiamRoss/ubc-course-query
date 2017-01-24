@@ -7,9 +7,17 @@ import {expect} from 'chai';
 import Log from "../src/Util";
 import {InsightResponse} from "../src/controller/IInsightFacade";
 import InsightFacade from "../src/controller/InsightFacade";
+var fs = require('fs');
 
-describe("EchoSpec", function () {
-    var testBase64: string = null;
+
+function base64_encode(file: any) {
+    var bitmap = fs.readFileSync(file);
+    return new Buffer(bitmap).toString('base64');
+}
+var testBase64: string = null;
+var insightFacade: InsightFacade = null;
+
+describe("InsightFacadeSpec", function () {
 
     function sanityCheck(response: InsightResponse) {
         expect(response).to.have.property('code');
@@ -17,53 +25,51 @@ describe("EchoSpec", function () {
         expect(response.code).to.be.a('number');
     }
 
-    before(function () {
-        // convert the courses.zip file to base64 for testing
-        var fs = require('fs'),  
-        file = "../courses.zip",
-        data = fs.readFileSync(file);
-        testBase64 = data.toString('base64')
-        // TODO: make catch in case conversion is failing
-
-        Log.test('Before: ' + (<any>this).test.parent.title);
+    before(function (done) {
+        // Empty for now
+        //Log.test('Before: ' + (<any>this).test.parent.title);
+        done();
     });
 
-    var insightFacade: InsightFacade = null;
-    beforeEach(function () {
+    beforeEach(function (done) {
+        // Initialize zip file
+        try { testBase64 = base64_encode("courses.zip"); } catch(e) { Log.trace("e = " + e); }
+        Log.trace("testBase64 encoded, = " + testBase64);
+
+        // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
-
         Log.test('BeforeTest: ' + (<any>this).currentTest.title);
+        done();
     });
 
-    after(function () {
-        Log.test('After: ' + (<any>this).test.parent.title);
+    after(function (done) {
+        //Log.test('After: ' + (<any>this).test.parent.title);
+        done();
     });
 
-    afterEach(function () {
-        Log.test('AfterTest: ' + (<any>this).currentTest.title);
+    afterEach(function (done) {
+        //Log.test('AfterTest: ' + (<any>this).currentTest.title);
+        done();
     });
 
     // TODO: test each helper function in InsightFacade.ts
-
-    it("Test ", function () {
-        let out = Server.performEcho('echo');
-        Log.test(JSON.stringify(out));
-        sanityCheck(out);
-        expect(out.code).to.equal(200);
-        expect(out.body).to.deep.equal({message: 'echo...echo'});
-    });
     
-    // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 201
-    it("Calling addDataset with test base64 zip, should return code 201", function () {
-        var id = "courses";
+    // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 204
+    it("Calling addDataset with test base64 zip, should return code 204", function (done) {
+        var id: string = "courses";
 
-        return insightFacade.addDataset(id, testBase64).then(function (value: InsightResponse) {
-            Log.test('Value: ' + value.code);
-            expect(value).to.equal(201);
-        }).catch(function (err: InsightResponse) {
-            Log.test('Error: ' + err.code);
-            expect.fail();
-        })
+        insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                Log.test('Value: ' + value);
+                Log.test("Value.code: " + value.code);
+                expect(value.code).to.equal(204);
+                done();
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('Test error: ' + err);
+                expect.fail();
+                done();
+            });
     });
 });
 

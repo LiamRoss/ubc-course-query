@@ -8,7 +8,7 @@ import Log from "../Util";
 export default class InsightFacade implements IInsightFacade {
 
     // Keeps track of what ids we have
-    private ids: any[];
+    private ids: Array<string> = new Array();
 
     constructor() {
         Log.trace('InsightFacadeImpl::init()');
@@ -51,14 +51,13 @@ export default class InsightFacade implements IInsightFacade {
      */
     dataAlreadyExists(id: string): boolean {
         Log.trace("Checking if dataAlreadyExists(" + id + ")");
-        for(let i of this.ids) {
-           if(i == id) {
-               Log.trace(id + " already exists in ids! Returning true");
-               return true;
-           }
+        if(this.ids.indexOf(id) == -1) {
+            Log.trace(id + " not found, returning false");
+            return false;
+        } else {
+            Log.trace(id + " found at index " + this.ids.indexOf(id) + " returning true");
+            return true;
         }
-        Log.trace(id + " does not exist in ids! Returning false");
-        return false;
     }
 
 
@@ -70,26 +69,26 @@ export default class InsightFacade implements IInsightFacade {
      * @param missingIDs  If the InsightResponse requires missing ids, they can be sent via array
      *
      * Valid codes:
-     * 
+     *
      * SUCCESS CODES:
      * 200: the query was successfully answered. The result should be sent in JSON according in the response body.
      * 201: the operation was successful and the id already existed (was added in
      * this session or was previously cached).
      * 204: the operation was successful and the id was new (not added in this
      * session or was previously cached).
-     * 
+     *
      * ERROR CODES:
      * 400 - needs message: the operation failed. The body should contain {"error": "my text"}
      * to explain what went wrong.
      * 404: the operation was unsuccessful because the delete was for a resource that
      * was not previously added.
-     * 424 - needs missingIDs: the query failed because it depends on a resource that has not been PUT. 
+     * 424 - needs missingIDs: the query failed because it depends on a resource that has not been PUT.
      * The body should contain {"missing": ["id1", "id2"...]}.
      */
     insightResponse(code: number, message: string = "", missingIDs: any[] = []): InsightResponse {
         var ir: InsightResponse;
+        // TODO: Fix this line; its saying that ir is undefined
         ir.code = code;
-        
 
         switch (code) {
             // SUCCESS CODES:
@@ -155,53 +154,35 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function(fulfill, reject) {
-            var rp = require("request-promise-native");
-            rp.debug = true;
-            var options = {
-                json: false,
-                uri: content
-            };
-            rp(options)
-                .then(function(htmlString: any) {
-                    Log.trace("Promise returned successfully, htmlString = " + htmlString);
 
-                    /* Fulfill conditions:
-                        * 201: the operation was successful and the id already existed (was added in
-                        this session or was previously cached).
-                        * 204: the operation was successful and the id was new (not added in this
-                        session or was previously cached).
-                    */
+            /* Fulfill conditions:
+                * 201: the operation was successful and the id already existed (was added in
+                this session or was previously cached).
+                * 204: the operation was successful and the id was new (not added in this
+                session or was previously cached).
+            */
 
-                    if(that.dataAlreadyExists(id)) {
-                        // Even if the data already exists we want to re-cache it as it may have changed since last cache
-                        that.addToDatabase(id, content);
-                        Log.trace("dataAlreadyExists(" + id + ") == true, fulfilling with fulfill('201')");
-                        fulfill("201");
-                    } else {
-                        that.addToDatabase(id, content);
-                        Log.trace("dataAlreadyExists(" + id + ") == false, fulfilling with fulfill('204')");
-                        fulfill("204");
-                    }
-                })
-                .catch(function(err: any) {
-                    /* Needs to reject the proper errors:
-                        * 400: the operation failed. The body should contain {"error": "my text"}
-                        to explain what went wrong.
-                    */
-                    Log.trace("Promise failed to return, err = " + err);
-                    reject(err);
-                });
+            if(that.dataAlreadyExists(id)) {
+                // Even if the data already exists we want to re-cache it as it may have changed since last cache
+                that.addToDatabase(id, content);
+                Log.trace("dataAlreadyExists(" + id + ") == true, fulfilling with fulfill('201')");
+                fulfill("201");
+            } else {
+                Log.trace("dataAlreadyExists(" + id + ") == false, fulfilling with fulfill('204')");
+                that.addToDatabase(id, content);
+                fulfill(that.insightResponse(204));
+            }
+
+            /* Needs to reject the proper errors:
+                * 400: the operation failed. The body should contain {"error": "my text"}
+                to explain what went wrong.
+            */
         });
     }
 
     removeDataset(id: string): Promise<InsightResponse> {
         Log.trace("Inside removeDataset()");
         // Remove id from ids[]
-        for(let i of this.ids) {
-            if(i == id) {
-                this.ids.splice(i, 1);
-            }
-        }
 
         return null;
     }
