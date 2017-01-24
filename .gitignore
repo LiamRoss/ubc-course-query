@@ -5,6 +5,7 @@ src/**/*.map
 test/*.js
 test/*.map
 npm-debug.log
+.nyc_output/
 mochawesome-reports/
 node_modules/
 .idea/
