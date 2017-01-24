@@ -53,8 +53,8 @@ describe("EchoSpec", function () {
         expect(out.body).to.deep.equal({message: 'echo...echo'});
     });
     
-    // tests addDataset with converted zip file, passing in arbitrary ID "courses"
-    it("test description", function () {
+    // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 201
+    it("Calling addDataset with test base64 zip, should return code 201", function () {
         var id = "courses";
 
         return insightFacade.addDataset(id, testBase64).then(function (value: InsightResponse) {
