@@ -66,6 +66,8 @@ export default class InsightFacade implements IInsightFacade {
      * Helper function
      * Returns the InsightResponse with the error code, or throws an error if it doesn't exist
      * @param code  The code of an InsightResponse error
+     * @param message  If the InsightResponse requires a message, can be sent, defaults to ""
+     * @param missingIDs  If the InsightResponse requires missing ids, they can be sent via array
      *
      * Valid codes:
      * 
@@ -77,17 +79,45 @@ export default class InsightFacade implements IInsightFacade {
      * session or was previously cached).
      * 
      * ERROR CODES:
-     * 400: the operation failed. The body should contain {"error": "my text"}
+     * 400 - needs message: the operation failed. The body should contain {"error": "my text"}
      * to explain what went wrong.
      * 404: the operation was unsuccessful because the delete was for a resource that
      * was not previously added.
-     * 424: the query failed because it depends on a resource that has not been PUT. The body should contain {"missing": ["id1", "id2"...]}.
+     * 424 - needs missingIDs: the query failed because it depends on a resource that has not been PUT. 
+     * The body should contain {"missing": ["id1", "id2"...]}.
      */
-    insightResponseGenerator(code: number): InsightResponse {
-        var insightResponse: InsightResponse;
-        insightResponse.code = code;
-        insightResponse.body = {};
-        return insightResponse;
+    insightResponse(code: number, message: string = "", missingIDs: any[] = []): InsightResponse {
+        var ir: InsightResponse;
+        ir.code = code;
+        
+
+        switch (code) {
+            // SUCCESS CODES:
+            case 200:
+                ir.body = {};
+                break;
+            case 201:
+                ir.body = {};
+                break;
+            case 204:
+                ir.body = {};
+                break;
+            // ERROR CODES:
+            case 400:
+                ir.body = {"error": message};
+                break;
+            case 404:
+                ir.body = {};
+                break;
+            case 424:
+                ir.body = {"missing": missingIDs};
+                break;
+            // INVALID CODE:
+            default:
+                ir.body = {"error": "this error code is invalid"};
+                break;
+        }
+        return ir;
     }
 
 

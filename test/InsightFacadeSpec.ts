@@ -57,11 +57,11 @@ describe("EchoSpec", function () {
     it("test description", function () {
         var id = "courses";
 
-        return insightFacade.addDataset(id, testBase64).then(function (value: any) {
-            Log.test('Value: ' + value);
-            expect(value).to.equal(12);
-        }).catch(function (err) {
-            Log.test('Error: ' + err);
+        return insightFacade.addDataset(id, testBase64).then(function (value: InsightResponse) {
+            Log.test('Value: ' + value.code);
+            expect(value).to.equal(201);
+        }).catch(function (err: InsightResponse) {
+            Log.test('Error: ' + err.code);
             expect.fail();
         })
     });
