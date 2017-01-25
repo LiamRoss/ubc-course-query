@@ -150,13 +150,12 @@ export default class InsightFacade implements IInsightFacade {
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
                 that.addToDatabase(id, content);
                 Log.trace("dataAlreadyExists(" + id + ") == true, fulfilling with fulfill('201')");
-                //fulfill("201");
             } else {
                 Log.trace("dataAlreadyExists(" + id + ") == false, fulfilling with fulfill('204')");
                 that.addToDatabase(id, content);
 
                 // Commented out because otherwise it will make the callback think it is finished and not run
-                //fulfill(that.insightResponse(204));
+                // fulfill(that.insightResponse(204));
             }
 
             /* Needs to reject the proper errors:
