@@ -9,13 +9,19 @@ import {InsightResponse} from "../src/controller/IInsightFacade";
 import InsightFacade from "../src/controller/InsightFacade";
 var fs = require('fs');
 
+// Global vars
+var testBase64: string = null;
+var insightFacade: InsightFacade = null;
 
+/**
+ * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
+ * @param file
+ * @returns {string}
+ */
 function base64_encode(file: any) {
     var bitmap = fs.readFileSync(file);
     return new Buffer(bitmap).toString('base64');
 }
-var testBase64: string = null;
-var insightFacade: InsightFacade = null;
 
 describe("InsightFacadeSpec", function () {
 
@@ -33,8 +39,7 @@ describe("InsightFacadeSpec", function () {
 
     beforeEach(function (done) {
         // Initialize zip file
-        try { testBase64 = base64_encode("courses.zip"); } catch(e) { Log.trace("e = " + e); }
-        Log.trace("testBase64 encoded, = " + testBase64);
+        try { testBase64 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
@@ -60,7 +65,6 @@ describe("InsightFacadeSpec", function () {
 
         insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
-                Log.test('Value: ' + value);
                 Log.test("Value.code: " + value.code);
                 expect(value.code).to.equal(204);
                 done();

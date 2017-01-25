@@ -11,4 +11,5 @@ node_modules/
 .idea/
 .yarnclean
 coverage/
-.vscode
+.vscode/
+data/

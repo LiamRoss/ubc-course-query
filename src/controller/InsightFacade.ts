@@ -4,6 +4,7 @@
 import {IInsightFacade, InsightResponse, QueryRequest} from "./IInsightFacade";
 
 import Log from "../Util";
+var fs = require("fs");
 
 export default class InsightFacade implements IInsightFacade {
 
@@ -16,32 +17,38 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
-     * Unused, can be deleted
      * Converts the given base 64 zip string to a .zip
-     * Reference: http://stackoverflow.com/questions/24532609/how-to-get-the-zip-file-from-base64-string-in-javascript
+     * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
      * @param content  The base 64 encoded .zip to be converted
      */
-    convertBase64Zip(content: string): ArrayBuffer {
-        Log.trace("inside convertBase64Zip()");
-        // First convert to an ASCII string
-        content = window.atob(content);
-        var buffer = new ArrayBuffer(content.length);
-        var view = new Uint8Array(buffer);
-        for(let i = 0; i < content.length; i++) {
-            view[i] = content.charCodeAt(i);
-        }
-        return buffer;
+    base64_decode(content: string, file: string) {
+        var bitmap = new Buffer(content, "base64");
+        fs.writeFile(file, bitmap);
+        Log.trace(".zip file converted and written to data/")
     }
 
     /**
      * Helper function
      * TODO: implement this function
      * Takes the data in the zip file to store it to disk in a data structure
-     * @param data  The data to be added (contains the files in the zip)
+     * @param id  The data to be added (contains the files in the zip)
      */
-    storeToDisk(data: any) {
+    storeToDisk(id: any) {
         Log.trace("Inside storeToDisk()");
-        // Use hashtable to store data as keys/value pairs?
+        var zipPath: string = "data/" + id + ".zip";
+        fs.readFile(zipPath, function(err: any, data: any) {
+           if(err) { Log.trace("Error reading " + "data/" + id + ".zip, err = " + err); }
+           Log.trace("read " + zipPath + " successfully, now to unzip");
+           let zip = new JSZip();
+           // TODO: loadAsync isn't going into .then or .catch, needs to be fixed
+           zip.loadAsync(data)
+               .then(function(asyncData: any) {
+                   Log.trace("loadAsync(" + id + ") success");
+               })
+               .catch(function(err: any) {
+                    Log.trace("loadAsync(" + id + ") failed, err = " + err);
+               });
+        });
     }
 
     /**
@@ -50,47 +57,32 @@ export default class InsightFacade implements IInsightFacade {
      * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
-        Log.trace("Checking if dataAlreadyExists(" + id + ")");
-        if(this.ids.indexOf(id) == -1) {
-            Log.trace(id + " not found, returning false");
-            return false;
-        } else {
-            Log.trace(id + " found at index " + this.ids.indexOf(id) + " returning true");
-            return true;
-        }
+        return this.ids.indexOf(id) != -1;
     }
-
 
     /**
      * Helper function
      * Returns the InsightResponse with the error code, or throws an error if it doesn't exist
-     * @param code  The code of an InsightResponse error
+     * @param codef  The code of an InsightResponse error
      * @param message  If the InsightResponse requires a message, can be sent, defaults to ""
      * @param missingIDs  If the InsightResponse requires missing ids, they can be sent via array
      *
-     * Valid codes:
-     *
      * SUCCESS CODES:
      * 200: the query was successfully answered. The result should be sent in JSON according in the response body.
-     * 201: the operation was successful and the id already existed (was added in
-     * this session or was previously cached).
-     * 204: the operation was successful and the id was new (not added in this
-     * session or was previously cached).
-     *
+     * 201: the operation was successful and the id already existed (was added in this session or was previously cached).
+     * 204: the operation was successful and the id was new (not added in this session or was previously cached).
      * ERROR CODES:
-     * 400 - needs message: the operation failed. The body should contain {"error": "my text"}
-     * to explain what went wrong.
-     * 404: the operation was unsuccessful because the delete was for a resource that
-     * was not previously added.
-     * 424 - needs missingIDs: the query failed because it depends on a resource that has not been PUT.
-     * The body should contain {"missing": ["id1", "id2"...]}.
+     * 400 - needs message: the operation failed. The body should contain {"error": "my text"} to explain what went wrong.
+     * 404: the operation was unsuccessful because the delete was for a resource that was not previously added.
+     * 424 - needs missingIDs: the query failed because it depends on a resource that has not been PUT. The body should contain {"missing": ["id1", "id2"...]}.
      */
-    insightResponse(code: number, message: string = "", missingIDs: any[] = []): InsightResponse {
-        var ir: InsightResponse;
-        // TODO: Fix this line; its saying that ir is undefined
-        ir.code = code;
+    insightResponse(codef: number, message: string = "", missingIDs: any[] = []): InsightResponse {
+        var ir: InsightResponse = {
+            code: codef,
+            body: ""
+        };
 
-        switch (code) {
+        switch (codef) {
             // SUCCESS CODES:
             case 200:
                 ir.body = {};
@@ -131,20 +123,9 @@ export default class InsightFacade implements IInsightFacade {
         // Add the id to ids[]
         this.ids.push(id);
         let that = this;
-        let jsZip = require("jszip");
-        let fs = require("fs");
-        var options = { base64: true };
-        var zip = new jsZip();
-        zip.loadAsync(content, options)
-            .then(function(data: any) {
-                Log.trace("zip.loadAsync(content) call success, data = " + data);
-                Log.trace("typeOf(files) = " + data.constructor.name);
-                // data contains the files in the zip, now store it
-                that.storeToDisk(data);
-            })
-            .catch(function(err: any) {
-                Log.trace("zip.loadAsync(content) call failed, err = " + err);
-            });
+        // Decode base64 string and save it as a zip into data/
+        that.base64_decode(content, "data/" + id + ".zip");
+        that.storeToDisk(id);
     }
 
     // Content = zip data
