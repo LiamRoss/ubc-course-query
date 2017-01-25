@@ -5,6 +5,7 @@ import {IInsightFacade, InsightResponse, QueryRequest} from "./IInsightFacade";
 
 import Log from "../Util";
 var fs = require("fs");
+var JSZip = require("jszip");
 
 export default class InsightFacade implements IInsightFacade {
 
@@ -24,31 +25,7 @@ export default class InsightFacade implements IInsightFacade {
     base64_decode(content: string, file: string) {
         var bitmap = new Buffer(content, "base64");
         fs.writeFile(file, bitmap);
-        Log.trace(".zip file converted and written to data/")
-    }
-
-    /**
-     * Helper function
-     * TODO: implement this function
-     * Takes the data in the zip file to store it to disk in a data structure
-     * @param id  The data to be added (contains the files in the zip)
-     */
-    storeToDisk(id: any) {
-        Log.trace("Inside storeToDisk()");
-        var zipPath: string = "data/" + id + ".zip";
-        fs.readFile(zipPath, function(err: any, data: any) {
-           if(err) { Log.trace("Error reading " + "data/" + id + ".zip, err = " + err); }
-           Log.trace("read " + zipPath + " successfully, now to unzip");
-           let zip = new JSZip();
-           // TODO: loadAsync isn't going into .then or .catch, needs to be fixed
-           zip.loadAsync(data)
-               .then(function(asyncData: any) {
-                   Log.trace("loadAsync(" + id + ") success");
-               })
-               .catch(function(err: any) {
-                    Log.trace("loadAsync(" + id + ") failed, err = " + err);
-               });
-        });
+        Log.trace("Base64 string converted and written to " + file);
     }
 
     /**
@@ -121,11 +98,37 @@ export default class InsightFacade implements IInsightFacade {
     addToDatabase(id: string, content: string) {
         Log.trace("Inside addToDatabase, adding " + id);
         // Add the id to ids[]
-        this.ids.push(id);
         let that = this;
+        that.ids.push(id);
+
         // Decode base64 string and save it as a zip into data/
         that.base64_decode(content, "data/" + id + ".zip");
-        that.storeToDisk(id);
+        // Now to unzip
+        var zipPath: string = 'data/' + id + '.zip';
+        fs.readFile(zipPath, (err: any, data: any) => {
+            if(err) throw(err);
+            let zip = new JSZip();
+            Log.trace("readFile of " + zipPath + " success");
+            zip.loadAsync(data)
+                .then(function(asyncData: any) {
+                    Log.trace("loadAsync of " + zipPath + " success");
+
+                    // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
+                    Object.keys(asyncData.files).forEach(function(fileName: any) {
+                        Log.trace(fileName);
+                        zip.files[fileName].async('string')
+                            .then(function(fileData: any) {
+                                //Log.trace(fileData);
+                            })
+                            .catch(function(err: any) {
+                                Log.trace("Reading" + fileName + "'s data failed, err = " + err);
+                            });
+                    });
+                })
+                .catch(function(err: any) {
+                    Log.trace("loadAsync(" + id + ") failed, err = " + err);
+                });
+        });
     }
 
     // Content = zip data
@@ -147,11 +150,13 @@ export default class InsightFacade implements IInsightFacade {
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
                 that.addToDatabase(id, content);
                 Log.trace("dataAlreadyExists(" + id + ") == true, fulfilling with fulfill('201')");
-                fulfill("201");
+                //fulfill("201");
             } else {
                 Log.trace("dataAlreadyExists(" + id + ") == false, fulfilling with fulfill('204')");
                 that.addToDatabase(id, content);
-                fulfill(that.insightResponse(204));
+
+                // Commented out because otherwise it will make the callback think it is finished and not run
+                //fulfill(that.insightResponse(204));
             }
 
             /* Needs to reject the proper errors:
