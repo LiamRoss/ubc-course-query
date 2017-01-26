@@ -4,6 +4,7 @@
 import {IInsightFacade, InsightResponse, QueryRequest} from "./IInsightFacade";
 
 import Log from "../Util";
+import {isNullOrUndefined} from "util";
 var fs = require("fs");
 var JSZip = require("jszip");
 
@@ -119,47 +120,54 @@ export default class InsightFacade implements IInsightFacade {
         return ir;
     }
 
-
     /**
      * Helper function
      * Caches data to the disk
      * @param id  The id of the data being added
      * @param content  The dataset being added in .zip file form
      */
-    addToDatabase(id: string, content: string) {
-        Log.trace("Inside addToDatabase, adding " + id);
-        // Add the id to ids[]
+    addToDatabase(id: string, content: string): Promise<any> {
         let that = this;
 
-        // Decode base64 string and save it as a zip into data/
-        that.base64_decode(content, "data/" + id + ".zip");
-        // Now to unzip
-        var zipPath: string = 'data/' + id + '.zip';
-        fs.readFile(zipPath, (err: any, data: any) => {
-            if(err) throw(err);
-            let zip = new JSZip();
-            Log.trace("readFile of " + zipPath + " success");
-            zip.loadAsync(data)
-                .then(function(asyncData: any) {
-                    Log.trace("loadAsync of " + zipPath + " success");
-                    var dataHashTable: HashTable<string> = {};
-                    that.dataSets[id] = dataHashTable;
-                    // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
-                    Object.keys(asyncData.files).forEach(function(fileName: any) {
-                        //Log.trace(fileName);
-                        zip.files[fileName].async('string')
-                            .then(function(fileData: any) {
-                                dataHashTable[fileName] = fileData;
-                                Log.trace("dataHashTable[" + fileName + "] = fileData");
-                            })
-                            .catch(function(err: any) {
-                                Log.trace("Reading" + fileName + "'s data failed, err = " + err);
-                            });
+        return new Promise(function(fulfill, reject) {
+            Log.trace("Inside addToDatabase, adding " + id);
+
+            // Decode base64 string and save it as a zip into data/
+            that.base64_decode(content, "data/" + id + ".zip");
+
+            // Now to unzip
+            var zipPath: string = 'data/' + id + '.zip';
+            fs.readFile(zipPath, (err: any, data: any) => {
+                if(err) reject(err);
+                Log.trace("readFile of " + zipPath + " success");
+
+                let zip = new JSZip();
+                zip.loadAsync(data)
+                    .then(function(asyncData: any) {
+                        Log.trace("loadAsync of " + zipPath + " success");
+
+                        // Add the dataset to the dataSet
+                        var dataHashTable: HashTable<string> = {};
+                        that.dataSets[id] = dataHashTable;
+                        // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
+                        Object.keys(asyncData.files).forEach(function(fileName: any) {
+                            zip.files[fileName].async('string')
+                                .then(function(fileData: any) {
+                                    dataHashTable[fileName] = fileData;
+                                    Log.trace("dataHashTable[" + fileName + "] = fileData");
+                                })
+                                .catch(function(err: any) {
+                                    Log.trace("Reading" + fileName + "'s data failed, err = " + err);
+                                    reject(err);
+                                });
+                        });
+                        fulfill("success");
+                    })
+                    .catch(function(err: any) {
+                        Log.trace("loadAsync(" + id + ") failed, err = " + err);
+                        reject(err);
                     });
-                })
-                .catch(function(err: any) {
-                    Log.trace("loadAsync(" + id + ") failed, err = " + err);
-                });
+            });
         });
     }
 
@@ -180,14 +188,27 @@ export default class InsightFacade implements IInsightFacade {
 
             if(that.dataAlreadyExists(id)) {
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
-                that.addToDatabase(id, content);
-                Log.trace("dataAlreadyExists(" + id + ") == true, fulfilling with fulfill('201')");
+                that.addToDatabase(id, content).then(function(str: any) {
+                    if(str == "success") {
+                        Log.trace("addToDatabase success, fulfilling with fulfill(201)");
+                        fulfill(that.insightResponse(201));
+                    }
+                })
+                .catch(function(err: any) {
+                    Log.trace("addToDatabase failed, err = " + err);
+                    reject(that.insightResponse(400, err));
+                });
             } else {
-                Log.trace("dataAlreadyExists(" + id + ") == false, fulfilling with fulfill('204')");
-                that.addToDatabase(id, content);
-
-                // Commented out because otherwise it will make the callback think it is finished and not run
-                // fulfill(that.insightResponse(204));
+                that.addToDatabase(id, content).then(function(str: any) {
+                    if(str == "success") {
+                        Log.trace("addToDatabase success, fulfilling with fulfill(204)");
+                        //fulfill(that.insightResponse(204));
+                    }
+                })
+                .catch(function(err: any) {
+                    Log.trace("addToDatabase failed, err = " + err);
+                    reject(that.insightResponse(400, err));
+                });
             }
 
             /* Needs to reject the proper errors:
