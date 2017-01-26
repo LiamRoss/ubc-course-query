@@ -7,10 +7,32 @@ import Log from "../Util";
 var fs = require("fs");
 var JSZip = require("jszip");
 
+/**
+ * Helper interface for HashTables
+ * Can now create HashTables via:
+ *      var table: HashTable<type> = {};
+ * And add to it via:
+ *      table["one"] = 1
+ */
+interface HashTable<T> {
+    [key: string]: T;
+}
+
 export default class InsightFacade implements IInsightFacade {
 
-    // Keeps track of what ids we have
-    private ids: Array<string> = new Array();
+    /**
+     * Datastructure format:
+     * Hashtable to store datasets
+     * Stored as such:
+     *      <id1, id1's hashtable>,
+     *      <id2, id2's hashtable>, ...
+     *
+     * id1's hashtable will then be as follows:
+     *      <course1name(file1name), file1data>,
+     *      <course2name(file2name), file2data>, ...
+     */
+    private dataSets: HashTable<HashTable<string>> = {};
+
 
     constructor() {
         Log.trace('InsightFacadeImpl::init()');
@@ -34,7 +56,16 @@ export default class InsightFacade implements IInsightFacade {
      * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
-        return this.ids.indexOf(id) != -1;
+        let that = this;
+        try {
+            Object.keys(that.dataSets).forEach(function (setId: any) {
+                if(id == setId) {
+                    Log.trace(id + " already exists!");
+                    return true;
+                }
+            });
+        } catch(e) { Log.trace(e); }
+        return false;
     }
 
     /**
@@ -99,7 +130,6 @@ export default class InsightFacade implements IInsightFacade {
         Log.trace("Inside addToDatabase, adding " + id);
         // Add the id to ids[]
         let that = this;
-        that.ids.push(id);
 
         // Decode base64 string and save it as a zip into data/
         that.base64_decode(content, "data/" + id + ".zip");
@@ -112,13 +142,15 @@ export default class InsightFacade implements IInsightFacade {
             zip.loadAsync(data)
                 .then(function(asyncData: any) {
                     Log.trace("loadAsync of " + zipPath + " success");
-
+                    var dataHashTable: HashTable<string> = {};
+                    that.dataSets[id] = dataHashTable;
                     // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
                     Object.keys(asyncData.files).forEach(function(fileName: any) {
-                        Log.trace(fileName);
+                        //Log.trace(fileName);
                         zip.files[fileName].async('string')
                             .then(function(fileData: any) {
-                                //Log.trace(fileData);
+                                dataHashTable[fileName] = fileData;
+                                Log.trace("dataHashTable[" + fileName + "] = fileData");
                             })
                             .catch(function(err: any) {
                                 Log.trace("Reading" + fileName + "'s data failed, err = " + err);
