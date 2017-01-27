@@ -7,6 +7,7 @@ import Log from "../Util";
 import {isNullOrUndefined} from "util";
 var fs = require("fs");
 var JSZip = require("jszip");
+var async = require("async");
 
 /**
  * Helper interface for HashTables
@@ -146,22 +147,29 @@ export default class InsightFacade implements IInsightFacade {
                     .then(function(asyncData: any) {
                         Log.trace("loadAsync of " + zipPath + " success");
 
+                        var promises: Promise<any>[] = [];
+
                         // Add the dataset to the dataSet
                         var dataHashTable: HashTable<string> = {};
                         that.dataSets[id] = dataHashTable;
                         // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
-                        Object.keys(asyncData.files).forEach(function(fileName: any) {
-                            zip.files[fileName].async('string')
-                                .then(function(fileData: any) {
-                                    dataHashTable[fileName] = fileData;
-                                    Log.trace("dataHashTable[" + fileName + "] = fileData");
-                                })
-                                .catch(function(err: any) {
-                                    Log.trace("Reading" + fileName + "'s data failed, err = " + err);
-                                    reject(err);
-                                });
-                        });
-                        fulfill("success");
+
+                        let fileNames = Object.keys(asyncData.files);
+                        for(let i in fileNames){
+                            promises[i] = zip.files[fileNames[i]].async('string');
+                        }
+
+                        Promise.all(promises)
+                            .then(function(ret: any) {
+                                for(let k in ret) {
+                                    Log.trace("thing@" + k + " = " + fileNames[<any>k]);
+                                    dataHashTable[fileNames[<any>k]] = ret[k];
+                                }
+                                fulfill("success");
+                            })
+                            .catch(function(err: any) {
+                                Log.trace("Err = " + err);
+                            });
                     })
                     .catch(function(err: any) {
                         Log.trace("loadAsync(" + id + ") failed, err = " + err);
@@ -202,7 +210,7 @@ export default class InsightFacade implements IInsightFacade {
                 that.addToDatabase(id, content).then(function(str: any) {
                     if(str == "success") {
                         Log.trace("addToDatabase success, fulfilling with fulfill(204)");
-                        //fulfill(that.insightResponse(204));
+                        fulfill(that.insightResponse(204));
                     }
                 })
                 .catch(function(err: any) {
