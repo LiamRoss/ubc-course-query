@@ -162,7 +162,7 @@ export default class InsightFacade implements IInsightFacade {
                         Promise.all(promises)
                             .then(function(ret: any) {
                                 for(let k in ret) {
-                                    Log.trace("thing@" + k + " = " + fileNames[<any>k]);
+                                    Log.trace(fileNames[<any>k] + " stored.");
                                     dataHashTable[fileNames[<any>k]] = ret[k];
                                 }
                                 fulfill("success");
@@ -209,7 +209,7 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 that.addToDatabase(id, content).then(function(str: any) {
                     if(str == "success") {
-                        Log.trace("addToDatabase success, fulfilling with fulfill(204)");
+                        Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
                         fulfill(that.insightResponse(204));
                     }
                 })
