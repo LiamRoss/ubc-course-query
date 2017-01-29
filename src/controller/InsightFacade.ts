@@ -4,10 +4,8 @@
 import {IInsightFacade, InsightResponse, QueryRequest} from "./IInsightFacade";
 
 import Log from "../Util";
-import {isNullOrUndefined} from "util";
 var fs = require("fs");
 var JSZip = require("jszip");
-var async = require("async");
 
 /**
  * Helper interface for HashTables
@@ -228,9 +226,17 @@ export default class InsightFacade implements IInsightFacade {
 
     removeDataset(id: string): Promise<InsightResponse> {
         Log.trace("Inside removeDataset()");
+        let that = this;
         // Remove id from ids[]
-
-        return null;
+        return new Promise(function(fulfill, reject) {
+            try {
+                delete that.dataSets[id];
+                fulfill(that.insightResponse(204));
+            } catch(e) {
+                Log.trace("Remove unsuccessful, e = " + e);
+                reject(that.insightResponse(404, e));
+            }
+        });
     }
 
     performQuery(query: QueryRequest): Promise <InsightResponse> {
