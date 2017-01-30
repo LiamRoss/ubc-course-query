@@ -66,7 +66,7 @@ describe("InsightFacadeSpec", function () {
                 expect(value.code).to.equal(204);
             })
             .catch(function (err: InsightResponse) {
-                Log.test('Test error: ' + err);
+                Log.test('ERROR: ' + err.body);
                 expect.fail();
             });
     });

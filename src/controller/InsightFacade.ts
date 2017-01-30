@@ -31,7 +31,7 @@ export default class InsightFacade implements IInsightFacade {
      *      <course1name(file1name), file1data>,
      *      <course2name(file2name), file2data>, ...
      */
-    private dataSets: HashTable<HashTable<string>> = {};
+    private dataSets: HashTable<HashTable<Object[]>> = {};
 
 
     constructor() {
@@ -124,35 +124,32 @@ export default class InsightFacade implements IInsightFacade {
      * @param data  The file data to check
      * @returns {boolean}
      */
-    isValidFile(data: any): boolean {
+    isValidFile(data: string): boolean {
         let parsedData = JSON.parse(data);
-        return parsedData.hasOwnProperty('result');
+        return parsedData.hasOwnProperty("result");
     }
 
-    createObject(data: any) {
-        var dept: string;
-        var id: string;
-        var avg: number;
-        var instructor: string;
-        var title: string;
-        var pass: number;
-        var fail: number;
-        var audit: number;
-        var uuid: string;
+    createObject(data: string): Object[] {
+        var course: Object[] = [];
 
         let parsedData = JSON.parse(data);
-        let dataResult = parsedData["result"];
+        for(let i = 0; i < parsedData["result"].length; i++) {
+            var sessionData = parsedData["result"][i];
 
-        dept = dataResult["Subject"];
-        id = dataResult["Course"];
-        avg = dataResult["Avg"];
-        instructor = dataResult["Professor"];
-        title = dataResult["Title"];
-        pass = dataResult["Pass"];
-        fail = dataResult["Fail"];
-        audit = dataResult["Audit"];
-        uuid = dataResult["id"];
+            var dept: string = sessionData.Subject;
+            var id: string = sessionData.Course;
+            var avg: number = sessionData.Avg;
+            var instructor: string = sessionData.Professor;
+            var title: string = sessionData.Title;
+            var pass: number = sessionData.Pass;
+            var fail: number = sessionData.Fail;
+            var audit: number = sessionData.Audit;
+            var uuid: string = sessionData.id;
 
+            course[i] = {dept, id, avg, instructor, title, pass, fail, audit, uuid};
+        }
+
+        return course;
     }
 
     /**
@@ -174,13 +171,13 @@ export default class InsightFacade implements IInsightFacade {
 
                     var promises: Promise<any>[] = [];
 
-                    // Add the dataset to the dataSet
-                    var dataHashTable: HashTable<string> = {};
+                    // Add the dataset to dataSet
+                    var dataHashTable: HashTable<Object[]> = {};
                     that.dataSets[id] = dataHashTable;
                     // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
 
                     let fileNames = Object.keys(asyncData.files);
-                    for(let i in fileNames){
+                    for(let i in fileNames) {
                         promises[i] = zip.files[fileNames[i]].async('string');
                     }
 
@@ -188,20 +185,27 @@ export default class InsightFacade implements IInsightFacade {
                         .then(function(ret: any) {
                             for(let k in ret) {
                                 //Log.trace(fileNames[<any>k] + " stored.");
-                                if(!that.isValidFile(ret[k])) reject("file number " + k + " in " + id + " is not a valid file.");
-                                that.createObject(ret[k]);
-                                dataHashTable[fileNames[<any>k]] = ret[k];
+                                let validFile: boolean;
+                                try { validFile = that.isValidFile(ret[k]); } catch(e) { /*Log.trace("validFile e = " + e);*/ }
+
+                                if(validFile == false) {
+                                    reject("file number " + k + " in " + id + " is not a valid file.");
+                                } else {
+                                    var obj: Object[];
+                                    try { obj = that.createObject(ret[k]); } catch(e) { /*Log.trace("createObject e = " + e); */ }
+                                    dataHashTable[fileNames[<any>k]] = obj;
+                                }
                             }
                             that.writeToDisk(id);
                             fulfill();
                         })
                         .catch(function(err: any) {
-                            Log.trace("Err = " + err);
+                            Log.trace("Promise.all catch, err = " + err);
                             reject(err);
                         });
                 })
                 .catch(function(err: any) {
-                    Log.trace("loadAsync(" + id + ") failed, err = " + err);
+                    Log.trace("loadAsync(" + id + ") catch, err = " + err);
                     reject(err);
                 });
             });
@@ -229,7 +233,7 @@ export default class InsightFacade implements IInsightFacade {
                     fulfill(that.insightResponse(201));
                 })
                 .catch(function(err: any) {
-                    Log.trace("addToDatabase failed, err = " + err);
+                    Log.trace("addToDatabase catch, err = " + err);
                     reject(that.insightResponse(400, err));
                 });
             } else {
@@ -238,7 +242,7 @@ export default class InsightFacade implements IInsightFacade {
                     fulfill(that.insightResponse(204));
                 })
                 .catch(function(err: any) {
-                    Log.trace("addToDatabase failed, err = " + err);
+                    Log.trace("addToDatabase catch, err = " + err);
                     reject(that.insightResponse(400, err));
                 });
             }
