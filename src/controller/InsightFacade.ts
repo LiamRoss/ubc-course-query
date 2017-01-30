@@ -124,49 +124,42 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             Log.trace("Inside addToDatabase, adding " + id);
 
-            // Now to unzip
-            var zipPath: string = 'data/' + id + '.zip';
-            fs.readFile(zipPath, (err: any, data: any) => {
-                if(err) reject(err);
-                Log.trace("readFile of " + zipPath + " success");
+            let zip = new JSZip();
+            zip.loadAsync(content, {base64:true})
+                .then(function(asyncData: any) {
+                    Log.trace("loadAsync success");
 
-                let zip = new JSZip();
-                zip.loadAsync(content, {base64:true})
-                    .then(function(asyncData: any) {
-                        Log.trace("loadAsync of " + zipPath + " success");
+                    var promises: Promise<any>[] = [];
 
-                        var promises: Promise<any>[] = [];
+                    // Add the dataset to the dataSet
+                    var dataHashTable: HashTable<string> = {};
+                    that.dataSets[id] = dataHashTable;
+                    // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
 
-                        // Add the dataset to the dataSet
-                        var dataHashTable: HashTable<string> = {};
-                        that.dataSets[id] = dataHashTable;
-                        // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
+                    let fileNames = Object.keys(asyncData.files);
+                    for(let i in fileNames){
+                        promises[i] = zip.files[fileNames[i]].async('string');
+                    }
 
-                        let fileNames = Object.keys(asyncData.files);
-                        for(let i in fileNames){
-                            promises[i] = zip.files[fileNames[i]].async('string');
-                        }
-
-                        Promise.all(promises)
-                            .then(function(ret: any) {
-                                for(let k in ret) {
-                                    //Log.trace(fileNames[<any>k] + " stored.");
-                                    dataHashTable[fileNames[<any>k]] = ret[k];
-                                }
-                                that.writeToDisk(id);
-                                fulfill();
-                            })
-                            .catch(function(err: any) {
-                                Log.trace("Err = " + err);
-                                reject(err);
-                            });
-                    })
-                    .catch(function(err: any) {
-                        Log.trace("loadAsync(" + id + ") failed, err = " + err);
-                        reject(err);
-                    });
+                    Promise.all(promises)
+                        .then(function(ret: any) {
+                            for(let k in ret) {
+                                //Log.trace(fileNames[<any>k] + " stored.");
+                                dataHashTable[fileNames[<any>k]] = ret[k];
+                            }
+                            that.writeToDisk(id);
+                            fulfill();
+                        })
+                        .catch(function(err: any) {
+                            Log.trace("Err = " + err);
+                            reject(err);
+                        });
+                })
+                .catch(function(err: any) {
+                    Log.trace("loadAsync(" + id + ") failed, err = " + err);
+                    reject(err);
+                });
             });
-        });
     }
 
     // Content = zip data
