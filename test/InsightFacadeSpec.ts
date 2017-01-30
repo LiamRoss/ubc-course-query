@@ -34,7 +34,6 @@ describe("InsightFacadeSpec", function () {
     before(function () {
         // Empty for now
         //Log.test('Before: ' + (<any>this).test.parent.title);
-        //done();
     });
 
     beforeEach(function () {
@@ -44,17 +43,14 @@ describe("InsightFacadeSpec", function () {
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
         Log.test('BeforeTest: ' + (<any>this).currentTest.title);
-        //done();
     });
 
     after(function () {
         //Log.test('After: ' + (<any>this).test.parent.title);
-        //done();
     });
 
     afterEach(function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
-        //done();
         insightFacade = null;
     });
 
@@ -68,12 +64,10 @@ describe("InsightFacadeSpec", function () {
             .then(function (value: InsightResponse) {
                 Log.test("Value.code: " + value.code);
                 expect(value.code).to.equal(204);
-                //done();
             })
             .catch(function (err: InsightResponse) {
                 Log.test('Test error: ' + err);
                 expect.fail();
-                //done();
             });
     });
 });
