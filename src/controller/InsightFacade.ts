@@ -160,7 +160,7 @@ export default class InsightFacade implements IInsightFacade {
                         Promise.all(promises)
                             .then(function(ret: any) {
                                 for(let k in ret) {
-                                    Log.trace(fileNames[<any>k] + " stored.");
+                                    //Log.trace(fileNames[<any>k] + " stored.");
                                     dataHashTable[fileNames[<any>k]] = ret[k];
                                 }
                                 fulfill("success");
@@ -264,7 +264,7 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
         return new Promise(function(fulfill, reject) {
             try {
-                delete that.dataSets[id];
+                //delete that.dataSets[id];
                 fulfill(that.insightResponse(204));
             } catch(e) {
                 Log.trace("Remove unsuccessful, e = " + e);
