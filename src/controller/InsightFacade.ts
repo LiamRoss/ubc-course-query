@@ -239,9 +239,38 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+
+    /**
+     * Perform a query on UBCInsight.
+     *
+     * @param query  The query to be performed. This is the same as the body of the POST message.
+     *
+     * @return Promise <InsightResponse>
+     *
+     * The promise should return an InsightResponse for both fulfill and reject.
+     *
+     * Fulfill should be for 2XX codes and reject for everything else.
+     *
+     * Return codes:
+     *
+     * 200: the query was successfully answered. The result should be sent in JSON according in the response body.
+     * 400: the query failed; body should contain {"error": "my text"} providing extra detail.
+     * 424: the query failed because it depends on a resource that has not been PUT. The body should contain {"missing": ["id1", "id2"...]}.
+     *
+     */
+
     performQuery(query: QueryRequest): Promise <InsightResponse> {
         Log.trace("Inside performQuery");
-        return null;
+        let that = this;
+        return new Promise(function(fulfill, reject) {
+            try {
+                delete that.dataSets[id];
+                fulfill(that.insightResponse(204));
+            } catch(e) {
+                Log.trace("Remove unsuccessful, e = " + e);
+                reject(that.insightResponse(404, e));
+            }
+        });
     }
 
 }
