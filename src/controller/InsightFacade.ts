@@ -231,11 +231,11 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             try {
                 delete that.dataSets[id];
-                fulfill(that.insightResponse(204));
             } catch(e) {
                 Log.trace("Remove unsuccessful, e = " + e);
                 reject(that.insightResponse(404, e));
             }
+            fulfill(that.insightResponse(204));
         });
     }
 
