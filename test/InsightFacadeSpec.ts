@@ -63,7 +63,7 @@ describe("InsightFacadeSpec", function () {
     // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 204
     it("Calling addDataset with test base64 zip, should return code 204", function () {
         var id: string = "courses";
-
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 Log.test("Value.code: " + value.code);

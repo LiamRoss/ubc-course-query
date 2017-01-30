@@ -40,18 +40,6 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
-     * Converts the given base 64 zip string to a .zip
-     * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
-     * @param content  The base 64 encoded .zip to be converted
-     */
-    base64_decode(content: string, file: string) {
-        var bitmap = new Buffer(content, "base64");
-        fs.writeFile(file, bitmap);
-        Log.trace("Base64 string converted and written to " + file);
-    }
-
-    /**
-     * Helper function
      * Returns true if the data already exists on disk
      * @param id  The id to be checked
      */
@@ -136,9 +124,6 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             Log.trace("Inside addToDatabase, adding " + id);
 
-            // Decode base64 string and save it as a zip into data/
-            that.base64_decode(content, "data/" + id + ".zip");
-
             // Now to unzip
             var zipPath: string = 'data/' + id + '.zip';
             fs.readFile(zipPath, (err: any, data: any) => {
@@ -146,7 +131,7 @@ export default class InsightFacade implements IInsightFacade {
                 Log.trace("readFile of " + zipPath + " success");
 
                 let zip = new JSZip();
-                zip.loadAsync(data)
+                zip.loadAsync(content, {base64:true})
                     .then(function(asyncData: any) {
                         Log.trace("loadAsync of " + zipPath + " success");
 
