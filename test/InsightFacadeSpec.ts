@@ -61,19 +61,19 @@ describe("InsightFacadeSpec", function () {
     // TODO: test each helper function in InsightFacade.ts
     
     // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 204
-    /*it("Calling addDataset with test base64 zip, should return code 204", function (done) {
+    /*it("Calling addDataset with test base64 zip, should return code 204", function () {
         var id: string = "courses";
 
-        insightFacade.addDataset(id, testBase64)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 Log.test("Value.code: " + value.code);
                 expect(value.code).to.equal(204);
-                done();
+                //done();
             })
             .catch(function (err: InsightResponse) {
                 Log.test('Test error: ' + err);
                 expect.fail();
-                done();
+                //done();
             });
     });*/
 });
