@@ -110,6 +110,7 @@ export default class InsightFacade implements IInsightFacade {
     writeToDisk(id: string) {
         let that = this;
         fs.writeFileSync("data/" + id + ".json", JSON.stringify(that.dataSets[id]));
+        Log.trace(id + ".json created in data/");
     }
 
     /**
