@@ -262,14 +262,58 @@ export default class InsightFacade implements IInsightFacade {
     performQuery(query: QueryRequest): Promise <InsightResponse> {
         Log.trace("Inside performQuery");
         let that = this;
+
         return new Promise(function(fulfill, reject) {
-            try {
-                delete that.dataSets[id];
-                fulfill(that.insightResponse(204));
-            } catch(e) {
-                Log.trace("Remove unsuccessful, e = " + e);
-                reject(that.insightResponse(404, e));
-            }
+            that.parseQuery(query).then(function(parsedQuery: QueryRequest) {
+                that.retrieveData(parsedQuery).then(function() {
+
+                }).catch(function(missingIDs) { // catch for retrieveData
+                    // TODO: pass 
+                    that.insightResponse(424, "", []);
+                })  
+            }).catch(function(err) { // catch for parseQuery
+                reject(that.insightResponse(400, "invalid query, unable to parse. Error: " + err));
+            })
+            
+
+        });
+    }
+
+    // performQuery
+    //  |
+    //   - parseQuery
+    parseQuery(query: QueryRequest): Promise <any> {
+        Log.trace("Inside parseQuery");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
+            
+        });
+    }
+
+    // performQuery
+    //  |
+    //   - retrieveQuery
+    retrieveData(query: QueryRequest): Promise <any> {
+        Log.trace("Inside retrieveQuery");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
+            
+        });
+    }
+
+    // performQuery
+    //  |
+    //   - retrieveQuery
+    //      |
+    //       - formatJsonResponse
+    formatJsonResponse(query: QueryRequest): Promise <any> {
+        Log.trace("Inside formatJsonResponse");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
+            
         });
     }
 

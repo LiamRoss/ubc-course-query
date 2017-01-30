@@ -12,4 +12,3 @@ node_modules/
 .yarnclean
 coverage/
 .vscode/
-data/*
