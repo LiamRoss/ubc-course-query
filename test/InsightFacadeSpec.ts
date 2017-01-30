@@ -61,7 +61,7 @@ describe("InsightFacadeSpec", function () {
     // TODO: test each helper function in InsightFacade.ts
     
     // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 204
-    /*it("Calling addDataset with test base64 zip, should return code 204", function () {
+    it("Calling addDataset with test base64 zip, should return code 204", function () {
         var id: string = "courses";
 
         return insightFacade.addDataset(id, testBase64)
@@ -75,6 +75,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
                 //done();
             });
-    });*/
+    });
 });
 

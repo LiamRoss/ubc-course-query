@@ -119,6 +119,11 @@ export default class InsightFacade implements IInsightFacade {
         return ir;
     }
 
+    writeToDisk(id: string) {
+        let that = this;
+        fs.writeFileSync("data/" + id + ".json", JSON.stringify(that.dataSets[id]));
+    }
+
     /**
      * Helper function
      * Caches data to the disk
@@ -163,10 +168,12 @@ export default class InsightFacade implements IInsightFacade {
                                     //Log.trace(fileNames[<any>k] + " stored.");
                                     dataHashTable[fileNames[<any>k]] = ret[k];
                                 }
-                                fulfill("success");
+                                that.writeToDisk(id);
+                                fulfill();
                             })
                             .catch(function(err: any) {
                                 Log.trace("Err = " + err);
+                                reject(err);
                             });
                     })
                     .catch(function(err: any) {
@@ -194,33 +201,24 @@ export default class InsightFacade implements IInsightFacade {
 
             if(that.dataAlreadyExists(id)) {
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
-                that.addToDatabase(id, content).then(function(str: any) {
-                    if(str == "success") {
-                        Log.trace("addToDatabase success, fulfilling with fulfill(201)");
-                        fulfill(that.insightResponse(201));
-                    }
+                that.addToDatabase(id, content).then(function() {
+                    Log.trace("addToDatabase success, fulfilling with fulfill(201)");
+                    fulfill(that.insightResponse(201));
                 })
                 .catch(function(err: any) {
                     Log.trace("addToDatabase failed, err = " + err);
                     reject(that.insightResponse(400, err));
                 });
             } else {
-                that.addToDatabase(id, content).then(function(str: any) {
-                    if(str == "success") {
-                        Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
-                        fulfill(that.insightResponse(204));
-                    }
+                that.addToDatabase(id, content).then(function() {
+                    Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
+                    fulfill(that.insightResponse(204));
                 })
                 .catch(function(err: any) {
                     Log.trace("addToDatabase failed, err = " + err);
                     reject(that.insightResponse(400, err));
                 });
             }
-
-            /* Needs to reject the proper errors:
-                * 400: the operation failed. The body should contain {"error": "my text"}
-                to explain what went wrong.
-            */
         });
     }
 
@@ -247,7 +245,7 @@ export default class InsightFacade implements IInsightFacade {
      *
      * @return Promise <InsightResponse>
      *
-     * The promise should return an InsightResponse for both fulfill and reject.
+     * The promise s    hould return an InsightResponse for both fulfill and reject.
      *
      * Fulfill should be for 2XX codes and reject for everything else.
      *
