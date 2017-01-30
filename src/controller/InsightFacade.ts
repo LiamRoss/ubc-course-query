@@ -107,10 +107,52 @@ export default class InsightFacade implements IInsightFacade {
         return ir;
     }
 
+    /**
+     * Helper function
+     * Creates the .json on disk
+     * @param id  Name of the .json file
+     */
     writeToDisk(id: string) {
         let that = this;
         fs.writeFileSync(id + ".json", JSON.stringify(that.dataSets[id]));
         Log.trace(id + ".json created");
+    }
+
+    /**
+     * Helper function
+     * Checks if the given file is valid (contains a "result" key)
+     * @param data  The file data to check
+     * @returns {boolean}
+     */
+    isValidFile(data: any): boolean {
+        let parsedData = JSON.parse(data);
+        return parsedData.hasOwnProperty('result');
+    }
+
+    createObject(data: any) {
+        var dept: string;
+        var id: string;
+        var avg: number;
+        var instructor: string;
+        var title: string;
+        var pass: number;
+        var fail: number;
+        var audit: number;
+        var uuid: string;
+
+        let parsedData = JSON.parse(data);
+        let dataResult = parsedData["result"];
+
+        dept = dataResult["Subject"];
+        id = dataResult["Course"];
+        avg = dataResult["Avg"];
+        instructor = dataResult["Professor"];
+        title = dataResult["Title"];
+        pass = dataResult["Pass"];
+        fail = dataResult["Fail"];
+        audit = dataResult["Audit"];
+        uuid = dataResult["id"];
+
     }
 
     /**
@@ -146,6 +188,8 @@ export default class InsightFacade implements IInsightFacade {
                         .then(function(ret: any) {
                             for(let k in ret) {
                                 //Log.trace(fileNames[<any>k] + " stored.");
+                                if(!that.isValidFile(ret[k])) reject("file number " + k + " in " + id + " is not a valid file.");
+                                that.createObject(ret[k]);
                                 dataHashTable[fileNames[<any>k]] = ret[k];
                             }
                             that.writeToDisk(id);
