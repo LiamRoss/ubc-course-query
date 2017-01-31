@@ -55,9 +55,10 @@ describe("InsightFacadeSpec", function () {
     });
 
     // TODO: test each helper function in InsightFacade.ts
-    
-    // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 204
-    it("Calling addDataset with test base64 zip, should return code 204", function () {
+
+    // Test 1
+    // Add single dataset
+    it("addDataset with test base64 zip, should return code 204", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -67,6 +68,30 @@ describe("InsightFacadeSpec", function () {
             })
             .catch(function (err: InsightResponse) {
                 Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+    // Test 2
+    // Adding same dataset twice
+    it("addDataset with test base64 zip, then addDataSet with same test base64 zip should return code 201", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                Log.test("First add value.code: " + value.code);
+                return insightFacade.addDataset(id, testBase64)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Second add value.code: " + value.code);
+                        expect(value.code).to.equal(201);
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: Second add failed, ' + err.body);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: First add failed, ' + err.body);
                 expect.fail();
             });
     });

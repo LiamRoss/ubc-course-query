@@ -44,15 +44,14 @@ export default class InsightFacade implements IInsightFacade {
      * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
-        let that = this;
-        try {
-            Object.keys(that.dataSets).forEach(function (setId: any) {
-                if(id == setId) {
-                    Log.trace(id + " already exists!");
-                    return true;
-                }
-            });
-        } catch(e) { Log.trace(e); }
+        Log.trace("Checking if this id already exists");
+        for(let setId in this.dataSets) {
+            if(setId === id) {
+                Log.trace("match found, returning true")
+                return true;
+            }
+        }
+        Log.trace("match not found, returning false");
         return false;
     }
 
@@ -183,6 +182,7 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function(ret: any) {
+                            Log.trace("inside promise.all.then");
                             for(let k in ret) {
                                 //Log.trace(fileNames[<any>k] + " stored.");
                                 let validFile: boolean;
@@ -226,17 +226,29 @@ export default class InsightFacade implements IInsightFacade {
                 session or was previously cached).
             */
 
-            if(that.dataAlreadyExists(id)) {
+            if(that.dataAlreadyExists(id) == true) {
+                Log.trace("if");
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
-                that.addToDatabase(id, content).then(function() {
-                    Log.trace("addToDatabase success, fulfilling with fulfill(201)");
-                    fulfill(that.insightResponse(201));
-                })
-                .catch(function(err: any) {
-                    Log.trace("addToDatabase catch, err = " + err);
-                    reject(that.insightResponse(400, err));
-                });
+                // So lets remove it first
+                that.removeDataset(id)
+                    .then(function() {
+                        // Now once its removed lets add it again
+                        that.addToDatabase(id, content)
+                            .then(function() {
+                                Log.trace("addToDatabase success, fulfilling with fulfill(201)");
+                                fulfill(that.insightResponse(201));
+                            })
+                            .catch(function(err: any) {
+                                Log.trace("addToDatabase catch, err = " + err);
+                                reject(that.insightResponse(400, err));
+                            });
+                    })
+                    .catch(function(err:any) {
+                        Log.trace("removeFromDatabase catch, err = " + err);
+                        reject(that.insightResponse(400, err));
+                    });
             } else {
+                Log.trace("iff");
                 that.addToDatabase(id, content).then(function() {
                     Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
                     fulfill(that.insightResponse(204));
@@ -252,13 +264,16 @@ export default class InsightFacade implements IInsightFacade {
     removeDataset(id: string): Promise<InsightResponse> {
         Log.trace("Inside removeDataset()");
         let that = this;
-        // Remove id from ids[]
+        // Remove id from ids[] and delete its .json
         return new Promise(function(fulfill, reject) {
             try {
                 delete that.dataSets[id];
-            } catch(e) {
-                Log.trace("Remove unsuccessful, e = " + e);
-                reject(that.insightResponse(404, e));
+                fs.unlinkSync(id + ".json");
+                Log.trace("removal success")
+                fulfill(that.insightResponse(204));
+            } catch(err) {
+                Log.trace("Remove(" + id + ") unsuccessful, err = " + err);
+                reject(that.insightResponse(404, err));
             }
             fulfill(that.insightResponse(204));
         });
