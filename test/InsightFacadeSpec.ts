@@ -95,5 +95,44 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
+
+    // Test 3
+    // Adding dataset and then removing it
+    it("addDataset with test base64 zip, then removeDataset on it shoud return code 204", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                Log.test("First add value.code: " + value.code);
+                return insightFacade.removeDataset(id)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Removal's value.code: " + value.code);
+                        expect(value.code).to.equal(204);
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: Removal failed, ' + err.body);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: Add failed, ' + err.body);
+                expect.fail();
+            });
+    });
+
+    // Test 4
+    // Adding same dataset twice
+    it("removeDataset at 'courses' before adding it should return error 400", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.removeDataset(id)
+            .then(function (value: InsightResponse) {
+                expect.fail();
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('Remove failed, ' + JSON.stringify(err.body));
+                expect(err.code).to.equal(404);
+            });
+    });
 });
 
