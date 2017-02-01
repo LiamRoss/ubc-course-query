@@ -138,7 +138,7 @@ export default class InsightFacade implements IInsightFacade {
                                 try { validFile = that.isValidFile(ret[k]); } catch(e) { /*Log.trace("validFile e = " + e);*/ }
 
                                 if(validFile == false) {
-                                    reject("file number " + k + " in " + id + " is not a valid file.");
+                                    reject("file named '" + fileNames[<any>k] + "' (#" + k + ") ( in " + id + " is not a valid file.");
                                 } else {
                                     var obj: Object[];
                                     try { obj = that.createObject(ret[k]); } catch(e) { /*Log.trace("createObject e = " + e); */ }

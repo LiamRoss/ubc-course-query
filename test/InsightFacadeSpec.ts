@@ -140,7 +140,7 @@ describe("InsightFacadeSpec", function () {
     // Test 5
     // Testing test base64 zip 2 (which has no proper files)
     it("addDataset with bad base64 zip, should return error code", function () {
-        var id: string = "courses";
+        var id: string = "courses_bad";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64_2)
             .then(function (value: InsightResponse) {
