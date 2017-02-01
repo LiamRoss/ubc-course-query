@@ -68,8 +68,12 @@ export interface Filter {
     NEGATION:        Negation;
 }
 export interface LogicComparison {
+    /*
     AND?: {f: Filter}[];
     OR?: {f: Filter}[];
+    */
+    AND?: Where[];
+    OR?: Where[];
 }
 export interface MComparison {
     FILTER: Filter;
