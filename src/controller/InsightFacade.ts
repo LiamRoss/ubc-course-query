@@ -292,12 +292,14 @@ export default class InsightFacade implements IInsightFacade {
                 })
                 // 2. catch for retrieveData
                 .catch(function(missingIDs: any[]) {
-                    that.insightResponse(424, "", missingIDs);
+                    // needs new insightResponse, code 424
+                    reject();
                 })  
             })
             // 1. catch for parseQuery
             .catch(function(err) {
-                reject(that.insightResponse(400, "invalid query, unable to parse. Error: " + err));
+                // needs new insight response, code 400
+                reject();
             })
             
 
@@ -338,8 +340,6 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function(fulfill, reject) {
-<<<<<<< HEAD
-=======
             try {
                 var ir: InsightResponse = {
                     code: 204,
@@ -353,7 +353,6 @@ export default class InsightFacade implements IInsightFacade {
                 };
                 reject(ir);
             }
->>>>>>> 039f20799dca67648783ccce3d30012766822878
         });
     }
 
