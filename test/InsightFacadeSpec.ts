@@ -11,6 +11,7 @@ var fs = require('fs');
 
 // Global vars
 var testBase64: string = null;
+var testBase64_2: string = null;
 var insightFacade: InsightFacade = null;
 
 /**
@@ -39,6 +40,7 @@ describe("InsightFacadeSpec", function () {
     beforeEach(function () {
         // Initialize zip file
         try { testBase64 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
+        try { testBase64_2 = base64_encode("test/bad_courses.zip"); } catch(e) { Log.trace("e = " + e); }
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
@@ -55,9 +57,10 @@ describe("InsightFacadeSpec", function () {
     });
 
     // TODO: test each helper function in InsightFacade.ts
-    
-    // tests addDataset with converted zip file, passing in arbitrary ID "courses", expects code 204
-    it("Calling addDataset with test base64 zip, should return code 204", function () {
+
+    // Test 1
+    // Add single dataset
+    it("addDataset with test base64 zip, should return code 204", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -70,5 +73,84 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
+
+    // Test 2
+    // Adding same dataset twice
+    it("addDataset with test base64 zip, then addDataSet with same test base64 zip should return code 201", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                Log.test("First add value.code: " + value.code);
+                return insightFacade.addDataset(id, testBase64)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Second add value.code: " + value.code);
+                        expect(value.code).to.equal(201);
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: Second add failed, ' + err.body);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: First add failed, ' + err.body);
+                expect.fail();
+            });
+    });
+
+    // Test 3
+    // Adding dataset and then removing it
+    it("addDataset with test base64 zip, then removeDataset on it shoud return code 204", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                Log.test("First add value.code: " + value.code);
+                return insightFacade.removeDataset(id)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Removal's value.code: " + value.code);
+                        expect(value.code).to.equal(204);
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: Removal failed, ' + err.body);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: Add failed, ' + err.body);
+                expect.fail();
+            });
+    });
+
+    // Test 4
+    // Removing 'courses' which hasn't been added yet
+    it("removeDataset at 'courses' before adding it should return error 400", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.removeDataset(id)
+            .then(function (value: InsightResponse) {
+                expect.fail();
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('Remove failed, ' + JSON.stringify(err.body));
+                expect(err.code).to.equal(404);
+            });
+    });
+
+    // Test 5
+    // Testing test base64 zip 2 (which has no proper files)
+    it("addDataset with bad base64 zip, should return error code", function () {
+        var id: string = "courses_bad";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_2)
+            .then(function (value: InsightResponse) {
+                expect.fail();
+            })
+            .catch(function (err: InsightResponse) {
+                Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
+                expect(err.code).to.equal(400);
+            });
+    });
+
 });
 

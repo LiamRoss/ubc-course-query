@@ -44,67 +44,15 @@ export default class InsightFacade implements IInsightFacade {
      * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
-        let that = this;
-        try {
-            Object.keys(that.dataSets).forEach(function (setId: any) {
-                if(id == setId) {
-                    Log.trace(id + " already exists!");
-                    return true;
-                }
-            });
-        } catch(e) { Log.trace(e); }
-        return false;
-    }
-
-    /**
-     * Helper function
-     * Returns the InsightResponse with the error code, or throws an error if it doesn't exist
-     * @param codef  The code of an InsightResponse error
-     * @param message  If the InsightResponse requires a message, can be sent, defaults to ""
-     * @param missingIDs  If the InsightResponse requires missing ids, they can be sent via array
-     *
-     * SUCCESS CODES:
-     * 200: the query was successfully answered. The result should be sent in JSON according in the response body.
-     * 201: the operation was successful and the id already existed (was added in this session or was previously cached).
-     * 204: the operation was successful and the id was new (not added in this session or was previously cached).
-     * ERROR CODES:
-     * 400 - needs message: the operation failed. The body should contain {"error": "my text"} to explain what went wrong.
-     * 404: the operation was unsuccessful because the delete was for a resource that was not previously added.
-     * 424 - needs missingIDs: the query failed because it depends on a resource that has not been PUT. The body should contain {"missing": ["id1", "id2"...]}.
-     */
-    insightResponse(codef: number, message: string = "", missingIDs: any[] = []): InsightResponse {
-        var ir: InsightResponse = {
-            code: codef,
-            body: ""
-        };
-
-        switch (codef) {
-            // SUCCESS CODES:
-            case 200:
-                ir.body = {};
-                break;
-            case 201:
-                ir.body = {};
-                break;
-            case 204:
-                ir.body = {};
-                break;
-            // ERROR CODES:
-            case 400:
-                ir.body = {"error": message};
-                break;
-            case 404:
-                ir.body = {};
-                break;
-            case 424:
-                ir.body = {"missing": missingIDs};
-                break;
-            // INVALID CODE:
-            default:
-                ir.body = {"error": "this error code is invalid"};
-                break;
+        Log.trace("Checking if this id already exists");
+        for(let setId in this.dataSets) {
+            if(setId === id) {
+                Log.trace("match found, returning true")
+                return true;
+            }
         }
-        return ir;
+        Log.trace("match not found, returning false");
+        return false;
     }
 
     /**
@@ -183,13 +131,14 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function(ret: any) {
+                            Log.trace("inside promise.all.then");
                             for(let k in ret) {
                                 //Log.trace(fileNames[<any>k] + " stored.");
                                 let validFile: boolean;
                                 try { validFile = that.isValidFile(ret[k]); } catch(e) { /*Log.trace("validFile e = " + e);*/ }
 
                                 if(validFile == false) {
-                                    reject("file number " + k + " in " + id + " is not a valid file.");
+                                    reject("file named '" + fileNames[<any>k] + "' (#" + k + ") ( in " + id + " is not a valid file.");
                                 } else {
                                     var obj: Object[];
                                     try { obj = that.createObject(ret[k]); } catch(e) { /*Log.trace("createObject e = " + e); */ }
@@ -226,24 +175,56 @@ export default class InsightFacade implements IInsightFacade {
                 session or was previously cached).
             */
 
-            if(that.dataAlreadyExists(id)) {
+            if(that.dataAlreadyExists(id) == true) {
+                Log.trace("if");
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
-                that.addToDatabase(id, content).then(function() {
-                    Log.trace("addToDatabase success, fulfilling with fulfill(201)");
-                    fulfill(that.insightResponse(201));
-                })
-                .catch(function(err: any) {
-                    Log.trace("addToDatabase catch, err = " + err);
-                    reject(that.insightResponse(400, err));
-                });
+                // So lets remove it first
+                that.removeDataset(id)
+                    .then(function() {
+                        // Now once its removed lets add it again
+                        that.addToDatabase(id, content)
+                            .then(function() {
+                                Log.trace("addToDatabase success, fulfilling with fulfill(201)");
+                                var ir: InsightResponse = {
+                                    code: 201,
+                                    body: {}
+                                };
+                                fulfill(ir);
+                            })
+                            .catch(function(err: any) {
+                                Log.trace("addToDatabase catch, err = " + err);
+                                var ir: InsightResponse = {
+                                    code: 400,
+                                    body: {"error": err}
+                                };
+                                reject(ir);
+                            });
+                    })
+                    .catch(function(err:any) {
+                        Log.trace("removeFromDatabase catch, err = " + err);
+                        var ir: InsightResponse = {
+                            code: 400,
+                            body: {"error": err}
+                        };
+                        reject(ir);
+                    });
             } else {
+                Log.trace("iff");
                 that.addToDatabase(id, content).then(function() {
                     Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
-                    fulfill(that.insightResponse(204));
+                    var ir: InsightResponse = {
+                        code: 204,
+                        body: {}
+                    };
+                    fulfill(ir);
                 })
                 .catch(function(err: any) {
                     Log.trace("addToDatabase catch, err = " + err);
-                    reject(that.insightResponse(400, err));
+                    var ir: InsightResponse = {
+                        code: 400,
+                        body: {"error": err}
+                    };
+                    reject(ir);
                 });
             }
         });
@@ -252,15 +233,25 @@ export default class InsightFacade implements IInsightFacade {
     removeDataset(id: string): Promise<InsightResponse> {
         Log.trace("Inside removeDataset()");
         let that = this;
-        // Remove id from ids[]
+        // Remove id from ids[] and delete its .json
         return new Promise(function(fulfill, reject) {
             try {
                 delete that.dataSets[id];
-            } catch(e) {
-                Log.trace("Remove unsuccessful, e = " + e);
-                reject(that.insightResponse(404, e));
+                fs.unlinkSync(id + ".json");
+                Log.trace("removal success");
+                var ir: InsightResponse = {
+                    code: 204,
+                    body: {}
+                };
+                fulfill(ir);
+            } catch(err) {
+                Log.trace("Remove(" + id + ") unsuccessful, err = " + err);
+                var ir: InsightResponse = {
+                    code: 404,
+                    body: {"error": ("the id " + id + " does not exist in the dataset.")}
+                };
+                reject(ir);
             }
-            fulfill(that.insightResponse(204));
         });
     }
 
@@ -347,6 +338,22 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function(fulfill, reject) {
+<<<<<<< HEAD
+=======
+            try {
+                var ir: InsightResponse = {
+                    code: 204,
+                    body: {}
+                };
+                fulfill(ir);
+            } catch(e) {
+                var ir: InsightResponse = {
+                    code: 404,
+                    body: {"error": ("REPLACE ME WITH PROPER ERROR MESSAGE")}
+                };
+                reject(ir);
+            }
+>>>>>>> 039f20799dca67648783ccce3d30012766822878
         });
     }
 
