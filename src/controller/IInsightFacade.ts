@@ -8,90 +8,50 @@ export interface InsightResponse {
     code: number;
     body: {}; // the actual response
 }
-/*
-{
-   "WHERE":{
-      "OR":[
-          ---------------------------------|
-         {
-            "AND":[
-                #############
-               {
-                  "GT":{
-                     "courses_avg":90
-                  }
-               },
-                #############
-               {
-                  "IS":{
-                     "courses_dept":"adhe"
-                  }
-               }
-                #############
-            ]
-         },
-         ---------------------------------|
-         {
-            "EQ":{
-               "courses_avg":95
-            }
-         }
-         ---------------------------------|
-      ]
-   },
 
-   "OPTIONS":{
-      "COLUMNS":[
-         "courses_dept",
-         "courses_id",
-         "courses_avg"
-      ],
-      "ORDER":"courses_avg",
-      "FORM":"TABLE"
-   }
-}
-*/
 
 export interface QueryRequest {
-    WHERE:   Where;
+    WHERE:   Filter;
     OPTIONS: Options;
 }
 //-------------------------------------
 // BODY
-export interface Where {
-    FILTER: Filter;
-}
 export interface Filter {
-    LOGICCOMPARISON: LogicComparison;
-    MCOMPARISON:     MComparison;
-    SCOMPARISON:     SComparison;
-    NEGATION:        Negation;
+    // LOGICCOMPARISON
+    AND?: Filter[];
+    OR?:  Filter[];
+    // MCOMPARISON:
+    //  note:   key has to be format:        string '_' string
+    //          number has to be format:     [1-9]* [0-9]+ ( '.' [0-9]+ )?
+    //              string has to be format: [a-zA-Z0-9,_#x2D]+
+    // TODO: if we implement a key interface, change all key -> Key
+    LT?: {key : number};
+    GT?: {key : number};
+    EQ?: {key : number};
+    // SCOMPARISON:
+    //  note:   string can be either "string" or "*string*"
+    // TODO: is there some way to implement this?
+    //          if so... what even are the stars for???
+    IS?: {key : string}; // {' key ':' '*'? string '*'? '}
+    // NEGATION:
+    NOT?: Filter;
 }
-export interface LogicComparison {
-    /*
-    AND?: {f: Filter}[];
-    OR?: {f: Filter}[];
-    */
-    AND?: Where[];
-    OR?: Where[];
-}
-export interface MComparison {
-    FILTER: Filter;
-}
-export interface SComparison {
-    FILTER: Filter;
-}
-export interface Negation {
-    FILTER: Filter;
-}
-
-
-
-
-
+//-------------------------------------
+// OPTIONS
 export interface Options {
-    
+    // TODO: these "Key"'s could be string I guess, but would have to match key
+    //  reminder:   key has to be format: string '_' string
+    COLUMNS: string[]; // must be key[]
+    ORDER?: string; // must be key
+    // TODO: tried FORM: string = "TABLE" but didn't work, can we set it in interface?
+    FORM: string; // must be "TABLE"
+} 
+//-------------------------------------
+// AUXILIARY
+export interface Key {
+    // TODO: do we implement a format for this? Is this necessary?
 }
+
 
 export interface IInsightFacade {
 
