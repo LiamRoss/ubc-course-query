@@ -11,6 +11,7 @@ var fs = require('fs');
 
 // Global vars
 var testBase64: string = null;
+var testBase64_2: string = null;
 var insightFacade: InsightFacade = null;
 
 /**
@@ -39,6 +40,7 @@ describe("InsightFacadeSpec", function () {
     beforeEach(function () {
         // Initialize zip file
         try { testBase64 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
+        try { testBase64_2 = base64_encode("test/bad_courses.zip"); } catch(e) { Log.trace("e = " + e); }
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
@@ -121,7 +123,7 @@ describe("InsightFacadeSpec", function () {
     });
 
     // Test 4
-    // Adding same dataset twice
+    // Removing 'courses' which hasn't been added yet
     it("removeDataset at 'courses' before adding it should return error 400", function () {
         var id: string = "courses";
         this.timeout(10000);
@@ -134,5 +136,21 @@ describe("InsightFacadeSpec", function () {
                 expect(err.code).to.equal(404);
             });
     });
+
+    // Test 5
+    // Testing test base64 zip 2 (which has no proper files)
+    it("addDataset with bad base64 zip, should return error code", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_2)
+            .then(function (value: InsightResponse) {
+                expect.fail();
+            })
+            .catch(function (err: InsightResponse) {
+                Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
+                expect(err.code).to.equal(400);
+            });
+    });
+
 });
 
