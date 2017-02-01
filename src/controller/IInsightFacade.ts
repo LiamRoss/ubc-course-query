@@ -8,9 +8,85 @@ export interface InsightResponse {
     code: number;
     body: {}; // the actual response
 }
+/*
+{
+   "WHERE":{
+      "OR":[
+          ---------------------------------|
+         {
+            "AND":[
+                #############
+               {
+                  "GT":{
+                     "courses_avg":90
+                  }
+               },
+                #############
+               {
+                  "IS":{
+                     "courses_dept":"adhe"
+                  }
+               }
+                #############
+            ]
+         },
+         ---------------------------------|
+         {
+            "EQ":{
+               "courses_avg":95
+            }
+         }
+         ---------------------------------|
+      ]
+   },
+
+   "OPTIONS":{
+      "COLUMNS":[
+         "courses_dept",
+         "courses_id",
+         "courses_avg"
+      ],
+      "ORDER":"courses_avg",
+      "FORM":"TABLE"
+   }
+}
+*/
 
 export interface QueryRequest {
-    // you can define your own structure that complies with the EBNF here
+    WHERE:   Where;
+    OPTIONS: Options;
+}
+//-------------------------------------
+// BODY
+export interface Where {
+    FILTER: Filter;
+}
+export interface Filter {
+    LOGICCOMPARISON: LogicComparison;
+    MCOMPARISON:     MComparison;
+    SCOMPARISON:     SComparison;
+    NEGATION:        Negation;
+}
+export interface LogicComparison {
+    AND?: {f: Filter}[];
+    OR?: {f: Filter}[];
+}
+export interface MComparison {
+    FILTER: Filter;
+}
+export interface SComparison {
+    FILTER: Filter;
+}
+export interface Negation {
+    FILTER: Filter;
+}
+
+
+
+
+
+export interface Options {
+    
 }
 
 export interface IInsightFacade {
