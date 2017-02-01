@@ -31,23 +31,11 @@ export default class InsightFacade implements IInsightFacade {
      *      <course1name(file1name), file1data>,
      *      <course2name(file2name), file2data>, ...
      */
-    private dataSets: HashTable<HashTable<string>> = {};
+    private dataSets: HashTable<HashTable<Object[]>> = {};
 
 
     constructor() {
         Log.trace('InsightFacadeImpl::init()');
-    }
-
-    /**
-     * Helper function
-     * Converts the given base 64 zip string to a .zip
-     * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
-     * @param content  The base 64 encoded .zip to be converted
-     */
-    base64_decode(content: string, file: string) {
-        var bitmap = new Buffer(content, "base64");
-        fs.writeFile(file, bitmap);
-        Log.trace("Base64 string converted and written to " + file);
     }
 
     /**
@@ -121,6 +109,51 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
+     * Creates the .json on disk
+     * @param id  Name of the .json file
+     */
+    writeToDisk(id: string) {
+        let that = this;
+        fs.writeFileSync(id + ".json", JSON.stringify(that.dataSets[id]));
+        Log.trace(id + ".json created");
+    }
+
+    /**
+     * Helper function
+     * Checks if the given file is valid (contains a "result" key)
+     * @param data  The file data to check
+     * @returns {boolean}
+     */
+    isValidFile(data: string): boolean {
+        let parsedData = JSON.parse(data);
+        return parsedData.hasOwnProperty("result");
+    }
+
+    createObject(data: string): Object[] {
+        var course: Object[] = [];
+
+        let parsedData = JSON.parse(data);
+        for(let i = 0; i < parsedData["result"].length; i++) {
+            var sessionData = parsedData["result"][i];
+
+            var dept: string = sessionData.Subject;
+            var id: string = sessionData.Course;
+            var avg: number = sessionData.Avg;
+            var instructor: string = sessionData.Professor;
+            var title: string = sessionData.Title;
+            var pass: number = sessionData.Pass;
+            var fail: number = sessionData.Fail;
+            var audit: number = sessionData.Audit;
+            var uuid: string = sessionData.id;
+
+            course[i] = {dept, id, avg, instructor, title, pass, fail, audit, uuid};
+        }
+
+        return course;
+    }
+
+    /**
+     * Helper function
      * Caches data to the disk
      * @param id  The id of the data being added
      * @param content  The dataset being added in .zip file form
@@ -131,50 +164,51 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             Log.trace("Inside addToDatabase, adding " + id);
 
-            // Decode base64 string and save it as a zip into data/
-            that.base64_decode(content, "data/" + id + ".zip");
+            let zip = new JSZip();
+            zip.loadAsync(content, {base64:true})
+                .then(function(asyncData: any) {
+                    Log.trace("loadAsync success");
 
-            // Now to unzip
-            var zipPath: string = 'data/' + id + '.zip';
-            fs.readFile(zipPath, (err: any, data: any) => {
-                if(err) reject(err);
-                Log.trace("readFile of " + zipPath + " success");
+                    var promises: Promise<any>[] = [];
 
-                let zip = new JSZip();
-                zip.loadAsync(data)
-                    .then(function(asyncData: any) {
-                        Log.trace("loadAsync of " + zipPath + " success");
+                    // Add the dataset to dataSet
+                    var dataHashTable: HashTable<Object[]> = {};
+                    that.dataSets[id] = dataHashTable;
+                    // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
 
-                        var promises: Promise<any>[] = [];
+                    let fileNames = Object.keys(asyncData.files);
+                    for(let i in fileNames) {
+                        promises[i] = zip.files[fileNames[i]].async('string');
+                    }
 
-                        // Add the dataset to the dataSet
-                        var dataHashTable: HashTable<string> = {};
-                        that.dataSets[id] = dataHashTable;
-                        // Referenced: http://stackoverflow.com/questions/39322964/extracting-zipped-files-using-jszip-in-javascript
+                    Promise.all(promises)
+                        .then(function(ret: any) {
+                            for(let k in ret) {
+                                //Log.trace(fileNames[<any>k] + " stored.");
+                                let validFile: boolean;
+                                try { validFile = that.isValidFile(ret[k]); } catch(e) { /*Log.trace("validFile e = " + e);*/ }
 
-                        let fileNames = Object.keys(asyncData.files);
-                        for(let i in fileNames){
-                            promises[i] = zip.files[fileNames[i]].async('string');
-                        }
-
-                        Promise.all(promises)
-                            .then(function(ret: any) {
-                                for(let k in ret) {
-                                    Log.trace(fileNames[<any>k] + " stored.");
-                                    dataHashTable[fileNames[<any>k]] = ret[k];
+                                if(validFile == false) {
+                                    reject("file number " + k + " in " + id + " is not a valid file.");
+                                } else {
+                                    var obj: Object[];
+                                    try { obj = that.createObject(ret[k]); } catch(e) { /*Log.trace("createObject e = " + e); */ }
+                                    dataHashTable[fileNames[<any>k]] = obj;
                                 }
-                                fulfill("success");
-                            })
-                            .catch(function(err: any) {
-                                Log.trace("Err = " + err);
-                            });
-                    })
-                    .catch(function(err: any) {
-                        Log.trace("loadAsync(" + id + ") failed, err = " + err);
-                        reject(err);
-                    });
+                            }
+                            that.writeToDisk(id);
+                            fulfill();
+                        })
+                        .catch(function(err: any) {
+                            Log.trace("Promise.all catch, err = " + err);
+                            reject(err);
+                        });
+                })
+                .catch(function(err: any) {
+                    Log.trace("loadAsync(" + id + ") catch, err = " + err);
+                    reject(err);
+                });
             });
-        });
     }
 
     // Content = zip data
@@ -194,33 +228,24 @@ export default class InsightFacade implements IInsightFacade {
 
             if(that.dataAlreadyExists(id)) {
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
-                that.addToDatabase(id, content).then(function(str: any) {
-                    if(str == "success") {
-                        Log.trace("addToDatabase success, fulfilling with fulfill(201)");
-                        fulfill(that.insightResponse(201));
-                    }
+                that.addToDatabase(id, content).then(function() {
+                    Log.trace("addToDatabase success, fulfilling with fulfill(201)");
+                    fulfill(that.insightResponse(201));
                 })
                 .catch(function(err: any) {
-                    Log.trace("addToDatabase failed, err = " + err);
+                    Log.trace("addToDatabase catch, err = " + err);
                     reject(that.insightResponse(400, err));
                 });
             } else {
-                that.addToDatabase(id, content).then(function(str: any) {
-                    if(str == "success") {
-                        Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
-                        fulfill(that.insightResponse(204));
-                    }
+                that.addToDatabase(id, content).then(function() {
+                    Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
+                    fulfill(that.insightResponse(204));
                 })
                 .catch(function(err: any) {
-                    Log.trace("addToDatabase failed, err = " + err);
+                    Log.trace("addToDatabase catch, err = " + err);
                     reject(that.insightResponse(400, err));
                 });
             }
-
-            /* Needs to reject the proper errors:
-                * 400: the operation failed. The body should contain {"error": "my text"}
-                to explain what went wrong.
-            */
         });
     }
 
@@ -247,7 +272,7 @@ export default class InsightFacade implements IInsightFacade {
      *
      * @return Promise <InsightResponse>
      *
-     * The promise should return an InsightResponse for both fulfill and reject.
+     * The promise s    hould return an InsightResponse for both fulfill and reject.
      *
      * Fulfill should be for 2XX codes and reject for everything else.
      *
@@ -264,14 +289,23 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function(fulfill, reject) {
+            // parse the query into usable format
+            // fulfilled:   pass usable query to retrieveData
+            // rejected:    throw 400 error, invalid query message
             that.parseQuery(query).then(function(parsedQuery: QueryRequest) {
+                // retrieve data relevant to the query
+                // fulfilled:   
+                // rejected:    throw 400 error, invalid query message
                 that.retrieveData(parsedQuery).then(function() {
-
-                }).catch(function(missingIDs) { // catch for retrieveData
-                    // TODO: pass 
-                    that.insightResponse(424, "", []);
+                    
+                })
+                // 2. catch for retrieveData
+                .catch(function(missingIDs: any[]) {
+                    that.insightResponse(424, "", missingIDs);
                 })  
-            }).catch(function(err) { // catch for parseQuery
+            })
+            // 1. catch for parseQuery
+            .catch(function(err) {
                 reject(that.insightResponse(400, "invalid query, unable to parse. Error: " + err));
             })
             
@@ -313,7 +347,6 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function(fulfill, reject) {
-            
         });
     }
 
