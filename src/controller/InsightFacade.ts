@@ -1,7 +1,8 @@
 /**
  * This is the main programmatic entry point for the project.
  */
-import {IInsightFacade, InsightResponse, QueryRequest} from "./IInsightFacade";
+import {IInsightFacade, InsightResponse, QueryRequest, Filter, 
+    MComparison, SComparison, Options} from "./IInsightFacade";
 
 import Log from "../Util";
 var fs = require("fs");
@@ -278,44 +279,178 @@ export default class InsightFacade implements IInsightFacade {
     performQuery(query: QueryRequest): Promise <InsightResponse> {
         Log.trace("Inside performQuery");
         let that = this;
+        var ir: InsightResponse = {code: 0, body: {}};
 
         return new Promise(function(fulfill, reject) {
-            // parse the query into usable format
-            // fulfilled:   pass usable query to retrieveData
-            // rejected:    throw 400 error, invalid query message
-            that.parseQuery(query).then(function(parsedQuery: QueryRequest) {
-                // retrieve data relevant to the query
-                // fulfilled:   
-                // rejected:    throw 400 error, invalid query message
-                that.retrieveData(parsedQuery).then(function() {
-                    
+            that.validQuery(query).then(function() {
+                that.retrieveData(query).then(function() {
+                    // do something with matching data
                 })
                 // 2. catch for retrieveData
-                .catch(function(missingIDs: any[]) {
-                    // needs new insightResponse, code 424
-                    reject();
+                .catch(function(missingIDs: string[]) {
+                    ir.code = 424;
+                    ir.body = {"missing": missingIDs};
+                    reject(ir);
                 })  
             })
-            // 1. catch for parseQuery
-            .catch(function(err) {
-                // needs new insight response, code 400
-                reject();
+            // 1. catch for validQuery
+            .catch(function(errors) {
+                ir.code = 400;
+                ir.body = {"error": "invalid query, error(s): " + errors};
+                reject(ir);
             })
-            
-
         });
     }
 
     // performQuery
     //  |
-    //   - parseQuery
-    parseQuery(query: QueryRequest): Promise <any> {
-        Log.trace("Inside parseQuery");
+    //   - validQuery
+    validQuery(query: QueryRequest): Promise <any> {
+        Log.trace("Inside validQuery");
         let that = this;
+        var isValid: boolean = true;
+        var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
-            
+            //-------------------------------------
+            // checking if WHERE exists
+            if (query.hasOwnProperty('WHERE')) {
+                // check WHERE
+                that.checkWhere(query.WHERE).catch(function(s: string) {
+                    errors.push(s);
+                    isValid = false;
+                })
+            } else {
+                errors.push("no WHERE property");
+                isValid = false;
+            }
+            //-------------------------------------
+            // checking if OPTIONS exists
+            if (query.hasOwnProperty('OPTIONS')) {
+                // check OPTIONS
+                that.checkOptions(query.OPTIONS).catch(function(s: string) {
+                    errors.push(s);
+                    isValid = false;
+                })
+            } else {
+                errors.push("no OPTIONS property");
+                isValid = false;
+            }
+            //-------------------------------------
+            // checking to make sure it only has two properties
+            if (Object.keys(query).length != 2) {
+                errors.push("too many properties in QueryRequest");
+                isValid = false;
+            }
+            //-------------------------------------
+            // checks if query is valid, if so fulfills, if
+            //  not rejects with string of issues
+            if (isValid) {
+                fulfill();
+            } else {
+                var errorsToReturn = errors.join(", ");
+                reject(errorsToReturn);
+            }
+
         });
+    }
+
+    checkWhere(where: Filter): Promise <any> {
+        Log.trace("Inside checkWhere");
+        let that = this;
+        var isValid: boolean = true;
+        var errors: string[] = [];
+
+        return new Promise(function(fulfill, reject) {
+
+
+            //-------------------------------------
+            // checks if WHERE is valid, if so fulfills, if
+            //  not rejects with string of issues
+            if (isValid) {
+                fulfill();
+            } else {
+                var errorsToReturn = errors.join(", ");
+                reject(errorsToReturn);
+            }
+        });
+    }
+
+    checkOptions(options: Options): Promise <any> {
+        Log.trace("Inside checkOptions");
+        let that = this;
+        var isValid: boolean = true;
+        var errors: string[] = [];
+
+        return new Promise(function(fulfill, reject) {
+            //-------------------------------------
+            // checking if COLUMNS exists
+            if (options.hasOwnProperty('COLUMNS')) {
+                // check if COLUMNS is in an array
+                if (options.COLUMNS.constructor === Array) {
+                    // check if each member of array is valid key
+                    var val;
+                    for (val of options.COLUMNS) {
+                        var vKey: boolean = that.validKey(val);
+                        if (!vKey) {
+                            errors.push("invalid key in COLUMNS");
+                            isValid = false;
+                            break;
+                        }
+                    }
+                } else {
+                    errors.push("COLUMNS is not an array");
+                    isValid = false;
+                }
+            } else {
+                errors.push("no COLUMNS property");
+                isValid = false;
+            }
+            //-------------------------------------
+            // checking if correct number of properties in OPTIONS
+            if (Object.keys(options).length == 3) {
+                // check if ORDER exists
+                if (options.hasOwnProperty('ORDER')) {
+                    // check if ORDER is valid key
+                    if (!that.validKey(options.ORDER)) {
+                        errors.push("invalid key in ORDER");
+                        isValid = false;
+                    }
+                } else {
+                    errors.push("no ORDER property");
+                    isValid = false;
+                }
+            } else {
+                if (Object.keys(options).length != 2) {
+                    errors.push("too many properties in OPTIONS");
+                    isValid = false;
+                }
+            }
+            //-------------------------------------
+            // check if FORM exists
+                if (options.hasOwnProperty('FORM')) {
+                    // check if FORM is string "TABLE"
+                    if (options.FORM !== "TABLE") {
+                        errors.push("FORM is not \"TABLE\"");
+                        isValid = false;
+                    }
+                } else {
+                    errors.push("no ORDER property");
+                    isValid = false;
+                }
+            //-------------------------------------
+            // checks if OPTIONS is valid, if so fulfills, if
+            //  not rejects with string of issues
+            if (isValid) {
+                fulfill();
+            } else {
+                var errorsToReturn = errors.join(", ");
+                reject(errorsToReturn);
+            }
+        });
+    }
+    validKey(key: any): boolean {
+        return false;
     }
 
     // performQuery

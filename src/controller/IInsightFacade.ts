@@ -21,47 +21,38 @@ export interface Filter {
     AND?: Filter[];
     OR?:  Filter[];
     // MCOMPARISON:
-    //  note:   key has to be format:        string '_' string
-    //          number has to be format:     [1-9]* [0-9]+ ( '.' [0-9]+ )?
-    //              string has to be format: [a-zA-Z0-9,_#x2D]+
+    //  note:   key has to be format:       string '_' string
+    //          number has to be format:    [1-9]* [0-9]+ ( '.' [0-9]+ )?
+    //          string has to be format:    [a-zA-Z0-9,_#x2D]+
     LT?: MComparison;
     GT?: MComparison;
     EQ?: MComparison;
     // SCOMPARISON:
     //  note:   string can be either "string" or "*string*"
-    // TODO: is there some way to implement this?
-    //          if so... what even are the stars for???
     IS?: SComparison; // {' key ':' '*'? string '*'? '}
     // NEGATION:
     NOT?: Filter;
 }
 export interface  MComparison {
-    courses_avg: number; //The average of the course offering.
-    courses_pass: number; //The number of students that passed the course offering.
-    courses_fail: number; //The number of students that failed the course offering.
-    courses_audit: number; //The number of students that audited the course offering.
+    courses_avg?:           number; //The average of the course offering.
+    courses_pass?:          number; //The number of students that passed the course offering.
+    courses_fail?:          number; //The number of students that failed the course offering.
+    courses_audit?:         number; //The number of students that audited the course offering.
 }
 export interface  SComparison {
-    courses_dept: string; //The department that offered the course.
-    courses_id: string; //The course number (will be treated as a string (e.g., 499b)).
-    courses_instructor: string; //The instructor teaching the course offering.
-    courses_title: string; //The name of the course.
-    courses_uuid: string; //The unique id of a course offering.
+    courses_dept?:          string; //The department that offered the course.
+    courses_id?:            string; //The course number (will be treated as a string (e.g., 499b)).
+    courses_instructor?:    string; //The instructor teaching the course offering.
+    courses_title?:         string; //The name of the course.
+    courses_uuid?:          string; //The unique id of a course offering.
 }
 //-------------------------------------
 // OPTIONS
 export interface Options {
-    // TODO: these "Key"'s could be string I guess, but would have to match key
     //  reminder:   key has to be format: string '_' string
-    COLUMNS: string[]; // must be key[]
-    ORDER?: string; // must be key
-    // TODO: tried FORM: string = "TABLE" but didn't work, can we set it in interface?
-    FORM: string; // must be "TABLE"
-} 
-//-------------------------------------
-// AUXILIARY
-export interface Key {
-    // TODO: do we implement a format for this? Is this necessary?
+    COLUMNS: string[];  // must be key[]
+    ORDER?: string;     // must be key
+    FORM: string;       // must be "TABLE"
 }
 
 
