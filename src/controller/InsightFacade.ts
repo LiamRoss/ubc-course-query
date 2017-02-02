@@ -428,16 +428,16 @@ export default class InsightFacade implements IInsightFacade {
             }
             //-------------------------------------
             // check if FORM exists
-                if (options.hasOwnProperty('FORM')) {
-                    // check if FORM is string "TABLE"
-                    if (options.FORM !== "TABLE") {
-                        errors.push("FORM is not \"TABLE\"");
-                        isValid = false;
-                    }
-                } else {
-                    errors.push("no ORDER property");
+            if (options.hasOwnProperty('FORM')) {
+                // check if FORM is string "TABLE"
+                if (options.FORM !== "TABLE") {
+                    errors.push("FORM is not \"TABLE\"");
                     isValid = false;
                 }
+            } else {
+                errors.push("no FORM property");
+                isValid = false;
+            }
             //-------------------------------------
             // checks if OPTIONS is valid, if so fulfills, if
             //  not rejects with string of issues
@@ -449,7 +449,16 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
+
     validKey(key: any): boolean {
+        if (typeof key === 'string'/* || key instanceof String*/) {
+            // TODO: check if this regex is ok
+            // this one worked on online version:
+            //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
+            if (/^(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))$/.test(key)) {
+                return true;
+            }
+        }
         return false;
     }
 
