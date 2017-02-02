@@ -568,7 +568,7 @@ export default class InsightFacade implements IInsightFacade {
                     }
                     break;
                 default:
-                    errors.push("invalid SComparison property \"" + mC + "\"");
+                    errors.push("invalid SComparison property \"" + sC + "\"");
                     isValid = false;
                     break;
             }
