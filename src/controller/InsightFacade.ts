@@ -302,6 +302,7 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+
     // performQuery
     //  |
     //   - validQuery
@@ -316,7 +317,7 @@ export default class InsightFacade implements IInsightFacade {
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
                 // check WHERE
-                that.checkWhere(query.WHERE).catch(function(s: string) {
+                that.checkFilter(query.WHERE).catch(function(s: string) {
                     errors.push(s);
                     isValid = false;
                 })
@@ -355,14 +356,72 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
-    checkWhere(where: Filter): Promise <any> {
-        Log.trace("Inside checkWhere");
+    // helper: checks if filter is valid, rejects with string of all errors
+    checkFilter(filter: Filter): Promise <any> {
+        Log.trace("Inside checkFilter");
         let that = this;
         var isValid: boolean = true;
         var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
+            // TODO: is this the right way to do it??
+            switch (filter) {
 
+                // LOGICCOMPARISON
+                case filter.AND:
+                    that.checkLogicComparison(filter.AND).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+                case filter.OR:
+                    that.checkLogicComparison(filter.OR).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+
+                // MCOMPARISON:    
+                case filter.LT:
+                    that.checkMComparison(filter.LT).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+                case filter.GT:
+                    that.checkMComparison(filter.GT).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+                case filter.EQ:
+                    that.checkMComparison(filter.EQ).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+
+                // SCOMPARISON:
+                case filter.IS:
+                    that.checkSComparison(filter.IS).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+
+                // NEGATION:
+                case filter.NOT:
+                    that.checkFilter(filter.NOT).catch(function(err: string) {
+                        errors.push(err);
+                        isValid = false;
+                    })
+                    break;
+
+                default:
+                    errors.push("invalid Filter property \"" + filter + "\"");
+                    isValid = false;
+                    break;
+            }
 
             //-------------------------------------
             // checks if WHERE is valid, if so fulfills, if
@@ -376,6 +435,158 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+    // helper to filter: checks if logic comparison is valid, rejects with string of all errors
+    checkLogicComparison(filters: Filter[]): Promise <any> {
+        Log.trace("Inside checkLogicComparison");
+        let that = this;
+        var isValid: boolean = true;
+        var errors: string[] = [];
+
+        return new Promise(function (fulfill, reject) {
+            // check if filters is in an array
+            if (filters.constructor === Array) {
+                // check if filters is empty array
+                if (filters.length > 0) {
+                    // check if each member of array is valid Filter
+                    var val;
+                    for (val of filters) {
+                        that.checkFilter(val).catch(function(err: string) {
+                            errors.push(err);
+                            isValid = false;
+                        })
+                    }
+                } else {
+                    errors.push("LOGICCOMPARISON array is empty");
+                    isValid = false;
+                }
+            } else {
+                errors.push("COLUMNS is not an array");
+                isValid = false;
+            }
+
+            //-------------------------------------
+            // checks if LogicComparison is valid, if so fulfills, if
+            //  not rejects with string of issues
+            if (isValid) {
+                fulfill();
+            } else {
+                var errorsToReturn = errors.join(", ");
+                reject(errorsToReturn);
+            }
+        });
+    }
+
+    // helper to filter: checks if math comparison is valid, rejects with string of all errors
+    checkMComparison(mC: MComparison): Promise <any> {
+        Log.trace("Inside checkMComparison");
+        let that = this;
+        var isValid: boolean = true;
+        var errors: string[] = [];
+
+        return new Promise(function(fulfill, reject) {
+            switch (mC) {
+                case mC.courses_avg:
+                    if (isNaN(mC.courses_avg)) {
+                       errors.push("MComparison " + mC + " is not a number");
+                        isValid = false; 
+                    }
+                    break;
+                case mC.courses_pass:
+                    if (isNaN(mC.courses_pass)) {
+                       errors.push("MComparison " + mC + " is not a number");
+                        isValid = false; 
+                    }
+                    break;
+                case mC.courses_fail:
+                    if (isNaN(mC.courses_fail)) {
+                       errors.push("MComparison " + mC + " is not a number");
+                        isValid = false; 
+                    }
+                    break;
+                case mC.courses_audit:
+                    if (isNaN(mC.courses_audit)) {
+                       errors.push("MComparison " + mC + " is not a number");
+                        isValid = false; 
+                    }
+                    break;
+                default:
+                    errors.push("invalid MComparison property \"" + mC + "\"");
+                    isValid = false;
+                    break;
+            }
+
+            //-------------------------------------
+            // checks if MComparison is valid, if so fulfills, if
+            //  not rejects with string of issues
+            if (isValid) {
+                fulfill();
+            } else {
+                var errorsToReturn = errors.join(", ");
+                reject(errorsToReturn);
+            }
+        });
+    }
+
+    // helper to filter: checks if string comparison is valid, rejects with string of all errors
+    checkSComparison(sC: SComparison): Promise <any> {
+        Log.trace("Inside checkSComparison");
+        let that = this;
+        var isValid: boolean = true;
+        var errors: string[] = [];
+
+        return new Promise(function(fulfill, reject) {
+            switch (sC) {
+                case sC.courses_dept:
+                    // TODO: make sure this logic statement works, may not
+                    if (typeof sC.courses_dept !== 'string') {
+                       errors.push("MComparison " + sC + " is not a string");
+                        isValid = false; 
+                    }
+                    break;
+                case sC.courses_id:
+                    if (typeof sC.courses_id !== 'string') {
+                       errors.push("MComparison " + sC + " is not a string");
+                        isValid = false; 
+                    }
+                    break;
+                case sC.courses_instructor:
+                    if (typeof sC.courses_instructor !== 'string') {
+                       errors.push("MComparison " + sC + " is not a string");
+                        isValid = false; 
+                    }
+                    break;
+                case sC.courses_title:
+                    if (typeof sC.courses_title !== 'string') {
+                       errors.push("MComparison " + sC + " is not a string");
+                        isValid = false; 
+                    }
+                    break;
+                case sC.courses_uuid:
+                    if (typeof sC.courses_uuid !== 'string') {
+                       errors.push("MComparison " + sC + " is not a string");
+                        isValid = false; 
+                    }
+                    break;
+                default:
+                    errors.push("invalid SComparison property \"" + mC + "\"");
+                    isValid = false;
+                    break;
+            }
+
+            //-------------------------------------
+            // checks if SComparison is valid, if so fulfills, if
+            //  not rejects with string of issues
+            if (isValid) {
+                fulfill();
+            } else {
+                var errorsToReturn = errors.join(", ");
+                reject(errorsToReturn);
+            }
+        });
+    }
+
+
+    // helper: checks if options are valid, rejects with string of all errors
     checkOptions(options: Options): Promise <any> {
         Log.trace("Inside checkOptions");
         let that = this;
@@ -388,15 +599,21 @@ export default class InsightFacade implements IInsightFacade {
             if (options.hasOwnProperty('COLUMNS')) {
                 // check if COLUMNS is in an array
                 if (options.COLUMNS.constructor === Array) {
-                    // check if each member of array is valid key
-                    var val;
-                    for (val of options.COLUMNS) {
-                        var vKey: boolean = that.validKey(val);
-                        if (!vKey) {
-                            errors.push("invalid key in COLUMNS");
-                            isValid = false;
-                            break;
+                    // check if COLUMNS is empty array
+                    if (options.COLUMNS.length > 0) {
+                        // check if each member of array is valid key
+                        var val;
+                        for (val of options.COLUMNS) {
+                            var vKey: boolean = that.validKey(val);
+                            if (!vKey) {
+                                errors.push("invalid key in COLUMNS");
+                                isValid = false;
+                                break;
+                            }
                         }
+                    } else {
+                        errors.push("COLUMNS is empty");
+                        isValid = false; 
                     }
                 } else {
                     errors.push("COLUMNS is not an array");
@@ -408,6 +625,7 @@ export default class InsightFacade implements IInsightFacade {
             }
             //-------------------------------------
             // checking if correct number of properties in OPTIONS
+            // if 3: check if has ORDER (if not, then should have 2)
             if (Object.keys(options).length == 3) {
                 // check if ORDER exists
                 if (options.hasOwnProperty('ORDER')) {
@@ -450,6 +668,7 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+    // helper: validates keys with regex, returns true if valid, false otherwise
     validKey(key: any): boolean {
         if (typeof key === 'string'/* || key instanceof String*/) {
             // TODO: check if this regex is ok
@@ -461,6 +680,7 @@ export default class InsightFacade implements IInsightFacade {
         }
         return false;
     }
+
 
     // performQuery
     //  |
