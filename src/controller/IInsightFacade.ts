@@ -24,17 +24,29 @@ export interface Filter {
     //  note:   key has to be format:        string '_' string
     //          number has to be format:     [1-9]* [0-9]+ ( '.' [0-9]+ )?
     //              string has to be format: [a-zA-Z0-9,_#x2D]+
-    // TODO: if we implement a key interface, change all key -> Key
-    LT?: {key : number};
-    GT?: {key : number};
-    EQ?: {key : number};
+    LT?: MComparison;
+    GT?: MComparison;
+    EQ?: MComparison;
     // SCOMPARISON:
     //  note:   string can be either "string" or "*string*"
     // TODO: is there some way to implement this?
     //          if so... what even are the stars for???
-    IS?: {key : string}; // {' key ':' '*'? string '*'? '}
+    IS?: SComparison; // {' key ':' '*'? string '*'? '}
     // NEGATION:
     NOT?: Filter;
+}
+export interface  MComparison {
+    courses_avg: number; //The average of the course offering.
+    courses_pass: number; //The number of students that passed the course offering.
+    courses_fail: number; //The number of students that failed the course offering.
+    courses_audit: number; //The number of students that audited the course offering.
+}
+export interface  SComparison {
+    courses_dept: string; //The department that offered the course.
+    courses_id: string; //The course number (will be treated as a string (e.g., 499b)).
+    courses_instructor: string; //The instructor teaching the course offering.
+    courses_title: string; //The name of the course.
+    courses_uuid: string; //The unique id of a course offering.
 }
 //-------------------------------------
 // OPTIONS
