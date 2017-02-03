@@ -93,7 +93,7 @@ export default class InsightFacade implements IInsightFacade {
             var pass: number = sessionData.Pass;
             var fail: number = sessionData.Fail;
             var audit: number = sessionData.Audit;
-            var uuid: string = sessionData.id;
+            var uuid: string = String(sessionData.id);
 
             course[i] = {dept, id, avg, instructor, title, pass, fail, audit, uuid};
         }
@@ -237,24 +237,25 @@ export default class InsightFacade implements IInsightFacade {
         Log.trace("Inside removeDataset()");
         let that = this;
         // Remove id from ids[] and delete its .json
+        var ir: InsightResponse = {
+            code: 204,
+            body: {}
+        };
         return new Promise(function(fulfill, reject) {
             try {
                 delete that.dataSets[id];
                 fs.unlinkSync(id + ".json");
-                Log.trace("removal success");
-                var ir: InsightResponse = {
-                    code: 204,
-                    body: {}
-                };
-                fulfill(ir);
+                Log.trace("Removal(" + id + ") success");
+
             } catch(err) {
                 Log.trace("Remove(" + id + ") unsuccessful, err = " + err);
-                var ir: InsightResponse = {
+                var ir2: InsightResponse = {
                     code: 404,
                     body: {"error": ("the id " + id + " does not exist in the dataset.")}
                 };
-                reject(ir);
+                reject(ir2);
             }
+            fulfill(ir);
         });
     }
 
