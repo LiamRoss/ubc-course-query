@@ -373,43 +373,43 @@ export default class InsightFacade implements IInsightFacade {
             switch (filter) {
 
                 // LOGICCOMPARISON
-                case filter.AND:
+                case "AND":
                     that.checkLogicComparison(filter.AND).catch(function(err: string) {
                         reject(err);        
                     })
                     break;
-                case filter.OR:
+                case "OR":
                     that.checkLogicComparison(filter.OR).catch(function(err: string) {
                         reject(err); 
                     })
                     break;
 
                 // MCOMPARISON:    
-                case filter.LT:
+                case "LT":
                     that.checkMComparison(filter.LT).catch(function(err: string) {
                         reject(err);
                     })
                     break;
-                case filter.GT:
+                case "GT":
                     that.checkMComparison(filter.GT).catch(function(err: string) {
                         reject(err); 
                     })
                     break;
-                case filter.EQ:
+                case "EQ":
                     that.checkMComparison(filter.EQ).catch(function(err: string) {
                         reject(err);  
                     })
                     break;
 
                 // SCOMPARISON:
-                case filter.IS:
+                case "IS":
                     that.checkSComparison(filter.IS).catch(function(err: string) {
                         reject(err); 
                     })
                     break;
 
                 // NEGATION:
-                case filter.NOT:
+                case "NOT":
                     that.checkFilter(filter.NOT).catch(function(err: string) {
                         reject(err);  
                     })
@@ -453,22 +453,22 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             // checks each MComparison to make sure it's a valid number
             switch (mC) {
-                case mC.courses_avg:
+                case "courses_avg":
                     if (isNaN(mC.courses_avg)) {
                        reject("MComparison " + mC + " is not a number");
                     }
                     break;
-                case mC.courses_pass:
+                case "courses_pass":
                     if (isNaN(mC.courses_pass)) {
                        reject("MComparison " + mC + " is not a number");
                     }
                     break;
-                case mC.courses_fail:
+                case "courses_fail":
                     if (isNaN(mC.courses_fail)) {
                        reject("MComparison " + mC + " is not a number");
                     }
                     break;
-                case mC.courses_audit:
+                case "courses_audit":
                     if (isNaN(mC.courses_audit)) {
                        reject("MComparison " + mC + " is not a number"); 
                     }
@@ -488,28 +488,28 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             // checks each SComparison to make sure it's a string
             switch (sC) {
-                case sC.courses_dept:
+                case "courses_dept":
                     // TODO: make sure this logic statement works, may not
                     if (typeof sC.courses_dept !== 'string') {
                        reject("MComparison " + sC + " is not a string");
                     }
                     break;
-                case sC.courses_id:
+                case "courses_id":
                     if (typeof sC.courses_id !== 'string') {
                        reject("MComparison " + sC + " is not a string");  
                     }
                     break;
-                case sC.courses_instructor:
+                case "courses_instructor":
                     if (typeof sC.courses_instructor !== 'string') {
                        reject("MComparison " + sC + " is not a string"); 
                     }
                     break;
-                case sC.courses_title:
+                case "courses_title":
                     if (typeof sC.courses_title !== 'string') {
                        reject("MComparison " + sC + " is not a string"); 
                     }
                     break;
-                case sC.courses_uuid:
+                case "courses_uuid":
                     if (typeof sC.courses_uuid !== 'string') {
                        reject("MComparison " + sC + " is not a string");
                     }
@@ -657,7 +657,7 @@ export default class InsightFacade implements IInsightFacade {
         var compValues: number[];
         switch (filter) {
             // recursively makes sure section matches all filters
-            case filter.AND:
+            case "AND":
                 for (var element of filter.AND) {
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
@@ -666,7 +666,7 @@ export default class InsightFacade implements IInsightFacade {
                 }
                 return true;
             // recursively makes sure section matches at least 1 filter
-            case filter.OR:
+            case "OR":
                 var runs: boolean[];
                 for (var element of filter.OR) {
                     var bool = this.matchesQuery(element, section);
@@ -674,20 +674,20 @@ export default class InsightFacade implements IInsightFacade {
                 }
                 return runs.includes(true);
             // checks values
-            case filter.LT:
+            case "LT":
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] > compValues[1]);
-            case filter.GT:
+            case "GT":
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] < compValues[1]);
-            case filter.EQ:
+            case "EQ":
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] === compValues[1]);
             // checks strings
-            case filter.IS:
+            case "IS":
                 return(this.SCompareToSection(filter.GT, section));
             // negates recursive call to check filter
-            case filter.NOT:
+            case "NOT":
                 return !this.matchesQuery(filter.NOT, section);
             default:
                 break;
@@ -697,22 +697,22 @@ export default class InsightFacade implements IInsightFacade {
 
     MCompareToSection(mC: MComparison, section: Section): number[] {
         switch (mC) {
-            case mC.courses_avg:
+            case "courses_avg":
                 if (section.hasOwnProperty("avg")) {
                     return [mC.courses_avg, section.avg];
                 }
                 return [];
-            case mC.courses_pass:
+            case "courses_pass":
                 if (section.hasOwnProperty("pass")) {
                     return [mC.courses_pass, section.pass];
                 }
                 return [];
-            case mC.courses_fail:
+            case "courses_fail":
                 if (section.hasOwnProperty("fail")) {
                     return [mC.courses_fail, section.fail];
                 }
                 return [];
-            case mC.courses_audit:
+            case "courses_audit":
                 if (section.hasOwnProperty("audit")) {
                     return [mC.courses_audit, section.audit];
                 }
@@ -725,12 +725,12 @@ export default class InsightFacade implements IInsightFacade {
 
     SCompareToSection(sC: SComparison, section: Section): boolean {
         switch (sC) {
-            case sC.courses_dept:
+            case "courses_dept":
                 if (section.hasOwnProperty("avg")) {
                     return (sC.courses_dept == section.dept);
                 }
                 return false;
-            case sC.courses_id:
+            case "courses_id":
                 if (section.hasOwnProperty("id")) {
                     var bool = (sC.courses_id == section.id);
                     if (!bool) {
@@ -740,17 +740,17 @@ export default class InsightFacade implements IInsightFacade {
                 }
                 this.missingIDs.push(sC.courses_id);
                 return false;
-            case sC.courses_instructor:
+            case "courses_instructor":
                 if (section.hasOwnProperty("instructor")) {
                     return (sC.courses_instructor == section.instructor);
                 }
                 return false;
-            case sC.courses_title:
+            case "courses_title":
                 if (section.hasOwnProperty("title")) {
                     return (sC.courses_title == section.title);
                 }
                 return false;
-            case sC.courses_uuid:
+            case "courses_uuid":
                 if (section.hasOwnProperty("uuid")) {
                     return (sC.courses_uuid == section.uuid);
                 }
