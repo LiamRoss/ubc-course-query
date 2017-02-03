@@ -309,50 +309,34 @@ export default class InsightFacade implements IInsightFacade {
     validQuery(query: QueryRequest): Promise <any> {
         Log.trace("Inside validQuery");
         let that = this;
-        var isValid: boolean = true;
-        var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
+            //-------------------------------------
+            // checking to make sure it only has two properties
+            if (Object.keys(query).length != 2) {
+                reject("wrong number of properties in QueryRequest"); 
+            }
             //-------------------------------------
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
                 // check WHERE
                 that.checkFilter(query.WHERE).catch(function(s: string) {
-                    errors.push(s);
-                    isValid = false;
+                    reject(s);
+                    
                 })
             } else {
-                errors.push("no WHERE property");
-                isValid = false;
+                reject("no WHERE property");
             }
             //-------------------------------------
             // checking if OPTIONS exists
             if (query.hasOwnProperty('OPTIONS')) {
                 // check OPTIONS
                 that.checkOptions(query.OPTIONS).catch(function(s: string) {
-                    errors.push(s);
-                    isValid = false;
+                    reject(s);
                 })
             } else {
-                errors.push("no OPTIONS property");
-                isValid = false;
+                reject("no OPTIONS property");
             }
-            //-------------------------------------
-            // checking to make sure it only has two properties
-            if (Object.keys(query).length != 2) {
-                errors.push("too many properties in QueryRequest");
-                isValid = false;
-            }
-            //-------------------------------------
-            // checks if query is valid, if so fulfills, if
-            //  not rejects with string of issues
-            if (isValid) {
-                fulfill();
-            } else {
-                var errorsToReturn = errors.join(", ");
-                reject(errorsToReturn);
-            }
-
         });
     }
 
@@ -360,8 +344,6 @@ export default class InsightFacade implements IInsightFacade {
     checkFilter(filter: Filter): Promise <any> {
         Log.trace("Inside checkFilter");
         let that = this;
-        var isValid: boolean = true;
-        var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
             // TODO: is this the right way to do it??
@@ -370,77 +352,57 @@ export default class InsightFacade implements IInsightFacade {
                 // LOGICCOMPARISON
                 case filter.AND:
                     that.checkLogicComparison(filter.AND).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err);        
                     })
                     break;
                 case filter.OR:
                     that.checkLogicComparison(filter.OR).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err); 
                     })
                     break;
 
                 // MCOMPARISON:    
                 case filter.LT:
                     that.checkMComparison(filter.LT).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err);
                     })
                     break;
                 case filter.GT:
                     that.checkMComparison(filter.GT).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err); 
                     })
                     break;
                 case filter.EQ:
                     that.checkMComparison(filter.EQ).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err);  
                     })
                     break;
 
                 // SCOMPARISON:
                 case filter.IS:
                     that.checkSComparison(filter.IS).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err); 
                     })
                     break;
 
                 // NEGATION:
                 case filter.NOT:
                     that.checkFilter(filter.NOT).catch(function(err: string) {
-                        errors.push(err);
-                        isValid = false;
+                        reject(err);  
                     })
                     break;
 
                 default:
-                    errors.push("invalid Filter property \"" + filter + "\"");
-                    isValid = false;
+                    reject("invalid Filter property \"" + filter + "\"");
                     break;
-            }
-
-            //-------------------------------------
-            // checks if WHERE is valid, if so fulfills, if
-            //  not rejects with string of issues
-            if (isValid) {
-                fulfill();
-            } else {
-                var errorsToReturn = errors.join(", ");
-                reject(errorsToReturn);
             }
         });
     }
 
     // helper to filter: checks if logic comparison is valid, rejects with string of all errors
-    checkLogicComparison(filters: Filter[]): Promise <any> {
+    checkLogicComparison(filters: Filter[]): Promise < any > {
         Log.trace("Inside checkLogicComparison");
         let that = this;
-        var isValid: boolean = true;
-        var errors: string[] = [];
 
         return new Promise(function (fulfill, reject) {
             // check if filters is in an array
@@ -448,30 +410,14 @@ export default class InsightFacade implements IInsightFacade {
                 // check if filters is empty array
                 if (filters.length > 0) {
                     // check if each member of array is valid Filter
-                    var val;
-                    for (val of filters) {
-                        that.checkFilter(val).catch(function(err: string) {
-                            errors.push(err);
-                            isValid = false;
-                        })
-                    }
+                    Promise.all(filters).catch(function (err: string) {
+                        reject(err);
+                    })
                 } else {
-                    errors.push("LOGICCOMPARISON array is empty");
-                    isValid = false;
+                    reject("LOGICCOMPARISON array is empty");
                 }
             } else {
-                errors.push("COLUMNS is not an array");
-                isValid = false;
-            }
-
-            //-------------------------------------
-            // checks if LogicComparison is valid, if so fulfills, if
-            //  not rejects with string of issues
-            if (isValid) {
-                fulfill();
-            } else {
-                var errorsToReturn = errors.join(", ");
-                reject(errorsToReturn);
+                reject("LOGICCOMPARISON is not an array");
             }
         });
     }
@@ -480,49 +426,33 @@ export default class InsightFacade implements IInsightFacade {
     checkMComparison(mC: MComparison): Promise <any> {
         Log.trace("Inside checkMComparison");
         let that = this;
-        var isValid: boolean = true;
-        var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
+            // checks each MComparison to make sure it's a valid number
             switch (mC) {
                 case mC.courses_avg:
                     if (isNaN(mC.courses_avg)) {
-                       errors.push("MComparison " + mC + " is not a number");
-                        isValid = false; 
+                       reject("MComparison " + mC + " is not a number");
                     }
                     break;
                 case mC.courses_pass:
                     if (isNaN(mC.courses_pass)) {
-                       errors.push("MComparison " + mC + " is not a number");
-                        isValid = false; 
+                       reject("MComparison " + mC + " is not a number");
                     }
                     break;
                 case mC.courses_fail:
                     if (isNaN(mC.courses_fail)) {
-                       errors.push("MComparison " + mC + " is not a number");
-                        isValid = false; 
+                       reject("MComparison " + mC + " is not a number");
                     }
                     break;
                 case mC.courses_audit:
                     if (isNaN(mC.courses_audit)) {
-                       errors.push("MComparison " + mC + " is not a number");
-                        isValid = false; 
+                       reject("MComparison " + mC + " is not a number"); 
                     }
                     break;
                 default:
-                    errors.push("invalid MComparison property \"" + mC + "\"");
-                    isValid = false;
+                    reject("invalid MComparison property \"" + mC + "\"");
                     break;
-            }
-
-            //-------------------------------------
-            // checks if MComparison is valid, if so fulfills, if
-            //  not rejects with string of issues
-            if (isValid) {
-                fulfill();
-            } else {
-                var errorsToReturn = errors.join(", ");
-                reject(errorsToReturn);
             }
         });
     }
@@ -531,56 +461,39 @@ export default class InsightFacade implements IInsightFacade {
     checkSComparison(sC: SComparison): Promise <any> {
         Log.trace("Inside checkSComparison");
         let that = this;
-        var isValid: boolean = true;
-        var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
+            // checks each SComparison to make sure it's a string
             switch (sC) {
                 case sC.courses_dept:
                     // TODO: make sure this logic statement works, may not
                     if (typeof sC.courses_dept !== 'string') {
-                       errors.push("MComparison " + sC + " is not a string");
-                        isValid = false; 
+                       reject("MComparison " + sC + " is not a string");
                     }
                     break;
                 case sC.courses_id:
                     if (typeof sC.courses_id !== 'string') {
-                       errors.push("MComparison " + sC + " is not a string");
-                        isValid = false; 
+                       reject("MComparison " + sC + " is not a string");  
                     }
                     break;
                 case sC.courses_instructor:
                     if (typeof sC.courses_instructor !== 'string') {
-                       errors.push("MComparison " + sC + " is not a string");
-                        isValid = false; 
+                       reject("MComparison " + sC + " is not a string"); 
                     }
                     break;
                 case sC.courses_title:
                     if (typeof sC.courses_title !== 'string') {
-                       errors.push("MComparison " + sC + " is not a string");
-                        isValid = false; 
+                       reject("MComparison " + sC + " is not a string"); 
                     }
                     break;
                 case sC.courses_uuid:
                     if (typeof sC.courses_uuid !== 'string') {
-                       errors.push("MComparison " + sC + " is not a string");
-                        isValid = false; 
+                       reject("MComparison " + sC + " is not a string");
                     }
                     break;
                 default:
-                    errors.push("invalid SComparison property \"" + sC + "\"");
-                    isValid = false;
+                    reject("invalid SComparison property \"" + sC + "\"");
                     break;
-            }
-
-            //-------------------------------------
-            // checks if SComparison is valid, if so fulfills, if
-            //  not rejects with string of issues
-            if (isValid) {
-                fulfill();
-            } else {
-                var errorsToReturn = errors.join(", ");
-                reject(errorsToReturn);
             }
         });
     }
@@ -590,8 +503,6 @@ export default class InsightFacade implements IInsightFacade {
     checkOptions(options: Options): Promise <any> {
         Log.trace("Inside checkOptions");
         let that = this;
-        var isValid: boolean = true;
-        var errors: string[] = [];
 
         return new Promise(function(fulfill, reject) {
             //-------------------------------------
@@ -602,26 +513,23 @@ export default class InsightFacade implements IInsightFacade {
                     // check if COLUMNS is empty array
                     if (options.COLUMNS.length > 0) {
                         // check if each member of array is valid key
+                        // TODO: make sure this works... could do promise.all before finishing array?
                         var val;
+                        var keyArray: Promise <any>[];
                         for (val of options.COLUMNS) {
-                            var vKey: boolean = that.validKey(val);
-                            if (!vKey) {
-                                errors.push("invalid key in COLUMNS");
-                                isValid = false;
-                                break;
-                            }
+                            keyArray.push(that.validKey(val));
                         }
+                        Promise.all(keyArray).catch(function() {
+                            reject("invalid key in COLUMNS");
+                        })
                     } else {
-                        errors.push("COLUMNS is empty");
-                        isValid = false; 
+                        reject("COLUMNS is empty");
                     }
                 } else {
-                    errors.push("COLUMNS is not an array");
-                    isValid = false;
+                    reject("COLUMNS is not an array");
                 }
             } else {
-                errors.push("no COLUMNS property");
-                isValid = false;
+                reject("no COLUMNS property");
             }
             //-------------------------------------
             // checking if correct number of properties in OPTIONS
@@ -630,18 +538,15 @@ export default class InsightFacade implements IInsightFacade {
                 // check if ORDER exists
                 if (options.hasOwnProperty('ORDER')) {
                     // check if ORDER is valid key
-                    if (!that.validKey(options.ORDER)) {
-                        errors.push("invalid key in ORDER");
-                        isValid = false;
-                    }
+                    that.validKey(options.ORDER).catch(function() {
+                        reject("invalid key in ORDER");
+                    })
                 } else {
-                    errors.push("no ORDER property");
-                    isValid = false;
+                    reject("no ORDER property");
                 }
             } else {
                 if (Object.keys(options).length != 2) {
-                    errors.push("too many properties in OPTIONS");
-                    isValid = false;
+                    reject("too many properties in OPTIONS");
                 }
             }
             //-------------------------------------
@@ -649,36 +554,30 @@ export default class InsightFacade implements IInsightFacade {
             if (options.hasOwnProperty('FORM')) {
                 // check if FORM is string "TABLE"
                 if (options.FORM !== "TABLE") {
-                    errors.push("FORM is not \"TABLE\"");
-                    isValid = false;
+                    reject("FORM is not \"TABLE\"");
                 }
             } else {
-                errors.push("no FORM property");
-                isValid = false;
-            }
-            //-------------------------------------
-            // checks if OPTIONS is valid, if so fulfills, if
-            //  not rejects with string of issues
-            if (isValid) {
-                fulfill();
-            } else {
-                var errorsToReturn = errors.join(", ");
-                reject(errorsToReturn);
+                reject("no FORM property");
             }
         });
     }
 
     // helper: validates keys with regex, returns true if valid, false otherwise
-    validKey(key: any): boolean {
-        if (typeof key === 'string'/* || key instanceof String*/) {
-            // TODO: check if this regex is ok
-            // this one worked on online version:
-            //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
-            if (/^(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))$/.test(key)) {
-                return true;
+    validKey(key: any): Promise < any > {
+        Log.trace("Inside validKey");
+        let that = this;
+
+        return new Promise(function (fulfill, reject) {
+            if (typeof key === 'string' /* || key instanceof String*/ ) {
+                // TODO: check if this regex is ok
+                // this one worked on online version:
+                //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
+                if (/^(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))$/.test(key)) {
+                    fulfill();
+                }
             }
-        }
-        return false;
+            reject();
+        });
     }
 
 
