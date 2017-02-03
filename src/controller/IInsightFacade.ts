@@ -33,12 +33,14 @@ export interface Filter {
     // NEGATION:
     NOT?: Filter;
 }
+// only MComparison Keys
 export interface  MComparison {
     courses_avg?:           number; //The average of the course offering.
     courses_pass?:          number; //The number of students that passed the course offering.
     courses_fail?:          number; //The number of students that failed the course offering.
     courses_audit?:         number; //The number of students that audited the course offering.
 }
+// only SComparison Keys
 export interface  SComparison {
     courses_dept?:          string; //The department that offered the course.
     courses_id?:            string; //The course number (will be treated as a string (e.g., 499b)).
@@ -50,9 +52,41 @@ export interface  SComparison {
 // OPTIONS
 export interface Options {
     //  reminder:   key has to be format: string '_' string
-    COLUMNS: string[];  // must be key[]
+    COLUMNS: Key[];  // must be key[]
     ORDER?: string;     // must be key
     FORM: string;       // must be "TABLE"
+}
+
+// interface structure for Section
+export interface Section {
+    dept?: string;
+    id?: string;
+    avg?: number;
+    instructor?: string;
+    title?: string;
+    pass?: number;
+    fail?: number;
+    audit?: number;
+    uuid?: string;
+}
+
+// interface for returned JSON
+export interface ReturnJSON {
+    render: string; // must be 'TABLE'
+    result: Key[];
+}
+
+// all Keys
+export interface Key {
+    courses_dept?:          string; //The department that offered the course.
+    courses_id?:            string; //The course number (will be treated as a string (e.g., 499b)).
+    courses_avg?:           number; //The average of the course offering.
+    courses_instructor?:    string; //The instructor teaching the course offering.
+    courses_title?:         string; //The name of the course.
+    courses_pass?:          number; //The number of students that passed the course offering.
+    courses_fail?:          number; //The number of students that failed the course offering.
+    courses_audit?:         number; //The number of students that audited the course offering.
+    courses_uuid?:          string; //The unique id of a course offering.
 }
 
 

@@ -2,7 +2,7 @@
  * This is the main programmatic entry point for the project.
  */
 import {IInsightFacade, InsightResponse, QueryRequest, Filter, 
-    MComparison, SComparison, Options} from "./IInsightFacade";
+    MComparison, SComparison, Options, Section, ReturnJSON, Key} from "./IInsightFacade";
 
 import Log from "../Util";
 var fs = require("fs");
@@ -33,6 +33,9 @@ export default class InsightFacade implements IInsightFacade {
      *      <course2name(file2name), file2data>, ...
      */
     private dataSets: HashTable<HashTable<Object[]>> = {};
+
+    // array of missing IDs for QueryRequest
+    private missingIDs: string[];
 
 
     constructor() {
@@ -285,14 +288,30 @@ export default class InsightFacade implements IInsightFacade {
 
         return new Promise(function(fulfill, reject) {
             that.validQuery(query).then(function() {
-                that.retrieveData(query).then(function() {
-                    // do something with matching data
+                that.retrieveData(query).then(function(validSections: Section[]) {
+                    that.formatJsonResponse(query.OPTIONS, validSections).then(function(response: ReturnJSON) {
+                        ir.code = 200;
+                        ir.body = response;
+                        fulfill(ir);
+                    })
+                    // 3. catch for formatJsonResponse
+                    .catch(function() {
+                        ir.code = 400;
+                        ir.body = {"error": "failed to format JSON response"};
+                        reject(ir);
+                    })
                 })
                 // 2. catch for retrieveData
-                .catch(function(missingIDs: string[]) {
-                    ir.code = 424;
-                    ir.body = {"missing": missingIDs};
-                    reject(ir);
+                .catch(function(err: any) {
+                    if (err.constructor === Array) {
+                        ir.code = 424;
+                        ir.body = {"missing": err};
+                        reject(ir);
+                    } else {
+                        ir.code = 400;
+                        ir.body = {"error": err };
+                        reject(ir);
+                    }
                 })  
             })
             // 1. catch for validQuery
@@ -349,6 +368,7 @@ export default class InsightFacade implements IInsightFacade {
 
         return new Promise(function(fulfill, reject) {
             // TODO: is this the right way to do it??
+            // TODO: instead of filter.AND, should it just be "AND"??
             switch (filter) {
 
                 // LOGICCOMPARISON
@@ -540,7 +560,11 @@ export default class InsightFacade implements IInsightFacade {
                 // check if ORDER exists
                 if (options.hasOwnProperty('ORDER')) {
                     // check if ORDER is valid key
-                    that.validKey(options.ORDER).catch(function() {
+                    that.validKey(options.ORDER).then(function() {
+                        if (!options.COLUMNS.hasOwnProperty(options.ORDER)) {
+                            reject("key in ORDER not in COLUMNS");
+                        }
+                    }).catch(function() {
                         reject("invalid key in ORDER");
                     })
                 } else {
@@ -565,7 +589,7 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     // helper: validates keys with regex, returns true if valid, false otherwise
-    validKey(key: any): Promise < any > {
+    validKey(key: Key): Promise < any > {
         Log.trace("Inside validKey");
         let that = this;
 
@@ -586,13 +610,155 @@ export default class InsightFacade implements IInsightFacade {
     // performQuery
     //  |
     //   - retrieveQuery
-    retrieveData(query: QueryRequest): Promise <any> {
+    retrieveData(query: QueryRequest): Promise < any > {
         Log.trace("Inside retrieveQuery");
         let that = this;
+        var validSections: Section[];
+        // initialize missingIDs
+        that.missingIDs = [];
 
-        return new Promise(function(fulfill, reject) {
-            
+        return new Promise(function (fulfill, reject) {
+            // for each data set 
+            for (let setId in that.dataSets) {
+                var fileData: JSON = fs.readFile(setId + ".json");
+                // for each course in data set
+                for (var course in fileData) {
+                    if (fileData.hasOwnProperty(course)) {
+                        // check if course is in an array
+                        if (course.constructor === Array) {
+                            // check if course is empty array
+                            if (course.length > 0) {
+                                // check if section matches query
+                                var section: Section;
+                                for (section of course) {
+                                    if (that.matchesQuery(query, section)) {
+                                        validSections.push(section);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (validSections.length == 0) {
+                if (that.missingIDs.length !== 0) {
+                    reject(that.missingIDs);
+                } else {
+                    // TODO: make sure that a no-results query is a fail
+                    reject("no results from query")
+                }
+            }
+            fulfill(validSections);
         });
+    }
+
+    matchesQuery(filter: Filter, section: Section): boolean {
+        var compValues: number[];
+        switch (filter) {
+            // recursively makes sure section matches all filters
+            case filter.AND:
+                for (var element of filter.AND) {
+                    var bool: boolean = this.matchesQuery(element, section);
+                    if (!bool) {
+                        return false;
+                    }
+                }
+                return true;
+            // recursively makes sure section matches at least 1 filter
+            case filter.OR:
+                var runs: boolean[];
+                for (var element of filter.OR) {
+                    var bool = this.matchesQuery(element, section);
+                    runs.push(bool);
+                }
+                return runs.includes(true);
+            // checks values
+            case filter.LT:
+                compValues = this.MCompareToSection(filter.GT, section);
+                return(compValues[0] > compValues[1]);
+            case filter.GT:
+                compValues = this.MCompareToSection(filter.GT, section);
+                return(compValues[0] < compValues[1]);
+            case filter.EQ:
+                compValues = this.MCompareToSection(filter.GT, section);
+                return(compValues[0] === compValues[1]);
+            // checks strings
+            case filter.IS:
+                return(this.SCompareToSection(filter.GT, section));
+            // negates recursive call to check filter
+            case filter.NOT:
+                return !this.matchesQuery(filter.NOT, section);
+            default:
+                break;
+        }
+        return false;
+    }
+
+    MCompareToSection(mC: MComparison, section: Section): number[] {
+        switch (mC) {
+            case mC.courses_avg:
+                if (section.hasOwnProperty("avg")) {
+                    return [mC.courses_avg, section.avg];
+                }
+                return [];
+            case mC.courses_pass:
+                if (section.hasOwnProperty("pass")) {
+                    return [mC.courses_pass, section.pass];
+                }
+                return [];
+            case mC.courses_fail:
+                if (section.hasOwnProperty("fail")) {
+                    return [mC.courses_fail, section.fail];
+                }
+                return [];
+            case mC.courses_audit:
+                if (section.hasOwnProperty("audit")) {
+                    return [mC.courses_audit, section.audit];
+                }
+                return [];
+            default:
+                Log.trace("WARNING: defaulted in valueOfMComparison (should never get here)");
+                return [];
+        }
+    }
+
+    SCompareToSection(sC: SComparison, section: Section): boolean {
+        switch (sC) {
+            case sC.courses_dept:
+                if (section.hasOwnProperty("avg")) {
+                    return (sC.courses_dept == section.dept);
+                }
+                return false;
+            case sC.courses_id:
+                if (section.hasOwnProperty("id")) {
+                    var bool = (sC.courses_id == section.id);
+                    if (!bool) {
+                        this.missingIDs.push(sC.courses_id);
+                    }
+                    return bool;
+                }
+                this.missingIDs.push(sC.courses_id);
+                return false;
+            case sC.courses_instructor:
+                if (section.hasOwnProperty("instructor")) {
+                    return (sC.courses_instructor == section.instructor);
+                }
+                return false;
+            case sC.courses_title:
+                if (section.hasOwnProperty("title")) {
+                    return (sC.courses_title == section.title);
+                }
+                return false;
+            case sC.courses_uuid:
+                if (section.hasOwnProperty("uuid")) {
+                    // TODO: make sure that uuid is in string
+                    return (sC.courses_uuid == section.uuid);
+                }
+                return false;
+            default:
+                Log.trace("WARNING: defaulted in valueOfSComparison (should never get here)");
+                return null;
+        }
     }
 
     // performQuery
@@ -600,25 +766,79 @@ export default class InsightFacade implements IInsightFacade {
     //   - retrieveQuery
     //      |
     //       - formatJsonResponse
-    formatJsonResponse(query: QueryRequest): Promise <any> {
+    formatJsonResponse(options: Options, validSections: Section[]): Promise < any > {
         Log.trace("Inside formatJsonResponse");
         let that = this;
+        var returnJSON: ReturnJSON;
+        var result: Key[];
 
-        return new Promise(function(fulfill, reject) {
-            try {
-                var ir: InsightResponse = {
-                    code: 204,
-                    body: {}
-                };
-                fulfill(ir);
-            } catch(e) {
-                var ir: InsightResponse = {
-                    code: 404,
-                    body: {"error": ("REPLACE ME WITH PROPER ERROR MESSAGE")}
-                };
-                reject(ir);
+        return new Promise(function (fulfill, reject) {
+            // sorts validSections by ORDER key
+            validSections.sort(that.sortHelper(options.ORDER));
+
+            var section: any;
+            for (section in validSections) {
+                var key: any;
+                var column: string;
+                for (column in options.COLUMNS) {
+                    var sectionKey = that.keyToSection(column);
+                    key[column] = section[sectionKey];
+                }
+                result.push(key);
             }
+            returnJSON.render = "TABLE";
+            returnJSON.result = result;
+            fulfill(returnJSON);
         });
+    }
+
+    sortHelper(courseKey: string): any {
+        var key: string;
+        key = this.keyToSection(courseKey);
+        
+        return function (a: any, b: any) {
+            var returnSort = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
+            return returnSort;
+        }
+    }
+
+    keyToSection (key: string): string {
+        var section: string;
+
+        switch (key) {
+            case "courses_avg":
+                section = "avg";
+                break;
+            case "courses_pass":
+                section = "pass";
+                break;
+            case "courses_fail":
+                section = "fail";
+                break;
+            case "courses_audit":
+                section = "audit";
+                break;
+            case "courses_dept":
+                section = "dept";
+                break;
+            case "courses_id":
+                section = "id";
+                break;
+            case "courses_instructor":
+                section = "instructor";
+                break;
+            case "courses_title":
+                section = "title";
+                break;
+            case "courses_uuid":
+                section = "uuid";
+                break;
+            default:
+                Log.trace("WARNING: defaulted in sortHelper (should never get here)");
+                section = null;
+                break;
+        }
+        return section;
     }
 
 }
