@@ -619,9 +619,10 @@ export default class InsightFacade implements IInsightFacade {
         that.missingIDs = [];
 
         return new Promise(function (fulfill, reject) {
-            // for each data set 
+            // for each data set
             for (let setId in that.dataSets) {
-                var fileData: JSON = fs.readFile(setId + ".json");
+                var fileData: any = fs.readFileSync(setId + ".json");
+                Log.trace("typeOf(fileData) = " + fileData.constructor.name);
                 // for each course in data set
                 for (var course in fileData) {
                     if (fileData.hasOwnProperty(course)) {
