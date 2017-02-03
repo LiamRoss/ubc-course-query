@@ -434,9 +434,11 @@ export default class InsightFacade implements IInsightFacade {
                 if (filters.length > 0) {
                     // check if each member of array is valid Filter
                     var promises: Promise <any>[] = [];
-                    for (var i = 0:)
+                    for (let i in filters) {
+                        promises[i] = that.checkFilter(filters[i]);
+                    }
 
-                    Promise.all(filters).catch(function (err: string) {
+                    Promise.all(promises).catch(function (err: string) {
                         reject(err);
                     })
                 } else {
