@@ -100,7 +100,7 @@ describe("InsightFacadeSpec", function () {
 
     // Test 3
     // Adding dataset and then removing it
-    it("addDataset with test base64 zip, then removeDataset on it shoud return code 204", function () {
+    it("addDataset with test base64 zip, then removeDataset on it should return code 204", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
