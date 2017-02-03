@@ -133,12 +133,14 @@ export default class InsightFacade implements IInsightFacade {
                     Promise.all(promises)
                         .then(function(ret: any) {
                             Log.trace("inside promise.all.then");
+                            var shouldWrite: boolean = true;
                             for(let k in ret) {
                                 //Log.trace(fileNames[<any>k] + " stored.");
                                 let validFile: boolean;
                                 try { validFile = that.isValidFile(ret[k]); } catch(e) { /*Log.trace("validFile e = " + e);*/ }
 
                                 if(validFile == false) {
+                                    shouldWrite = false;
                                     reject("file named '" + fileNames[<any>k] + "' (#" + k + ") ( in " + id + " is not a valid file.");
                                 } else {
                                     var obj: Object[];
@@ -146,7 +148,7 @@ export default class InsightFacade implements IInsightFacade {
                                     dataHashTable[fileNames[<any>k]] = obj;
                                 }
                             }
-                            that.writeToDisk(id);
+                            if(shouldWrite == true) that.writeToDisk(id);
                             fulfill();
                         })
                         .catch(function(err: any) {
