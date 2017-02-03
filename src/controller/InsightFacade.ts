@@ -599,7 +599,7 @@ export default class InsightFacade implements IInsightFacade {
                 // TODO: check if this regex is ok
                 // this one worked on online version:
                 //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
-                if (/^(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))$/.test(key)) {
+                if (/(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
                     fulfill();
                 }
             }
@@ -752,7 +752,6 @@ export default class InsightFacade implements IInsightFacade {
                 return false;
             case sC.courses_uuid:
                 if (section.hasOwnProperty("uuid")) {
-                    // TODO: make sure that uuid is in string
                     return (sC.courses_uuid == section.uuid);
                 }
                 return false;
