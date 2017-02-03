@@ -785,7 +785,7 @@ export default class InsightFacade implements IInsightFacade {
             var section: any;
             for (section of validSections) {
                 var key: any;
-                var column: string;
+                var column: any;
                 for (column of options.COLUMNS) {
                     var sectionKey = that.keyToSection(column);
                     key[column] = section[sectionKey];
