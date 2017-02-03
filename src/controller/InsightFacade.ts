@@ -433,6 +433,9 @@ export default class InsightFacade implements IInsightFacade {
                 // check if filters is empty array
                 if (filters.length > 0) {
                     // check if each member of array is valid Filter
+                    var promises: Promise <any>[] = [];
+                    for (var i = 0:)
+
                     Promise.all(filters).catch(function (err: string) {
                         reject(err);
                     })
@@ -624,7 +627,7 @@ export default class InsightFacade implements IInsightFacade {
                 var fileData: any = fs.readFileSync(setId + ".json");
                 Log.trace("typeOf(fileData) = " + fileData.constructor.name);
                 // for each course in data set
-                for (var course in fileData) {
+                for (var course of fileData) {
                     if (fileData.hasOwnProperty(course)) {
                         // check if course is in an array
                         if (course.constructor === Array) {
@@ -778,10 +781,10 @@ export default class InsightFacade implements IInsightFacade {
             validSections.sort(that.sortHelper(options.ORDER));
 
             var section: any;
-            for (section in validSections) {
+            for (section of validSections) {
                 var key: any;
                 var column: string;
-                for (column in options.COLUMNS) {
+                for (column of options.COLUMNS) {
                     var sectionKey = that.keyToSection(column);
                     key[column] = section[sectionKey];
                 }
