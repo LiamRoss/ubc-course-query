@@ -57,7 +57,7 @@ describe("InsightFacadeSpec", function () {
     });
 
     // TODO: test each helper function in InsightFacade.ts
-
+/*
     // Test 1
     // Add single dataset
     it("addDataset with test base64 zip, should return code 204", function () {
@@ -150,15 +150,15 @@ describe("InsightFacadeSpec", function () {
                 Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
                 expect(err.code).to.equal(400);
             });
-    });
+    });*/
 
     /**
      * PERFORM QUERY TESTS
      */
 
     // Test 6
-    // Testing test base64 zip to add the courses.
-    it("addDataset with test base64 zip, should return 204", function () {
+    // A simple response
+    it("performQuery with a simple query", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -182,10 +182,10 @@ describe("InsightFacadeSpec", function () {
 
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
-                        Log.trace("Test done: " + value.code);
+                        Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
                     })
                     .catch(function(err: InsightResponse) {
-                        Log.trace("Test done: " + err.code);
+                        Log.trace("Test done: " + err.code + ", " + JSON.stringify(err.body));
                     })
             })
             .catch(function (err: InsightResponse) {
