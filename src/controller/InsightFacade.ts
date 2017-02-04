@@ -490,10 +490,12 @@ export default class InsightFacade implements IInsightFacade {
     checkMComparison(mC: MComparison): Promise <any> {
         Log.trace("Inside checkMComparison");
         let that = this;
+        var k = Object.keys(mC);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function(fulfill, reject) {
             // checks each MComparison to make sure it's a valid number
-            switch (mC) {
+            switch (k[0]) {
                 case "courses_avg":
                     if (isNaN(mC.courses_avg)) {
                        reject("MComparison " + mC + " is not a number");
@@ -515,7 +517,7 @@ export default class InsightFacade implements IInsightFacade {
                     }
                     break;
                 default:
-                    reject("invalid MComparison property \"" + mC + "\"");
+                    reject("invalid MComparison property \"" + JSON.stringify(mC) + "\"");
                     break;
             }
         });
@@ -525,10 +527,12 @@ export default class InsightFacade implements IInsightFacade {
     checkSComparison(sC: SComparison): Promise <any> {
         Log.trace("Inside checkSComparison");
         let that = this;
+        var k = Object.keys(sC);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function(fulfill, reject) {
             // checks each SComparison to make sure it's a string
-            switch (sC) {
+            switch (k[0]) {
                 case "courses_dept":
                     // TODO: make sure this logic statement works, may not
                     if (typeof sC.courses_dept !== 'string') {
@@ -564,8 +568,29 @@ export default class InsightFacade implements IInsightFacade {
 
 
     // helper: checks if options are valid, rejects with string of all errors
-    checkOptions(options: Options): Promise <any> {
+    checkOptions(options: Options): Promise < any > {
         Log.trace("Inside checkOptions");
+        let that = this;
+
+        return new Promise(function (fulfill, reject) {
+            var promises: Promise < any > [] = [];
+            Log.trace("options = " + JSON.stringify(options));
+            promises[0] = that.checkColumns(options);
+            promises[1] = that.checkOrder(options);
+            promises[2] = that.checkForm(options);
+
+            Promise.all(promises).then(function () {
+                    fulfill();
+                })
+                .catch(function (err: string) {
+                    reject(err);
+                })
+        });
+    }
+
+        // helper: checks if options are valid, rejects with error
+    checkColumns(options: Options): Promise <any> {
+        Log.trace("Inside checkColumns");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -585,8 +610,8 @@ export default class InsightFacade implements IInsightFacade {
                         }
                         Promise.all(keyArray)
                             .then(function(value: any) {
-
                                 Log.trace("COLUMNS checkOptions Promise.all returned successfully")
+                                fulfill();
                             })
                             .catch(function() {
                                 reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS");
@@ -600,6 +625,15 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 reject("no COLUMNS property");
             }
+        });
+    }
+
+        // helper: checks if options are valid, rejects with string of all errors
+    checkOrder(options: Options): Promise <any> {
+        Log.trace("Inside checkOrder");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
             //-------------------------------------
             // checking if correct number of properties in OPTIONS
             // if 3: check if has ORDER (if not, then should have 2)
@@ -607,11 +641,14 @@ export default class InsightFacade implements IInsightFacade {
                 // check if ORDER exists
                 if (options.hasOwnProperty('ORDER')) {
                     // check if ORDER is valid key
-                    Log.trace("options.ORDER = " + options.ORDER);
+                    Log.trace("options.ORDER = " + options.ORDER + ", type = " + options.ORDER.constructor.name);
                     that.validKey(options.ORDER).then(function() {
-                        if (!options.COLUMNS.hasOwnProperty(options.ORDER)) {
-                            reject("key in ORDER not in COLUMNS");
+                        for (let key of options.COLUMNS) {
+                            if (key === options.ORDER) {
+                                fulfill();
+                            }
                         }
+                        reject("key in ORDER not in COLUMNS");
                     }).catch(function() {
                         reject("invalid key in ORDER");
                     })
@@ -623,12 +660,23 @@ export default class InsightFacade implements IInsightFacade {
                     reject("too many properties in OPTIONS");
                 }
             }
+        });
+    }
+
+        // helper: checks if options are valid, rejects with string of all errors
+    checkForm(options: Options): Promise <any> {
+        Log.trace("Inside checkForm");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
             //-------------------------------------
             // check if FORM exists
             if (options.hasOwnProperty('FORM')) {
                 // check if FORM is string "TABLE"
                 if (options.FORM !== "TABLE") {
                     reject("FORM is not \"TABLE\"");
+                } else {
+                    fulfill();
                 }
             } else {
                 reject("no FORM property");
@@ -706,7 +754,10 @@ export default class InsightFacade implements IInsightFacade {
 
     matchesQuery(filter: Filter, section: Section): boolean {
         var compValues: number[];
-        switch (filter) {
+        var k = Object.keys(filter);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+
+        switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
                 Log.trace("AND found");
@@ -754,7 +805,10 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     MCompareToSection(mC: MComparison, section: Section): number[] {
-        switch (mC) {
+        var k = Object.keys(mC);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+
+        switch (k[0]) {
             case "courses_avg":
                 Log.trace("courses_avg found");
                 if (section.hasOwnProperty("avg")) {
@@ -786,7 +840,10 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     SCompareToSection(sC: SComparison, section: Section): boolean {
-        switch (sC) {
+        var k = Object.keys(sC);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+
+        switch (k[0]) {
             case "courses_dept":
                 if (section.hasOwnProperty("avg")) {
                     return (sC.courses_dept == section.dept);
