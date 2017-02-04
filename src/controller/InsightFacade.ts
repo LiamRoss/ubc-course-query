@@ -426,6 +426,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "AND":
                     that.checkLogicComparison(filter.AND)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -435,6 +436,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "OR":
                     that.checkLogicComparison(filter.OR)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -446,6 +448,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "LT":
                     that.checkMComparison(filter.LT)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -455,6 +458,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "GT":
                     that.checkMComparison(filter.GT)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -464,6 +468,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "EQ":
                     that.checkMComparison(filter.EQ)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -475,6 +480,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "IS":
                     that.checkSComparison(filter.IS)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -486,6 +492,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "NOT":
                     that.checkFilter(filter.NOT)
                         .then(function() {
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
