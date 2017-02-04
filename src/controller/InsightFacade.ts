@@ -772,46 +772,48 @@ export default class InsightFacade implements IInsightFacade {
     //  |
     //   - retrieveQuery
     retrieveData(query: QueryRequest): Promise < any > {
-        Log.trace("Inside retrieveQuery");
+        Log.trace("Inside retrieveData");
         let that = this;
         var validSections: Section[];
         // initialize missingIDs
         that.missingIDs = [];
 
         return new Promise(function (fulfill, reject) {
-            // for each data set
+            // For each data set on disk
             for (let setId in that.dataSets) {
-                var fileData: any = fs.readFileSync(setId + ".json");
-                Log.trace("typeOf(fileData) = " + fileData.constructor.name);
-                // for each course in data set
-                for (var course of fileData) {
-                    if (fileData.hasOwnProperty(course)) {
-                        // check if course is in an array
-                        if (course.constructor === Array) {
-                            // check if course is empty array
-                            if (course.length > 0) {
-                                // check if section matches query
-                                var section: Section;
-                                for (section of course) {
-                                    if (that.matchesQuery(query, section)) {
-                                        validSections.push(section);
-                                    }
-                                }
-                            }
+                Log.trace("beginning parsing through: " + setId + ".json");
+                Log.trace("*************************************************");
+
+                // Read the data from the file
+                var fileData: any = fs.readFileSync(setId + ".json", "utf8");
+                let parsedData = JSON.parse(fileData);
+                Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
+
+                // Parse each course in the dataset
+                for(let course in parsedData) {
+                    Log.trace("Parsing course = " + course + ", type = " + course.constructor.name);
+
+                    // Parse the sections of each course
+                    for (let section of parsedData[course]) {
+                        Log.trace("s = " + JSON.stringify(section));
+                        // TODO: matchesQuery takes type of section, but section here is of type JSON object?
+                        if (that.matchesQuery(query, section)) {
+                            validSections.push(section);
                         }
                     }
                 }
             }
             if (validSections.length == 0) {
-                Log.trace("validSections.length == 0");
+                Log.trace("retrieveQuery: validSections.length == 0");
                 if (that.missingIDs.length !== 0) {
-                    Log.trace("that.missingIDs.length != 0");
+                    Log.trace("retrieveQuery: that.missingIDs.length != 0");
                     reject(that.missingIDs);
                 } else {
                     // TODO: make sure that a no-results query is a fail
-                    reject("no results from query")
+                    reject("retrieveQuery: no results from query")
                 }
             }
+            Log.trace("retrieveQuery fulfilling");
             fulfill(validSections);
         });
     }
@@ -819,7 +821,7 @@ export default class InsightFacade implements IInsightFacade {
     matchesQuery(filter: Filter, section: Section): boolean {
         var compValues: number[];
         var k = Object.keys(filter);
-        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         switch (k[0]) {
             // recursively makes sure section matches all filters
@@ -870,7 +872,7 @@ export default class InsightFacade implements IInsightFacade {
 
     MCompareToSection(mC: MComparison, section: Section): number[] {
         var k = Object.keys(mC);
-        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         switch (k[0]) {
             case "courses_avg":
@@ -905,7 +907,7 @@ export default class InsightFacade implements IInsightFacade {
 
     SCompareToSection(sC: SComparison, section: Section): boolean {
         var k = Object.keys(sC);
-        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         switch (k[0]) {
             case "courses_dept":
