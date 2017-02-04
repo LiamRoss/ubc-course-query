@@ -366,11 +366,13 @@ export default class InsightFacade implements IInsightFacade {
     checkFilter(filter: Filter): Promise <any> {
         Log.trace("Inside checkFilter");
         let that = this;
+        var k = Object.keys(filter);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function(fulfill, reject) {
             // TODO: is this the right way to do it??
             // TODO: instead of filter.AND, should it just be "AND"??
-            switch (filter) {
+            switch (k[0]) {
 
                 // LOGICCOMPARISON
                 case "AND":
@@ -577,13 +579,18 @@ export default class InsightFacade implements IInsightFacade {
                         // check if each member of array is valid key
                         // TODO: make sure this works... could do promise.all before finishing array?
                         var val;
-                        var keyArray: Promise <any>[];
+                        var keyArray: Promise <any>[] = [];
                         for (val of options.COLUMNS) {
                             keyArray.push(that.validKey(val));
                         }
-                        Promise.all(keyArray).catch(function() {
-                            reject("invalid key in COLUMNS");
-                        })
+                        Promise.all(keyArray)
+                            .then(function(value: any) {
+
+                                Log.trace("checkOptions Promise.all returned successfully")
+                            })
+                            .catch(function() {
+                                reject("checkOptions Promise.all failed, invalid key in COLUMNS");
+                            });
                     } else {
                         reject("COLUMNS is empty");
                     }
