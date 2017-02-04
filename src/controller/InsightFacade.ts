@@ -420,6 +420,7 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             // TODO: is this the right way to do it??
             // TODO: instead of filter.AND, should it just be "AND"??
+            Log.trace("made it to switch in checkFilter");
             switch (k[0]) {
 
                 // LOGICCOMPARISON
@@ -501,6 +502,7 @@ export default class InsightFacade implements IInsightFacade {
                     break;
 
                 default:
+                    Log.trace("checkFilter defaults");
                     reject("WARNING, checkFilter default: invalid Filter property \"" + JSON.stringify(filter) + "\"");
                     break;
             }
@@ -575,6 +577,7 @@ export default class InsightFacade implements IInsightFacade {
                     reject("invalid MComparison property \"" + JSON.stringify(mC) + "\"");
                     break;
             }
+            fulfill();
         });
     }
 
@@ -618,6 +621,7 @@ export default class InsightFacade implements IInsightFacade {
                     reject("invalid SComparison property \"" + sC + "\"");
                     break;
             }
+            fulfill();
         });
     }
 
