@@ -791,14 +791,24 @@ export default class InsightFacade implements IInsightFacade {
 
                 // Parse each course in the dataset
                 for(let course in parsedData) {
-                    Log.trace("Parsing course = " + course);
+                    //Log.trace("Parsing course = " + course);
 
                     // Parse the sections of each course
                     for (let section of parsedData[course]) {
-                        Log.trace("section = " + JSON.stringify(section));
-                        // TODO: matchesQuery takes type of section, but section here is of type JSON object?
-                        if (that.matchesQuery(query, section)) {
-                            validSections.push(section);
+                        //Log.trace("section = " + JSON.stringify(section));
+                        let s: Section = {
+                            dept: section["dept"],
+                            id: section["id"],
+                            avg: section["avg"],
+                            instructor: section["instructor"],
+                            title: section["title"],
+                            pass: section["pass"],
+                            fail: section["fail"],
+                            audit: section["audit"],
+                            uuid: section["uuid"]
+                        };
+                        if (that.matchesQuery(query, s)) {
+                            validSections.push(s);
                         }
                     }
                 }
@@ -819,9 +829,10 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     matchesQuery(filter: Filter, section: Section): boolean {
+        //Log.trace("inside matchesQuery");
         var compValues: number[];
         var k = Object.keys(filter);
-        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
 
         switch (k[0]) {
             // recursively makes sure section matches all filters
