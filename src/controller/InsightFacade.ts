@@ -586,10 +586,10 @@ export default class InsightFacade implements IInsightFacade {
                         Promise.all(keyArray)
                             .then(function(value: any) {
 
-                                Log.trace("checkOptions Promise.all returned successfully")
+                                Log.trace("COLUMNS checkOptions Promise.all returned successfully")
                             })
                             .catch(function() {
-                                reject("checkOptions Promise.all failed, invalid key in COLUMNS");
+                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS");
                             });
                     } else {
                         reject("COLUMNS is empty");
@@ -607,6 +607,7 @@ export default class InsightFacade implements IInsightFacade {
                 // check if ORDER exists
                 if (options.hasOwnProperty('ORDER')) {
                     // check if ORDER is valid key
+                    Log.trace("options.ORDER = " + options.ORDER);
                     that.validKey(options.ORDER).then(function() {
                         if (!options.COLUMNS.hasOwnProperty(options.ORDER)) {
                             reject("key in ORDER not in COLUMNS");
