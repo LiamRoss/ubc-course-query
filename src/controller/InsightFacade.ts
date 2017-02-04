@@ -791,11 +791,11 @@ export default class InsightFacade implements IInsightFacade {
 
                 // Parse each course in the dataset
                 for(let course in parsedData) {
-                    Log.trace("Parsing course = " + course + ", type = " + course.constructor.name);
+                    Log.trace("Parsing course = " + course);
 
                     // Parse the sections of each course
                     for (let section of parsedData[course]) {
-                        Log.trace("s = " + JSON.stringify(section));
+                        Log.trace("section = " + JSON.stringify(section));
                         // TODO: matchesQuery takes type of section, but section here is of type JSON object?
                         if (that.matchesQuery(query, section)) {
                             validSections.push(section);
