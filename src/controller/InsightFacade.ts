@@ -781,6 +781,7 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // For each data set on disk
             for (let setId in that.dataSets) {
+                Log.trace("Query is: " + JSON.stringify(query));
                 Log.trace("beginning parsing through: " + setId + ".json");
                 Log.trace("*************************************************");
 
@@ -832,7 +833,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("inside matchesQuery");
         var compValues: number[];
         var k = Object.keys(filter);
-        Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
+        //Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
 
         switch (k[0]) {
             // recursively makes sure section matches all filters
