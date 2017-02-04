@@ -328,8 +328,30 @@ export default class InsightFacade implements IInsightFacade {
     // performQuery
     //  |
     //   - validQuery
-    validQuery(query: QueryRequest): Promise <any> {
+    validQuery(query: QueryRequest): Promise < any > {
         Log.trace("Inside validQuery");
+        let that = this;
+
+        return new Promise(function (fulfill, reject) {
+            var promises: Promise < any > [] = [];
+            Log.trace("query = " + JSON.stringify(query));
+            promises[0] = that.validQueryProperties(query);
+            promises[1] = that.validWhere(query);
+            promises[2] = that.validOptions(query);
+
+            Promise.all(promises)
+                .then(function () {
+                    Log.trace("validQuery fulfills");
+                    fulfill();
+                })
+                .catch(function (err: string) {
+                    reject(err);
+                })
+        });
+    }
+
+    validQueryProperties(query: QueryRequest): Promise <any> {
+        Log.trace("Inside validQueryProperties");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -337,24 +359,49 @@ export default class InsightFacade implements IInsightFacade {
             // checking to make sure it only has two properties
             if (Object.keys(query).length != 2) {
                 reject("wrong number of properties in QueryRequest"); 
+            } else {
+                Log.trace("validQueryProperties fulfills");
+                fulfill();
             }
+        });
+    }
+
+    validWhere(query: QueryRequest): Promise <any> {
+        Log.trace("Inside validWhere");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
             //-------------------------------------
             // checking if WHERE exists
-            // TODO: add .then or new function...
             if (query.hasOwnProperty('WHERE')) {
                 // check WHERE
-                that.checkFilter(query.WHERE).catch(function(s: string) {
+                that.checkFilter(query.WHERE).then(function() {
+                    Log.trace("validWhere fulfills");
+                    fulfill();
+                })
+                .catch(function(s: string) {
                     reject(s);
-                    
                 })
             } else {
                 reject("no WHERE property");
             }
+        });
+    }
+
+    validOptions(query: QueryRequest): Promise <any> {
+        Log.trace("Inside validOptions");
+        let that = this;
+
+        return new Promise(function(fulfill, reject) {
             //-------------------------------------
             // checking if OPTIONS exists
             if (query.hasOwnProperty('OPTIONS')) {
                 // check OPTIONS
-                that.checkOptions(query.OPTIONS).catch(function(s: string) {
+                that.checkOptions(query.OPTIONS).then(function() {
+                    Log.trace("validOptions fulfills");
+                    fulfill();
+                })
+                .catch(function(s: string) {
                     reject(s);
                 })
             } else {
