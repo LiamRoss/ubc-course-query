@@ -416,7 +416,7 @@ export default class InsightFacade implements IInsightFacade {
                     break;
 
                 default:
-                    reject("invalid Filter property \"" + filter + "\"");
+                    reject("invalid Filter property \"" + JSON.stringify(filter) + "\"");
                     break;
             }
         });
