@@ -5,7 +5,7 @@
 import Server from "../src/rest/Server";
 import {expect} from 'chai';
 import Log from "../src/Util";
-import {InsightResponse} from "../src/controller/IInsightFacade";
+import {InsightResponse, QueryRequest} from "../src/controller/IInsightFacade";
 import InsightFacade from "../src/controller/InsightFacade";
 var fs = require('fs');
 
@@ -57,7 +57,7 @@ describe("InsightFacadeSpec", function () {
     });
 
     // TODO: test each helper function in InsightFacade.ts
-
+/*
     // Test 1
     // Add single dataset
     it("addDataset with test base64 zip, should return code 204", function () {
@@ -150,8 +150,50 @@ describe("InsightFacadeSpec", function () {
                 Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
                 expect(err.code).to.equal(400);
             });
+    });*/
+
+    /**
+     * PERFORM QUERY TESTS
+     */
+
+    // Test 6
+    // A simple response
+    it("performQuery with a simple query", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest =
+                    {
+                        "WHERE":{
+                            "GT":{
+                                "courses_avg":97
+                            }
+                        },
+                        "OPTIONS":{
+                            "COLUMNS":[
+                                "courses_dept",
+                                "courses_avg"
+                            ],
+                            "ORDER":"courses_avg",
+                            "FORM":"TABLE"
+                        }
+                    };
+
+                return insightFacade.performQuery(qr)
+                    .then(function(value: InsightResponse) {
+                        Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                    })
+                    .catch(function(err: InsightResponse) {
+                        Log.trace("Test done: " + err.code + ", " + JSON.stringify(err.body));
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
     });
 
-    
+
 });
 
