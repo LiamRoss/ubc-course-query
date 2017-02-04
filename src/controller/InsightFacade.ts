@@ -793,7 +793,7 @@ export default class InsightFacade implements IInsightFacade {
                 // Parse each course in the dataset
                 for(let course in parsedData) {
                     //Log.trace("Parsing course = " + course);
-
+                    //Log.trace(course + " has " + parsedData[course].length + " sections");
                     // Parse the sections of each course
                     for (let section of parsedData[course]) {
                         //Log.trace("section = " + JSON.stringify(section));
@@ -808,12 +808,14 @@ export default class InsightFacade implements IInsightFacade {
                             audit: section["audit"],
                             uuid: section["uuid"]
                         };
-                        if (that.matchesQuery(query, s)) {
+                        if (that.matchesQuery(query["WHERE"], s)) {
+                            Log.trace("adding to validSections");
                             validSections.push(s);
                         }
                     }
                 }
             }
+            Log.trace("t");
             if (validSections.length == 0) {
                 Log.trace("retrieveQuery: validSections.length == 0");
                 if (that.missingIDs.length !== 0) {
@@ -829,12 +831,30 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+    createMComparison(obj: any): MComparison {
+        var mc: MComparison;
+        for(let thing in obj) {
+            if(thing == "courses_avg") {
+                mc = { courses_avg: obj[thing] };
+            } else if(thing == "courses_pass") {
+                mc = { courses_pass: obj[thing] };
+            } else if(thing == "courses_fail") {
+                mc = { courses_fail: obj[thing] };
+            } else if(thing == "courses_audit") {
+                mc = { courses_audit: obj[thing] };
+            }
+        }
+        return mc;
+    }
+
     matchesQuery(filter: Filter, section: Section): boolean {
         //Log.trace("inside matchesQuery");
+        let that = this;
         var compValues: number[];
         var k = Object.keys(filter);
         //Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
 
+        // TODO: ONLY GT WORKS NEED TO FIX REST
         switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
@@ -861,13 +881,15 @@ export default class InsightFacade implements IInsightFacade {
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] > compValues[1]);
             case "GT":
-                Log.trace("GT found");
-                compValues = this.MCompareToSection(filter.GT, section);
-                return(compValues[0] < compValues[1]);
+                //Log.trace("GT found" + ", Filter.GT = " + JSON.stringify(filter.GT));
+                var mc = that.createMComparison(filter.GT);
+                compValues = this.MCompareToSection(mc, section);
+                if(compValues[1] > compValues[0]) { Log.trace("compValues comparison for GT is true"); }
+                return(compValues[1] > compValues[0]);
             case "EQ":
                 Log.trace("EQ found");
                 compValues = this.MCompareToSection(filter.GT, section);
-                return(compValues[0] === compValues[1]);
+                return(compValues[0] == compValues[1]);
             // checks strings
             case "IS":
                 Log.trace("IS found");
@@ -882,14 +904,20 @@ export default class InsightFacade implements IInsightFacade {
         return false;
     }
 
-    MCompareToSection(mC: MComparison, section: Section): number[] {
-        var k = Object.keys(mC);
-        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
-        switch (k[0]) {
+    MCompareToSection(mC: MComparison, section: Section): number[] {
+        //Log.trace("Inside MCompareToSection");
+        let identifier: String = "MCompareToSection identifier uninitialized!";
+        for(let thing in mC) {
+            identifier = thing;
+        }
+        //Log.trace("identifier set to " + identifier);
+
+        switch (identifier) {
             case "courses_avg":
-                Log.trace("courses_avg found");
+                //Log.trace("courses_avg found");
                 if (section.hasOwnProperty("avg")) {
+                    //Log.trace("Returning [" + mC.courses_avg + ", " + section.avg + "]");
                     return [mC.courses_avg, section.avg];
                 }
                 return [];
