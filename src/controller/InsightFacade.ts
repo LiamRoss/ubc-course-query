@@ -374,43 +374,71 @@ export default class InsightFacade implements IInsightFacade {
 
                 // LOGICCOMPARISON
                 case "AND":
-                    that.checkLogicComparison(filter.AND).catch(function(err: string) {
-                        reject(err);        
-                    });
+                    that.checkLogicComparison(filter.AND)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
+                            reject(err);
+                        });
                     break;
                 case "OR":
-                    that.checkLogicComparison(filter.OR).catch(function(err: string) {
-                        reject(err); 
-                    });
+                    that.checkLogicComparison(filter.OR)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
+                            reject(err);
+                        });
                     break;
 
                 // MCOMPARISON:    
                 case "LT":
-                    that.checkMComparison(filter.LT).catch(function(err: string) {
+                    that.checkMComparison(filter.LT)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
                         reject(err);
                     });
                     break;
                 case "GT":
-                    that.checkMComparison(filter.GT).catch(function(err: string) {
+                    that.checkMComparison(filter.GT)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
                         reject(err); 
-                    })
+                    });
                     break;
                 case "EQ":
-                    that.checkMComparison(filter.EQ).catch(function(err: string) {
+                    that.checkMComparison(filter.EQ)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
                         reject(err);  
                     });
                     break;
 
                 // SCOMPARISON:
                 case "IS":
-                    that.checkSComparison(filter.IS).catch(function(err: string) {
+                    that.checkSComparison(filter.IS)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
                         reject(err); 
                     });
                     break;
 
                 // NEGATION:
                 case "NOT":
-                    that.checkFilter(filter.NOT).catch(function(err: string) {
+                    that.checkFilter(filter.NOT)
+                        .then(function() {
+                            fulfill();
+                        })
+                        .catch(function(err: string) {
                         reject(err);  
                     });
                     break;
@@ -438,9 +466,15 @@ export default class InsightFacade implements IInsightFacade {
                         promises[i] = that.checkFilter(filters[i]);
                     }
 
-                    Promise.all(promises).catch(function (err: string) {
-                        reject(err);
-                    })
+                    Promise.all(promises)
+                        .then(function(value: any) {
+                            Log.trace("checkLogicComparison Promise.all fulfilled");
+                            fulfill();
+                        })
+                        .catch(function (err: string) {
+                            Log.trace("checkFilter Promise.all failed");
+                            reject(err);
+                        });
                 } else {
                     reject("LOGICCOMPARISON array is empty");
                 }
