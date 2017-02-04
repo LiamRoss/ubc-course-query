@@ -376,19 +376,19 @@ export default class InsightFacade implements IInsightFacade {
                 case "AND":
                     that.checkLogicComparison(filter.AND).catch(function(err: string) {
                         reject(err);        
-                    })
+                    });
                     break;
                 case "OR":
                     that.checkLogicComparison(filter.OR).catch(function(err: string) {
                         reject(err); 
-                    })
+                    });
                     break;
 
                 // MCOMPARISON:    
                 case "LT":
                     that.checkMComparison(filter.LT).catch(function(err: string) {
                         reject(err);
-                    })
+                    });
                     break;
                 case "GT":
                     that.checkMComparison(filter.GT).catch(function(err: string) {
@@ -398,25 +398,25 @@ export default class InsightFacade implements IInsightFacade {
                 case "EQ":
                     that.checkMComparison(filter.EQ).catch(function(err: string) {
                         reject(err);  
-                    })
+                    });
                     break;
 
                 // SCOMPARISON:
                 case "IS":
                     that.checkSComparison(filter.IS).catch(function(err: string) {
                         reject(err); 
-                    })
+                    });
                     break;
 
                 // NEGATION:
                 case "NOT":
                     that.checkFilter(filter.NOT).catch(function(err: string) {
                         reject(err);  
-                    })
+                    });
                     break;
 
                 default:
-                    reject("invalid Filter property \"" + JSON.stringify(filter) + "\"");
+                    reject("WARNING, checkFilter default: invalid Filter property \"" + JSON.stringify(filter) + "\"");
                     break;
             }
         });
@@ -605,6 +605,7 @@ export default class InsightFacade implements IInsightFacade {
                 // this one worked on online version:
                 //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
                 if (/(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+                    Log.trace("Fancy regex passed");
                     fulfill();
                 }
             }
@@ -648,7 +649,9 @@ export default class InsightFacade implements IInsightFacade {
                 }
             }
             if (validSections.length == 0) {
+                Log.trace("validSections.length == 0");
                 if (that.missingIDs.length !== 0) {
+                    Log.trace("that.missingIDs.length != 0");
                     reject(that.missingIDs);
                 } else {
                     // TODO: make sure that a no-results query is a fail
@@ -664,6 +667,7 @@ export default class InsightFacade implements IInsightFacade {
         switch (filter) {
             // recursively makes sure section matches all filters
             case "AND":
+                Log.trace("AND found");
                 for (var element of filter.AND) {
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
@@ -673,6 +677,7 @@ export default class InsightFacade implements IInsightFacade {
                 return true;
             // recursively makes sure section matches at least 1 filter
             case "OR":
+                Log.trace("OR found");
                 var runs: boolean[];
                 for (var element of filter.OR) {
                     var bool = this.matchesQuery(element, section);
@@ -681,19 +686,24 @@ export default class InsightFacade implements IInsightFacade {
                 return runs.includes(true);
             // checks values
             case "LT":
+                Log.trace("LT found");
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] > compValues[1]);
             case "GT":
+                Log.trace("GT found");
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] < compValues[1]);
             case "EQ":
+                Log.trace("EQ found");
                 compValues = this.MCompareToSection(filter.GT, section);
                 return(compValues[0] === compValues[1]);
             // checks strings
             case "IS":
+                Log.trace("IS found");
                 return(this.SCompareToSection(filter.GT, section));
             // negates recursive call to check filter
             case "NOT":
+                Log.trace("NOT found");
                 return !this.matchesQuery(filter.NOT, section);
             default:
                 break;
@@ -704,21 +714,25 @@ export default class InsightFacade implements IInsightFacade {
     MCompareToSection(mC: MComparison, section: Section): number[] {
         switch (mC) {
             case "courses_avg":
+                Log.trace("courses_avg found");
                 if (section.hasOwnProperty("avg")) {
                     return [mC.courses_avg, section.avg];
                 }
                 return [];
             case "courses_pass":
+                Log.trace("courses_pass found");
                 if (section.hasOwnProperty("pass")) {
                     return [mC.courses_pass, section.pass];
                 }
                 return [];
             case "courses_fail":
+                Log.trace("courses_fail found");
                 if (section.hasOwnProperty("fail")) {
                     return [mC.courses_fail, section.fail];
                 }
                 return [];
             case "courses_audit":
+                Log.trace("courses_audit found");
                 if (section.hasOwnProperty("audit")) {
                     return [mC.courses_audit, section.audit];
                 }
