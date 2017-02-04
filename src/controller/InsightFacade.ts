@@ -340,6 +340,7 @@ export default class InsightFacade implements IInsightFacade {
             }
             //-------------------------------------
             // checking if WHERE exists
+            // TODO: add .then or new function...
             if (query.hasOwnProperty('WHERE')) {
                 // check WHERE
                 that.checkFilter(query.WHERE).catch(function(s: string) {
@@ -580,6 +581,7 @@ export default class InsightFacade implements IInsightFacade {
             promises[2] = that.checkForm(options);
 
             Promise.all(promises).then(function () {
+                    Log.trace("checkOptions fulfills");
                     fulfill();
                 })
                 .catch(function (err: string) {
@@ -611,6 +613,7 @@ export default class InsightFacade implements IInsightFacade {
                         Promise.all(keyArray)
                             .then(function(value: any) {
                                 Log.trace("COLUMNS checkOptions Promise.all returned successfully")
+                                Log.trace("checkColumns fulfills");
                                 fulfill();
                             })
                             .catch(function() {
@@ -644,7 +647,8 @@ export default class InsightFacade implements IInsightFacade {
                     Log.trace("options.ORDER = " + options.ORDER + ", type = " + options.ORDER.constructor.name);
                     that.validKey(options.ORDER).then(function() {
                         for (let key of options.COLUMNS) {
-                            if (key === options.ORDER) {
+                            if (key === options.ORDER) {   
+                                Log.trace("checkOrder fulfills");
                                 fulfill();
                             }
                         }
@@ -673,9 +677,11 @@ export default class InsightFacade implements IInsightFacade {
             // check if FORM exists
             if (options.hasOwnProperty('FORM')) {
                 // check if FORM is string "TABLE"
+                Log.trace("options.FORM = " + options.FORM)
                 if (options.FORM !== "TABLE") {
                     reject("FORM is not \"TABLE\"");
                 } else {
+                    Log.trace("checkForm fulfills");
                     fulfill();
                 }
             } else {
