@@ -157,8 +157,8 @@ describe("InsightFacadeSpec", function () {
      */
 
     // Test 6
-    // A simple response
-    it("performQuery with a simple query", function () {
+    // A simple query (from d1 page)
+    /*it("performQuery with a simple query", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -246,8 +246,124 @@ describe("InsightFacadeSpec", function () {
                 Log.test('ERROR: ' + err.body);
                 expect.fail();
             });
-    });
+    });*/
 
+    // Test 7
+    // A complex query (from d1 page)
+    it("performQuery with a complex query", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest =
+                    {
+                        "WHERE":{
+                            "OR":[
+                                {
+                                    "AND":[
+                                        {
+                                            "GT":{
+                                                "courses_avg":90
+                                            }
+                                        },
+                                        {
+                                            "IS":{
+                                                "courses_dept":"adhe"
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "EQ":{
+                                        "courses_avg":95
+                                    }
+                                }
+                            ]
+                        },
+                        "OPTIONS":{
+                            "COLUMNS":[
+                                "courses_dept",
+                                "courses_id",
+                                "courses_avg"
+                            ],
+                            "ORDER":"courses_avg",
+                            "FORM":"TABLE"
+                        }
+                    };
+                return insightFacade.performQuery(qr)
+                    .then(function(value: InsightResponse) {
+                        Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        expect(value.body).to.deep.equal(
+                            { render: 'TABLE',
+                                result:
+                                    [ { courses_dept: 'adhe', courses_id: '329', courses_avg: 90.02 },
+                                        { courses_dept: 'adhe', courses_id: '412', courses_avg: 90.16 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.17 },
+                                        { courses_dept: 'adhe', courses_id: '412', courses_avg: 90.18 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.5 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.72 },
+                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 90.82 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.85 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.29 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.33 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.33 },
+                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.48 },
+                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 92.54 },
+                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 93.33 },
+                                        { courses_dept: 'rhsc', courses_id: '501', courses_avg: 95 },
+                                        { courses_dept: 'bmeg', courses_id: '597', courses_avg: 95 },
+                                        { courses_dept: 'bmeg', courses_id: '597', courses_avg: 95 },
+                                        { courses_dept: 'cnps', courses_id: '535', courses_avg: 95 },
+                                        { courses_dept: 'cnps', courses_id: '535', courses_avg: 95 },
+                                        { courses_dept: 'cpsc', courses_id: '589', courses_avg: 95 },
+                                        { courses_dept: 'cpsc', courses_id: '589', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'sowk', courses_id: '570', courses_avg: 95 },
+                                        { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
+                                        { courses_dept: 'edcp', courses_id: '473', courses_avg: 95 },
+                                        { courses_dept: 'edcp', courses_id: '473', courses_avg: 95 },
+                                        { courses_dept: 'epse', courses_id: '606', courses_avg: 95 },
+                                        { courses_dept: 'epse', courses_id: '682', courses_avg: 95 },
+                                        { courses_dept: 'epse', courses_id: '682', courses_avg: 95 },
+                                        { courses_dept: 'kin', courses_id: '499', courses_avg: 95 },
+                                        { courses_dept: 'kin', courses_id: '500', courses_avg: 95 },
+                                        { courses_dept: 'kin', courses_id: '500', courses_avg: 95 },
+                                        { courses_dept: 'math', courses_id: '532', courses_avg: 95 },
+                                        { courses_dept: 'math', courses_id: '532', courses_avg: 95 },
+                                        { courses_dept: 'mtrl', courses_id: '564', courses_avg: 95 },
+                                        { courses_dept: 'mtrl', courses_id: '564', courses_avg: 95 },
+                                        { courses_dept: 'mtrl', courses_id: '599', courses_avg: 95 },
+                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+                                        { courses_dept: 'nurs', courses_id: '424', courses_avg: 95 },
+                                        { courses_dept: 'nurs', courses_id: '424', courses_avg: 95 },
+                                        { courses_dept: 'obst', courses_id: '549', courses_avg: 95 },
+                                        { courses_dept: 'psyc', courses_id: '501', courses_avg: 95 },
+                                        { courses_dept: 'psyc', courses_id: '501', courses_avg: 95 },
+                                        { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
+                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 96.11 } ] }
+                        );
+                    })
+                    .catch(function(err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
 
 });
 
