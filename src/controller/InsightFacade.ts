@@ -918,8 +918,7 @@ export default class InsightFacade implements IInsightFacade {
             // negates recursive call to check filter
             case "NOT":
                 //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
-                // var mc = that.createMComparison(filter.NOT);
-                *****
+                var mc = that.createMComparison(filter.NOT);
                 return !this.matchesQuery(mc, section);
             default:
                 break;
