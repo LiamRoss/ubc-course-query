@@ -183,7 +183,7 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
                         Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
-                        expect(value.body).to.equal(
+                        expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
                                     [ { courses_dept: 'epse', courses_avg: 97.09 },
