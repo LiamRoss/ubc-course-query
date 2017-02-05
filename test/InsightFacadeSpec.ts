@@ -252,7 +252,7 @@ describe("InsightFacadeSpec", function () {
     // A complex query (from d1 page)
     it("performQuery with a complex query", function () {
         var id: string = "courses";
-        this.timeout(10000);
+        this.timeout(100000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest =

@@ -864,6 +864,29 @@ export default class InsightFacade implements IInsightFacade {
         return sc;
     }
 
+    
+    createFilter(filter: any): Filter {
+        var f: Filter;
+        for(let thing in f) {
+            if(thing == "AND") {
+                f = { AND: filter[thing] };
+            } else if(thing == "OR") {
+                f = { OR: filter[thing] };
+            } else if(thing == "LT") {
+                f = { LT: this.createMComparison(thing) };
+            } else if(thing == "GT") {
+                f = { GT: this.createMComparison(thing) };
+            } else if(thing == "EQ") {
+                f = { EQ: this.createMComparison(thing) };
+            } else if(thing == "IS") {
+                f = { IS: this.createSComparison(thing) };
+            } else if(thing == "NOT") {
+                f = {NOT: filter[thing] };
+            }
+        }
+        return f;
+    }
+
     matchesQuery(filter: Filter, section: Section): boolean {
         //Log.trace("inside matchesQuery");
         let that = this;
@@ -875,20 +898,26 @@ export default class InsightFacade implements IInsightFacade {
         switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
-                Log.trace("AND found");
+                Log.trace("AND found" + ", Filter.AND = " + JSON.stringify(filter.AND));
                 for (var element of filter.AND) {
-                    Log.trace("AND found");
+                    Log.trace("AND found, element = " + JSON.stringify(element));
+                    // var f: Filter = this.createFilter(element);
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
+                        Log.trace("went into the false bool for AND");
                         return false;
                     }
+                    Log.trace("finished AND element loop");
                 }
                 return true;
             // recursively makes sure section matches at least 1 filter
             case "OR":
-                //Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
-                var runs: boolean[];
+                Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
+                var runs: boolean[] = [];
                 for (var element of filter.OR) {
+                    Log.trace("OR found, element = " + JSON.stringify(element));
+                    // var f: Filter = this.createFilter(element);
+                    // var bool = this.matchesQuery(f, section);
                     var bool = this.matchesQuery(element, section);
                     runs.push(bool);
                 }
@@ -918,8 +947,8 @@ export default class InsightFacade implements IInsightFacade {
             // negates recursive call to check filter
             case "NOT":
                 //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
-                var mc = that.createMComparison(filter.NOT);
-                return !this.matchesQuery(mc, section);
+                // var f: Filter = this.createFilter(filter.NOT);
+                return !this.matchesQuery(filter.NOT, section);
             default:
                 break;
         }
