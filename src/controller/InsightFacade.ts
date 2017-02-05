@@ -898,30 +898,35 @@ export default class InsightFacade implements IInsightFacade {
         switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
-                Log.trace("AND found" + ", Filter.AND = " + JSON.stringify(filter.AND));
+                //Log.trace("AND found" + ", Filter.AND = " + JSON.stringify(filter.AND));
                 for (var element of filter.AND) {
-                    Log.trace("AND found, element = " + JSON.stringify(element));
+                    //Log.trace("AND found, element = " + JSON.stringify(element));
                     // var f: Filter = this.createFilter(element);
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
-                        Log.trace("went into the false bool for AND");
+                        //Log.trace("went into the false bool for AND");
                         return false;
                     }
-                    Log.trace("finished AND element loop");
+                    //Log.trace("finished AND element loop");
                 }
                 return true;
             // recursively makes sure section matches at least 1 filter
             case "OR":
-                Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
+                //Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
                 var runs: boolean[] = [];
                 for (var element of filter.OR) {
-                    Log.trace("OR found, element = " + JSON.stringify(element));
+                    //Log.trace("OR found, element = " + JSON.stringify(element));
                     // var f: Filter = this.createFilter(element);
                     // var bool = this.matchesQuery(f, section);
-                    var bool = this.matchesQuery(element, section);
+                    var bool: boolean = this.matchesQuery(element, section);
                     runs.push(bool);
                 }
-                return runs.includes(true);
+                for (var run of runs) {
+                    if (run === true) {
+                        return true;
+                    }
+                }
+                return false;
             // checks values
             case "LT":
                 //Log.trace("LT found" + ", Filter.LT = " + JSON.stringify(filter.LT));
@@ -1076,7 +1081,7 @@ export default class InsightFacade implements IInsightFacade {
             // Log.trace("validSections sorted");
 
             for (let section of validSections) {
-                Log.trace("Creating columns for " + section.dept + section.id);
+                //Log.trace("Creating columns for " + section.dept + section.id);
                 let obj: Object = {};
                 var key: HashTable<string>;
                 for (let column of options.COLUMNS) {
@@ -1084,16 +1089,16 @@ export default class InsightFacade implements IInsightFacade {
                     let val: any;
                     try{ val = that.getVal(section, sectionKey); } catch(e) { Log.trace("e = " + e);}
 
-                    Log.trace(" ");
-                    Log.trace("    Adding " + column + " column");
-                    Log.trace("    sectionKey = " + sectionKey);
-                    Log.trace("    val = " + val);
+                    //Log.trace(" ");
+                    //Log.trace("    Adding " + column + " column");
+                    //Log.trace("    sectionKey = " + sectionKey);
+                    //Log.trace("    val = " + val);
                     //try{ key[String(column)] = val; } catch(e) { Log.trace("ee = " + e); }
 
                     try{ (<any>obj)[(String(column))] = val; } catch(e) { Log.trace("eee = " + e); }
                 }
                 result.push(obj);
-                Log.trace("    All columns created for " + section.dept);
+                //Log.trace("    All columns created for " + section.dept);
             }
             returnJSON = {
                 render: "TABLE",
