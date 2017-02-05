@@ -73,7 +73,7 @@ export interface Section {
 // interface for returned JSON
 export interface ReturnJSON {
     render: string; // must be 'TABLE'
-    result: Key[];
+    result: Object[];
 }
 
 // all Keys

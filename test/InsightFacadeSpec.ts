@@ -183,9 +183,63 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
                         Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        expect(value.body).to.equal(
+                            { render: 'TABLE',
+                                result:
+                                    [ { courses_dept: 'epse', courses_avg: 97.09 },
+                                        { courses_dept: 'math', courses_avg: 97.09 },
+                                        { courses_dept: 'math', courses_avg: 97.09 },
+                                        { courses_dept: 'epse', courses_avg: 97.09 },
+                                        { courses_dept: 'math', courses_avg: 97.25 },
+                                        { courses_dept: 'math', courses_avg: 97.25 },
+                                        { courses_dept: 'epse', courses_avg: 97.29 },
+                                        { courses_dept: 'epse', courses_avg: 97.29 },
+                                        { courses_dept: 'nurs', courses_avg: 97.33 },
+                                        { courses_dept: 'nurs', courses_avg: 97.33 },
+                                        { courses_dept: 'epse', courses_avg: 97.41 },
+                                        { courses_dept: 'epse', courses_avg: 97.41 },
+                                        { courses_dept: 'cnps', courses_avg: 97.47 },
+                                        { courses_dept: 'cnps', courses_avg: 97.47 },
+                                        { courses_dept: 'math', courses_avg: 97.48 },
+                                        { courses_dept: 'math', courses_avg: 97.48 },
+                                        { courses_dept: 'educ', courses_avg: 97.5 },
+                                        { courses_dept: 'nurs', courses_avg: 97.53 },
+                                        { courses_dept: 'nurs', courses_avg: 97.53 },
+                                        { courses_dept: 'epse', courses_avg: 97.67 },
+                                        { courses_dept: 'epse', courses_avg: 97.69 },
+                                        { courses_dept: 'epse', courses_avg: 97.78 },
+                                        { courses_dept: 'crwr', courses_avg: 98 },
+                                        { courses_dept: 'crwr', courses_avg: 98 },
+                                        { courses_dept: 'epse', courses_avg: 98.08 },
+                                        { courses_dept: 'nurs', courses_avg: 98.21 },
+                                        { courses_dept: 'nurs', courses_avg: 98.21 },
+                                        { courses_dept: 'epse', courses_avg: 98.36 },
+                                        { courses_dept: 'epse', courses_avg: 98.45 },
+                                        { courses_dept: 'epse', courses_avg: 98.45 },
+                                        { courses_dept: 'nurs', courses_avg: 98.5 },
+                                        { courses_dept: 'nurs', courses_avg: 98.5 },
+                                        { courses_dept: 'epse', courses_avg: 98.58 },
+                                        { courses_dept: 'nurs', courses_avg: 98.58 },
+                                        { courses_dept: 'nurs', courses_avg: 98.58 },
+                                        { courses_dept: 'epse', courses_avg: 98.58 },
+                                        { courses_dept: 'epse', courses_avg: 98.7 },
+                                        { courses_dept: 'nurs', courses_avg: 98.71 },
+                                        { courses_dept: 'nurs', courses_avg: 98.71 },
+                                        { courses_dept: 'eece', courses_avg: 98.75 },
+                                        { courses_dept: 'eece', courses_avg: 98.75 },
+                                        { courses_dept: 'epse', courses_avg: 98.76 },
+                                        { courses_dept: 'epse', courses_avg: 98.76 },
+                                        { courses_dept: 'epse', courses_avg: 98.8 },
+                                        { courses_dept: 'spph', courses_avg: 98.98 },
+                                        { courses_dept: 'spph', courses_avg: 98.98 },
+                                        { courses_dept: 'cnps', courses_avg: 99.19 },
+                                        { courses_dept: 'math', courses_avg: 99.78 },
+                                        { courses_dept: 'math', courses_avg: 99.78 } ] }
+                        );
                     })
                     .catch(function(err: InsightResponse) {
-                        Log.trace("Test done: " + err.code + ", " + JSON.stringify(err.body));
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
                     })
             })
             .catch(function (err: InsightResponse) {

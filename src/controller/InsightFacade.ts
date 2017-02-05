@@ -774,7 +774,7 @@ export default class InsightFacade implements IInsightFacade {
     retrieveData(query: QueryRequest): Promise < any > {
         Log.trace("Inside retrieveData");
         let that = this;
-        var validSections: Section[];
+        var validSections: Section[] = [];
         // initialize missingIDs
         that.missingIDs = [];
 
@@ -809,13 +809,12 @@ export default class InsightFacade implements IInsightFacade {
                             uuid: section["uuid"]
                         };
                         if (that.matchesQuery(query["WHERE"], s)) {
-                            Log.trace("adding to validSections");
+                            //Log.trace("adding to validSections");
                             validSections.push(s);
                         }
                     }
                 }
             }
-            Log.trace("t");
             if (validSections.length == 0) {
                 Log.trace("retrieveQuery: validSections.length == 0");
                 if (that.missingIDs.length !== 0) {
@@ -854,7 +853,7 @@ export default class InsightFacade implements IInsightFacade {
         var k = Object.keys(filter);
         //Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
 
-        // TODO: ONLY GT WORKS NEED TO FIX REST
+        // TODO: NEED TO CHECK AND, OR
         switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
@@ -868,7 +867,7 @@ export default class InsightFacade implements IInsightFacade {
                 return true;
             // recursively makes sure section matches at least 1 filter
             case "OR":
-                Log.trace("OR found");
+                //Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
                 var runs: boolean[];
                 for (var element of filter.OR) {
                     var bool = this.matchesQuery(element, section);
@@ -877,27 +876,31 @@ export default class InsightFacade implements IInsightFacade {
                 return runs.includes(true);
             // checks values
             case "LT":
-                Log.trace("LT found");
-                compValues = this.MCompareToSection(filter.GT, section);
+                //Log.trace("LT found" + ", Filter.LT = " + JSON.stringify(filter.LT));
+                var mc = that.createMComparison(filter.LT);
+                compValues = this.MCompareToSection(mc, section);
                 return(compValues[0] > compValues[1]);
             case "GT":
                 //Log.trace("GT found" + ", Filter.GT = " + JSON.stringify(filter.GT));
                 var mc = that.createMComparison(filter.GT);
                 compValues = this.MCompareToSection(mc, section);
-                if(compValues[1] > compValues[0]) { Log.trace("compValues comparison for GT is true"); }
+                // if(compValues[1] > compValues[0]) { Log.trace("compValues comparison for GT is true"); }
                 return(compValues[1] > compValues[0]);
             case "EQ":
-                Log.trace("EQ found");
-                compValues = this.MCompareToSection(filter.GT, section);
+                //Log.trace("EQ found" + ", Filter.EQ = " + JSON.stringify(filter.EQ));
+                var mc = that.createMComparison(filter.EQ);
+                compValues = this.MCompareToSection(mc, section);
                 return(compValues[0] == compValues[1]);
             // checks strings
             case "IS":
-                Log.trace("IS found");
-                return(this.SCompareToSection(filter.GT, section));
+                //Log.trace("IS found" + ", Filter.IS = " + JSON.stringify(filter.IS));
+                var mc = that.createMComparison(filter.IS);
+                return(this.SCompareToSection(mc, section));
             // negates recursive call to check filter
             case "NOT":
-                Log.trace("NOT found");
-                return !this.matchesQuery(filter.NOT, section);
+                //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
+                var mc = that.createMComparison(filter.NOT);
+                return !this.matchesQuery(mc, section);
             default:
                 break;
         }
@@ -986,6 +989,28 @@ export default class InsightFacade implements IInsightFacade {
         }
     }
 
+    getVal(section: Section, sectionKey: string): any {
+        if(sectionKey == "dept") {
+            return section.dept;
+        } else if(sectionKey == "id") {
+            return section.id;
+        } else if(sectionKey == "avg") {
+            return section.avg;
+        } else if(sectionKey == "instructor") {
+            return section.instructor;
+        } else if(sectionKey == "title") {
+            return section.title;
+        } else if(sectionKey == "pass") {
+            return section.pass;
+        } else if(sectionKey == "fail") {
+            return section.fail;
+        } else if(sectionKey == "audit") {
+            return section.audit;
+        } else if(sectionKey == "uuid") {
+            return section.uuid;
+        }
+    }
+
     // performQuery
     //  |
     //   - retrieveQuery
@@ -995,24 +1020,37 @@ export default class InsightFacade implements IInsightFacade {
         Log.trace("Inside formatJsonResponse");
         let that = this;
         var returnJSON: ReturnJSON;
-        var result: Key[];
+        var result: Object[] = [];
 
         return new Promise(function (fulfill, reject) {
             // sorts validSections by ORDER key
             validSections.sort(that.sortHelper(options.ORDER));
+            // Log.trace("validSections sorted");
 
-            var section: any;
-            for (section of validSections) {
-                var key: any;
-                var column: any;
-                for (column of options.COLUMNS) {
-                    var sectionKey = that.keyToSection(column);
-                    key[column] = section[sectionKey];
+            for (let section of validSections) {
+                Log.trace("Creating columns for " + section.dept + section.id);
+                let obj: Object = {};
+                var key: HashTable<string>;
+                for (let column of options.COLUMNS) {
+                    var sectionKey: string = that.keyToSection(String(column));
+                    let val: any;
+                    try{ val = that.getVal(section, sectionKey); } catch(e) { Log.trace("e = " + e);}
+
+                    Log.trace(" ");
+                    Log.trace("    Adding " + column + " column");
+                    Log.trace("    sectionKey = " + sectionKey);
+                    Log.trace("    val = " + val);
+                    //try{ key[String(column)] = val; } catch(e) { Log.trace("ee = " + e); }
+
+                    try{ (<any>obj)[(String(column))] = val; } catch(e) { Log.trace("eee = " + e); }
                 }
-                result.push(key);
+                result.push(obj);
+                Log.trace("    All columns created for " + section.dept);
             }
-            returnJSON.render = "TABLE";
-            returnJSON.result = result;
+            returnJSON = {
+                render: "TABLE",
+                result: (result)
+            };
             fulfill(returnJSON);
         });
     }
