@@ -846,6 +846,24 @@ export default class InsightFacade implements IInsightFacade {
         return mc;
     }
 
+    createSComparison(obj: any): SComparison {
+        var sc: SComparison;
+        for(let thing in obj) {
+            if(thing == "courses_dept") {
+                sc = { courses_dept: obj[thing] };
+            } else if(thing == "courses_id") {
+                sc = { courses_id: obj[thing] };
+            } else if(thing == "courses_instructor") {
+                sc = { courses_instructor: obj[thing] };
+            } else if(thing == "courses_title") {
+                sc = { courses_title: obj[thing] };
+            } else if(thing == "courses_uuid") {
+                sc = { courses_uuid: obj[thing] };
+            }
+        }
+        return sc;
+    }
+
     matchesQuery(filter: Filter, section: Section): boolean {
         //Log.trace("inside matchesQuery");
         let that = this;
@@ -859,6 +877,7 @@ export default class InsightFacade implements IInsightFacade {
             case "AND":
                 Log.trace("AND found");
                 for (var element of filter.AND) {
+                    Log.trace("AND found");
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
                         return false;
@@ -894,12 +913,13 @@ export default class InsightFacade implements IInsightFacade {
             // checks strings
             case "IS":
                 //Log.trace("IS found" + ", Filter.IS = " + JSON.stringify(filter.IS));
-                var mc = that.createMComparison(filter.IS);
-                return(this.SCompareToSection(mc, section));
+                var sc = that.createSComparison(filter.IS);
+                return(this.SCompareToSection(sc, section));
             // negates recursive call to check filter
             case "NOT":
                 //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
-                var mc = that.createMComparison(filter.NOT);
+                // var mc = that.createMComparison(filter.NOT);
+                *****
                 return !this.matchesQuery(mc, section);
             default:
                 break;
