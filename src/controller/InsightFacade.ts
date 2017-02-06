@@ -39,7 +39,7 @@ export default class InsightFacade implements IInsightFacade {
 
 
     constructor() {
-        //Log.trace('InsightFacadeImpl::init()');
+        Log.trace('InsightFacadeImpl::init()');
     }
 
     /**
@@ -48,14 +48,14 @@ export default class InsightFacade implements IInsightFacade {
      * @param id  The id to be checked
      */
     dataAlreadyExists(id: string): boolean {
-        //Log.trace("Checking if this id already exists");
+        Log.trace("Checking if this id already exists");
         for(let setId in this.dataSets) {
             if(setId === id) {
-                //Log.trace("match found, returning true")
+                Log.trace("match found, returning true")
                 return true;
             }
         }
-        //Log.trace("match not found, returning false");
+        Log.trace("match not found, returning false");
         return false;
     }
 
@@ -67,7 +67,7 @@ export default class InsightFacade implements IInsightFacade {
     writeToDisk(id: string) {
         let that = this;
         fs.writeFileSync(id + ".json", JSON.stringify(that.dataSets[id]));
-        //Log.trace(id + ".json created");
+        Log.trace(id + ".json created");
     }
 
     /**
@@ -114,12 +114,12 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function(fulfill, reject) {
-            //Log.trace("Inside addToDatabase, adding " + id);
+            Log.trace("Inside addToDatabase, adding " + id);
 
             let zip = new JSZip();
             zip.loadAsync(content, {base64:true})
                 .then(function(asyncData: any) {
-                    //Log.trace("loadAsync success");
+                    Log.trace("loadAsync success");
 
                     var promises: Promise<any>[] = [];
 
@@ -135,19 +135,19 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function(ret: any) {
-                            //Log.trace("inside promise.all.then");
+                            Log.trace("inside promise.all.then");
                             var shouldWrite: boolean = true;
                             for(let k in ret) {
-                                ////Log.trace(fileNames[<any>k] + " stored.");
+                                Log.trace(fileNames[<any>k] + " stored.");
                                 let validFile: boolean;
-                                try { validFile = that.isValidFile(ret[k]); } catch(e) { /*//Log.trace("validFile e = " + e);*/ }
+                                try { validFile = that.isValidFile(ret[k]); } catch(e) { /*Log.trace("validFile e = " + e);*/ }
 
                                 if(validFile == false) {
                                     shouldWrite = false;
                                     reject("file named '" + fileNames[<any>k] + "' (#" + k + ") ( in " + id + " is not a valid file.");
                                 } else {
                                     var obj: Object[];
-                                    try { obj = that.createObject(ret[k]); } catch(e) { /*//Log.trace("createObject e = " + e); */ }
+                                    try { obj = that.createObject(ret[k]); } catch(e) { /*Log.trace("createObject e = " + e); */ }
                                     dataHashTable[fileNames[<any>k]] = obj;
                                 }
                             }
@@ -155,12 +155,12 @@ export default class InsightFacade implements IInsightFacade {
                             fulfill();
                         })
                         .catch(function(err: any) {
-                            //Log.trace("Promise.all catch, err = " + err);
+                            Log.trace("Promise.all catch, err = " + err);
                             reject(err);
                         });
                 })
                 .catch(function(err: any) {
-                    //Log.trace("loadAsync(" + id + ") catch, err = " + err);
+                    Log.trace("loadAsync(" + id + ") catch, err = " + err);
                     reject(err);
                 });
             });
@@ -169,7 +169,7 @@ export default class InsightFacade implements IInsightFacade {
     // Content = zip data
     // id = id of the data being added
     addDataset(id: string, content: string): Promise<InsightResponse> {
-        //Log.trace("Inside addDataset()");
+        Log.trace("Inside addDataset()");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -182,7 +182,7 @@ export default class InsightFacade implements IInsightFacade {
             */
 
             if(that.dataAlreadyExists(id) == true) {
-                //Log.trace("if");
+                Log.trace("if");
                 // Even if the data already exists we want to re-cache it as it may have changed since last cache
                 // So lets remove it first
                 that.removeDataset(id)
@@ -190,7 +190,7 @@ export default class InsightFacade implements IInsightFacade {
                         // Now once its removed lets add it again
                         that.addToDatabase(id, content)
                             .then(function() {
-                                //Log.trace("addToDatabase success, fulfilling with fulfill(201)");
+                                Log.trace("addToDatabase success, fulfilling with fulfill(201)");
                                 var ir: InsightResponse = {
                                     code: 201,
                                     body: {}
@@ -198,7 +198,7 @@ export default class InsightFacade implements IInsightFacade {
                                 fulfill(ir);
                             })
                             .catch(function(err: any) {
-                                //Log.trace("addToDatabase catch, err = " + err);
+                                Log.trace("addToDatabase catch, err = " + err);
                                 var ir: InsightResponse = {
                                     code: 400,
                                     body: {"error": err}
@@ -207,7 +207,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                     })
                     .catch(function(err:any) {
-                        //Log.trace("removeFromDatabase catch, err = " + err);
+                        Log.trace("removeFromDatabase catch, err = " + err);
                         var ir: InsightResponse = {
                             code: 400,
                             body: {"error": err}
@@ -215,9 +215,9 @@ export default class InsightFacade implements IInsightFacade {
                         reject(ir);
                     });
             } else {
-                //Log.trace("iff");
+                Log.trace("iff");
                 that.addToDatabase(id, content).then(function() {
-                    //Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
+                    Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
                     var ir: InsightResponse = {
                         code: 204,
                         body: {}
@@ -225,7 +225,7 @@ export default class InsightFacade implements IInsightFacade {
                     fulfill(ir);
                 })
                 .catch(function(err: any) {
-                    //Log.trace("addToDatabase catch, err = " + err);
+                    Log.trace("addToDatabase catch, err = " + err);
                     var ir: InsightResponse = {
                         code: 400,
                         body: {"error": err}
@@ -237,7 +237,7 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     removeDataset(id: string): Promise<InsightResponse> {
-        //Log.trace("Inside removeDataset()");
+        Log.trace("Inside removeDataset()");
         let that = this;
         // Remove id from ids[] and delete its .json
         var ir: InsightResponse = {
@@ -248,10 +248,10 @@ export default class InsightFacade implements IInsightFacade {
             try {
                 delete that.dataSets[id];
                 fs.unlinkSync(id + ".json");
-                //Log.trace("Removal(" + id + ") success");
+                Log.trace("Removal(" + id + ") success");
 
             } catch(err) {
-                //Log.trace("Remove(" + id + ") unsuccessful, err = " + err);
+                Log.trace("Remove(" + id + ") unsuccessful, err = " + err);
                 var ir2: InsightResponse = {
                     code: 404,
                     body: {"error": ("the id " + id + " does not exist in the dataset.")}
@@ -283,34 +283,45 @@ export default class InsightFacade implements IInsightFacade {
      */
 
     performQuery(query: QueryRequest): Promise <InsightResponse> {
-        //Log.trace("Inside performQuery");
+        Log.trace("Inside performQuery");
         let that = this;
         var ir: InsightResponse = {code: 0, body: {}};
 
         return new Promise(function(fulfill, reject) {
             that.validQuery(query).then(function() {
-                that.retrieveData(query).then(function(validSections: Section[]) {
-                    that.formatJsonResponse(query.OPTIONS, validSections).then(function(response: ReturnJSON) {
+                that.retrieveData(query)
+                .then(function(validSections: Section[]) {
+                    that.formatJsonResponse(query.OPTIONS, validSections)
+                    .then(function(response: ReturnJSON) {
                         ir.code = 200;
                         ir.body = response;
+                        Log.trace("formatJsonResponse -> performQuery fulfill");
                         fulfill(ir);
                     })
                     // 3. catch for formatJsonResponse
                     .catch(function() {
                         ir.code = 400;
                         ir.body = {"error": "failed to format JSON response"};
+                        Log.trace("formatJsonResponse -> performQuery reject");
                         reject(ir);
                     })
                 })
                 // 2. catch for retrieveData
-                .catch(function(err: any) {
-                    if (err.constructor === Array) {
+                .catch(function(err: string) {
+                    Log.trace("inside catch for performQuery->retrieveData");
+                    Log.trace("err = " + err);
+                    if (err.length === 0) {
+                        Log.trace("err.length = 0");
                         ir.code = 424;
-                        ir.body = {"missing": err};
+                        ir.body = {"missing": that.missingIDs};
+                        Log.trace("performQuery rejects with 424 + {\"missing\": that.missingIDs}");
                         reject(ir);
                     } else {
+                        Log.trace("err.length !=0");
                         ir.code = 400;
+                        Log.trace("ir.code = " + ir.code);
                         ir.body = {"error": err };
+                        Log.trace("ir.body = " + JSON.stringify(ir.body));
                         reject(ir);
                     }
                 })  
@@ -329,19 +340,19 @@ export default class InsightFacade implements IInsightFacade {
     //  |
     //   - validQuery
     validQuery(query: QueryRequest): Promise < any > {
-        //Log.trace("Inside validQuery");
+        Log.trace("Inside validQuery");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
             var promises: Promise < any > [] = [];
-            //Log.trace("query = " + JSON.stringify(query));
+            Log.trace("query = " + JSON.stringify(query));
             promises[0] = that.validQueryProperties(query);
             promises[1] = that.validWhere(query);
             promises[2] = that.validOptions(query);
 
             Promise.all(promises)
                 .then(function () {
-                    //Log.trace("validQuery fulfills");
+                    Log.trace("validQuery fulfills");
                     fulfill();
                 })
                 .catch(function (err: string) {
@@ -351,7 +362,7 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     validQueryProperties(query: QueryRequest): Promise <any> {
-        //Log.trace("Inside validQueryProperties");
+        Log.trace("Inside validQueryProperties");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -360,14 +371,14 @@ export default class InsightFacade implements IInsightFacade {
             if (Object.keys(query).length != 2) {
                 reject("wrong number of properties in QueryRequest"); 
             } else {
-                //Log.trace("validQueryProperties fulfills");
+                Log.trace("validQueryProperties fulfills");
                 fulfill();
             }
         });
     }
 
     validWhere(query: QueryRequest): Promise <any> {
-        //Log.trace("Inside validWhere");
+        Log.trace("Inside validWhere");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -376,7 +387,7 @@ export default class InsightFacade implements IInsightFacade {
             if (query.hasOwnProperty('WHERE')) {
                 // check WHERE
                 that.checkFilter(query.WHERE).then(function() {
-                    //Log.trace("validWhere fulfills");
+                    Log.trace("validWhere fulfills");
                     fulfill();
                 })
                 .catch(function(s: string) {
@@ -389,7 +400,7 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     validOptions(query: QueryRequest): Promise <any> {
-        //Log.trace("Inside validOptions");
+        Log.trace("Inside validOptions");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -398,7 +409,7 @@ export default class InsightFacade implements IInsightFacade {
             if (query.hasOwnProperty('OPTIONS')) {
                 // check OPTIONS
                 that.checkOptions(query.OPTIONS).then(function() {
-                    //Log.trace("validOptions fulfills");
+                    Log.trace("validOptions fulfills");
                     fulfill();
                 })
                 .catch(function(s: string) {
@@ -412,22 +423,22 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper: checks if filter is valid, rejects with string of all errors
     checkFilter(filter: Filter): Promise <any> {
-        //Log.trace("Inside checkFilter");
+        Log.trace("Inside checkFilter");
         let that = this;
         var k = Object.keys(filter);
-        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function(fulfill, reject) {
             // TODO: is this the right way to do it??
             // TODO: instead of filter.AND, should it just be "AND"??
-            //Log.trace("made it to switch in checkFilter");
+            Log.trace("made it to switch in checkFilter");
             switch (k[0]) {
 
                 // LOGICCOMPARISON
                 case "AND":
                     that.checkLogicComparison(filter.AND)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -437,7 +448,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "OR":
                     that.checkLogicComparison(filter.OR)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -449,7 +460,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "LT":
                     that.checkMComparison(filter.LT)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -459,7 +470,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "GT":
                     that.checkMComparison(filter.GT)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -469,7 +480,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "EQ":
                     that.checkMComparison(filter.EQ)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -481,7 +492,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "IS":
                     that.checkSComparison(filter.IS)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -493,7 +504,7 @@ export default class InsightFacade implements IInsightFacade {
                 case "NOT":
                     that.checkFilter(filter.NOT)
                         .then(function() {
-                            //Log.trace("checkFilter fulfills");
+                            Log.trace("checkFilter fulfills");
                             fulfill();
                         })
                         .catch(function(err: string) {
@@ -502,7 +513,7 @@ export default class InsightFacade implements IInsightFacade {
                     break;
 
                 default:
-                    //Log.trace("checkFilter defaults");
+                    Log.trace("checkFilter defaults");
                     reject("WARNING, checkFilter default: invalid Filter property \"" + JSON.stringify(filter) + "\"");
                     break;
             }
@@ -511,7 +522,7 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to filter: checks if logic comparison is valid, rejects with string of all errors
     checkLogicComparison(filters: Filter[]): Promise < any > {
-        //Log.trace("Inside checkLogicComparison");
+        Log.trace("Inside checkLogicComparison");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
@@ -527,11 +538,11 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function(value: any) {
-                            //Log.trace("checkLogicComparison Promise.all fulfilled");
+                            Log.trace("checkLogicComparison Promise.all fulfilled");
                             fulfill();
                         })
                         .catch(function (err: string) {
-                            //Log.trace("checkFilter Promise.all failed");
+                            Log.trace("checkFilter Promise.all failed");
                             reject(err);
                         });
                 } else {
@@ -545,10 +556,10 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to filter: checks if math comparison is valid, rejects with string of all errors
     checkMComparison(mC: MComparison): Promise <any> {
-        //Log.trace("Inside checkMComparison");
+        Log.trace("Inside checkMComparison");
         let that = this;
         var k = Object.keys(mC);
-        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function(fulfill, reject) {
             // checks each MComparison to make sure it's a valid number
@@ -583,10 +594,10 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to filter: checks if string comparison is valid, rejects with string of all errors
     checkSComparison(sC: SComparison): Promise <any> {
-        //Log.trace("Inside checkSComparison");
+        Log.trace("Inside checkSComparison");
         let that = this;
         var k = Object.keys(sC);
-        //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function(fulfill, reject) {
             // checks each SComparison to make sure it's a string
@@ -628,18 +639,18 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper: checks if options are valid, rejects with string of all errors
     checkOptions(options: Options): Promise < any > {
-        //Log.trace("Inside checkOptions");
+        Log.trace("Inside checkOptions");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
             var promises: Promise < any > [] = [];
-            //Log.trace("options = " + JSON.stringify(options));
+            Log.trace("options = " + JSON.stringify(options));
             promises[0] = that.checkColumns(options);
             promises[1] = that.checkOrder(options);
             promises[2] = that.checkForm(options);
 
             Promise.all(promises).then(function () {
-                    //Log.trace("checkOptions fulfills");
+                    Log.trace("checkOptions fulfills");
                     fulfill();
                 })
                 .catch(function (err: string) {
@@ -650,7 +661,7 @@ export default class InsightFacade implements IInsightFacade {
 
         // helper: checks if options are valid, rejects with error
     checkColumns(options: Options): Promise <any> {
-        //Log.trace("Inside checkColumns");
+        Log.trace("Inside checkColumns");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -670,8 +681,8 @@ export default class InsightFacade implements IInsightFacade {
                         }
                         Promise.all(keyArray)
                             .then(function(value: any) {
-                                //Log.trace("COLUMNS checkOptions Promise.all returned successfully")
-                                //Log.trace("checkColumns fulfills");
+                                Log.trace("COLUMNS checkOptions Promise.all returned successfully")
+                                Log.trace("checkColumns fulfills");
                                 fulfill();
                             })
                             .catch(function() {
@@ -691,7 +702,7 @@ export default class InsightFacade implements IInsightFacade {
 
         // helper: checks if options are valid, rejects with string of all errors
     checkOrder(options: Options): Promise <any> {
-        //Log.trace("Inside checkOrder");
+        Log.trace("Inside checkOrder");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -702,11 +713,11 @@ export default class InsightFacade implements IInsightFacade {
                 // check if ORDER exists
                 if (options.hasOwnProperty('ORDER')) {
                     // check if ORDER is valid key
-                    //Log.trace("options.ORDER = " + options.ORDER + ", type = " + options.ORDER.constructor.name);
+                    Log.trace("options.ORDER = " + options.ORDER + ", type = " + options.ORDER.constructor.name);
                     that.validKey(options.ORDER).then(function() {
                         for (let key of options.COLUMNS) {
                             if (key === options.ORDER) {   
-                                //Log.trace("checkOrder fulfills");
+                                Log.trace("checkOrder fulfills");
                                 fulfill();
                             }
                         }
@@ -727,7 +738,7 @@ export default class InsightFacade implements IInsightFacade {
 
         // helper: checks if options are valid, rejects with string of all errors
     checkForm(options: Options): Promise <any> {
-        //Log.trace("Inside checkForm");
+        Log.trace("Inside checkForm");
         let that = this;
 
         return new Promise(function(fulfill, reject) {
@@ -735,11 +746,11 @@ export default class InsightFacade implements IInsightFacade {
             // check if FORM exists
             if (options.hasOwnProperty('FORM')) {
                 // check if FORM is string "TABLE"
-                //Log.trace("options.FORM = " + options.FORM)
+                Log.trace("options.FORM = " + options.FORM)
                 if (options.FORM !== "TABLE") {
                     reject("FORM is not \"TABLE\"");
                 } else {
-                    //Log.trace("checkForm fulfills");
+                    Log.trace("checkForm fulfills");
                     fulfill();
                 }
             } else {
@@ -750,7 +761,7 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper: validates keys with regex, returns true if valid, false otherwise
     validKey(key: Key): Promise < any > {
-        //Log.trace("Inside validKey");
+        Log.trace("Inside validKey");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
@@ -759,7 +770,7 @@ export default class InsightFacade implements IInsightFacade {
                 // this one worked on online version:
                 //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
                 if (/(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
-                    //Log.trace("Fancy regex passed");
+                    Log.trace("Fancy regex passed");
                     fulfill();
                 }
             }
@@ -770,9 +781,9 @@ export default class InsightFacade implements IInsightFacade {
 
     // performQuery
     //  |
-    //   - retrieveQuery
+    //   - retrieveData
     retrieveData(query: QueryRequest): Promise < any > {
-        //Log.trace("Inside retrieveData");
+        Log.trace("Inside retrieveData");
         let that = this;
         var validSections: Section[] = [];
         // initialize missingIDs
@@ -781,22 +792,22 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // For each data set on disk
             for (let setId in that.dataSets) {
-                //Log.trace("Query is: " + JSON.stringify(query));
-                //Log.trace("beginning parsing through: " + setId + ".json");
-                //Log.trace("*************************************************");
+                Log.trace("Query is: " + JSON.stringify(query));
+                Log.trace("beginning parsing through: " + setId + ".json");
+                Log.trace("*************************************************");
 
                 // Read the data from the file
                 var fileData: any = fs.readFileSync(setId + ".json", "utf8");
                 let parsedData = JSON.parse(fileData);
-                //Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
+                Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
 
                 // Parse each course in the dataset
                 for(let course in parsedData) {
-                    ////Log.trace("Parsing course = " + course);
-                    ////Log.trace(course + " has " + parsedData[course].length + " sections");
+                    Log.trace("Parsing course = " + course);
+                    Log.trace(course + " has " + parsedData[course].length + " sections");
                     // Parse the sections of each course
                     for (let section of parsedData[course]) {
-                        ////Log.trace("section = " + JSON.stringify(section));
+                        Log.trace("section = " + JSON.stringify(section));
                         let s: Section = {
                             dept: section["dept"],
                             id: section["id"],
@@ -809,24 +820,26 @@ export default class InsightFacade implements IInsightFacade {
                             uuid: section["uuid"]
                         };
                         if (that.matchesQuery(query["WHERE"], s)) {
-                            ////Log.trace("adding to validSections");
+                            Log.trace("adding to validSections");
                             validSections.push(s);
                         }
                     }
                 }
             }
             if (validSections.length == 0) {
-                //Log.trace("retrieveQuery: validSections.length == 0");
+                Log.trace("retrieveData: validSections.length == 0");
                 if (that.missingIDs.length !== 0) {
-                    //Log.trace("retrieveQuery: that.missingIDs.length != 0");
-                    reject(that.missingIDs);
+                    Log.trace("retrieveData: that.missingIDs.length != 0");
+                    reject("");
                 } else {
                     // TODO: make sure that a no-results query is a fail
-                    reject("retrieveQuery: no results from query")
+                    Log.trace("reject: retrieveData: no results from query");
+                    reject("retrieveData: no results from query");
                 }
+            } else {
+                Log.trace("retrieveData fulfilling");
+                fulfill(validSections);
             }
-            //Log.trace("retrieveQuery fulfilling");
-            fulfill(validSections);
         });
     }
 
@@ -889,34 +902,34 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     matchesQuery(filter: Filter, section: Section): boolean {
-        ////Log.trace("inside matchesQuery");
+        Log.trace("inside matchesQuery");
         let that = this;
         var compValues: number[];
         var k = Object.keys(filter);
-        ////Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
+        Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
 
         // TODO: NEED TO CHECK AND, OR
         switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
-                ////Log.trace("AND found" + ", Filter.AND = " + JSON.stringify(filter.AND));
+                Log.trace("AND found" + ", Filter.AND = " + JSON.stringify(filter.AND));
                 for (var element of filter.AND) {
-                    ////Log.trace("AND found, element = " + JSON.stringify(element));
+                    Log.trace("AND found, element = " + JSON.stringify(element));
                     // var f: Filter = this.createFilter(element);
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
-                        ////Log.trace("went into the false bool for AND");
+                        Log.trace("went into the false bool for AND");
                         return false;
                     }
-                    ////Log.trace("finished AND element loop");
+                    Log.trace("finished AND element loop");
                 }
                 return true;
             // recursively makes sure section matches at least 1 filter
             case "OR":
-                ////Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
+                Log.trace("OR found" + ", Filter.OR = " + JSON.stringify(filter.OR));
                 var runs: boolean[] = [];
                 for (var element of filter.OR) {
-                    ////Log.trace("OR found, element = " + JSON.stringify(element));
+                    Log.trace("OR found, element = " + JSON.stringify(element));
                     // var f: Filter = this.createFilter(element);
                     // var bool = this.matchesQuery(f, section);
                     var bool: boolean = this.matchesQuery(element, section);
@@ -930,30 +943,43 @@ export default class InsightFacade implements IInsightFacade {
                 return false;
             // checks values
             case "LT":
-                ////Log.trace("LT found" + ", Filter.LT = " + JSON.stringify(filter.LT));
+                Log.trace("LT found" + ", Filter.LT = " + JSON.stringify(filter.LT));
                 var mc = that.createMComparison(filter.LT);
                 compValues = this.MCompareToSection(mc, section);
+                if (compValues.length === 0) {
+                    Log.trace("compValues in matchesQuery is empty");
+                    return false;
+                };
                 return(compValues[0] > compValues[1]);
             case "GT":
-                ////Log.trace("GT found" + ", Filter.GT = " + JSON.stringify(filter.GT));
+                Log.trace("GT found" + ", Filter.GT = " + JSON.stringify(filter.GT));
                 var mc = that.createMComparison(filter.GT);
                 compValues = this.MCompareToSection(mc, section);
-                // if(compValues[1] > compValues[0]) { //Log.trace("compValues comparison for GT is true"); }
+                if (compValues.length === 0) {
+                    Log.trace("compValues in matchesQuery is empty");
+                    return false;
+                };
+                // if(compValues[1] > compValues[0]) { Log.trace("compValues comparison for GT is true"); }
                 return(compValues[1] > compValues[0]);
             case "EQ":
-                ////Log.trace("EQ found" + ", Filter.EQ = " + JSON.stringify(filter.EQ));
+                Log.trace("EQ found" + ", Filter.EQ = " + JSON.stringify(filter.EQ));
                 var mc = that.createMComparison(filter.EQ);
                 compValues = this.MCompareToSection(mc, section);
+                if (compValues.length === 0) {
+                    Log.trace("compValues in matchesQuery is empty");
+                    return false;
+                };
                 return(compValues[0] == compValues[1]);
             // checks strings
             case "IS":
-                ////Log.trace("IS found" + ", Filter.IS = " + JSON.stringify(filter.IS));
+                Log.trace("IS found" + ", Filter.IS = " + JSON.stringify(filter.IS));
                 var sc = that.createSComparison(filter.IS);
                 return(this.SCompareToSection(sc, section));
             // negates recursive call to check filter
             case "NOT":
-                ////Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
+                Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
                 // var f: Filter = this.createFilter(filter.NOT);
+                Log.trace("return value of NOT: " + !this.matchesQuery(filter.NOT, section));
                 return !this.matchesQuery(filter.NOT, section);
             default:
                 break;
@@ -963,48 +989,48 @@ export default class InsightFacade implements IInsightFacade {
 
 
     MCompareToSection(mC: MComparison, section: Section): number[] {
-        ////Log.trace("Inside MCompareToSection");
+        Log.trace("Inside MCompareToSection");
         let identifier: String = "MCompareToSection identifier uninitialized!";
         for(let thing in mC) {
             identifier = thing;
         }
-        ////Log.trace("identifier set to " + identifier);
+        Log.trace("identifier set to " + identifier);
 
         switch (identifier) {
             case "courses_avg":
-                ////Log.trace("courses_avg found");
+                Log.trace("courses_avg found");
                 if (section.hasOwnProperty("avg")) {
-                    ////Log.trace("Returning [" + mC.courses_avg + ", " + section.avg + "]");
+                    Log.trace("Returning [" + mC.courses_avg + ", " + section.avg + "]");
                     return [mC.courses_avg, section.avg];
                 }
                 return [];
             case "courses_pass":
-                //Log.trace("courses_pass found");
+                Log.trace("courses_pass found");
                 if (section.hasOwnProperty("pass")) {
                     return [mC.courses_pass, section.pass];
                 }
                 return [];
             case "courses_fail":
-                //Log.trace("courses_fail found");
+                Log.trace("courses_fail found");
                 if (section.hasOwnProperty("fail")) {
                     return [mC.courses_fail, section.fail];
                 }
                 return [];
             case "courses_audit":
-                //Log.trace("courses_audit found");
+                Log.trace("courses_audit found");
                 if (section.hasOwnProperty("audit")) {
                     return [mC.courses_audit, section.audit];
                 }
                 return [];
             default:
-                //Log.trace("WARNING: defaulted in valueOfMComparison (should never get here)");
+                Log.trace("WARNING: defaulted in valueOfMComparison (should never get here)");
                 return [];
         }
     }
 
     SCompareToSection(sC: SComparison, section: Section): boolean {
         var k = Object.keys(sC);
-        ////Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         switch (k[0]) {
             case "courses_dept":
@@ -1038,11 +1064,12 @@ export default class InsightFacade implements IInsightFacade {
                 }
                 return false;
             default:
-                //Log.trace("WARNING: defaulted in valueOfSComparison (should never get here)");
+                Log.trace("WARNING: defaulted in valueOfSComparison (should never get here)");
                 return null;
         }
     }
 
+    // helper to account for partial string queries
     SCompareToSectionHelper (sCProperty: string, sectionProperty: string): boolean {
         if (sCProperty.startsWith("*")) {
             // *string*
@@ -1090,11 +1117,11 @@ export default class InsightFacade implements IInsightFacade {
 
     // performQuery
     //  |
-    //   - retrieveQuery
+    //   - retrieveData
     //      |
     //       - formatJsonResponse
     formatJsonResponse(options: Options, validSections: Section[]): Promise < any > {
-        //Log.trace("Inside formatJsonResponse");
+        Log.trace("Inside formatJsonResponse");
         let that = this;
         var returnJSON: ReturnJSON;
         var result: Object[] = [];
@@ -1102,36 +1129,41 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // sorts validSections by ORDER key
             validSections.sort(that.sortHelper(options.ORDER));
-            // //Log.trace("validSections sorted");
+            Log.trace("validSections sorted");
 
             for (let section of validSections) {
-                ////Log.trace("Creating columns for " + section.dept + section.id);
+                Log.trace("Creating columns for " + section.dept + section.id);
                 let obj: Object = {};
                 var key: HashTable<string>;
                 for (let column of options.COLUMNS) {
                     var sectionKey: string = that.keyToSection(String(column));
                     let val: any;
-                    try{ val = that.getVal(section, sectionKey); } catch(e) { //Log.trace("e = " + e);}
+                    try{ val = that.getVal(section, sectionKey); } catch(e) { 
+                        Log.trace("e = " + e);
+                    }
 
-                    ////Log.trace(" ");
-                    ////Log.trace("    Adding " + column + " column");
-                    ////Log.trace("    sectionKey = " + sectionKey);
-                    ////Log.trace("    val = " + val);
-                    //try{ key[String(column)] = val; } catch(e) { 
-                        //Log.trace("ee = " + e); 
+                    Log.trace(" ");
+                    Log.trace("    Adding " + column + " column");
+                    Log.trace("    sectionKey = " + sectionKey);
+                    Log.trace("    val = " + val);
+                    try{ key[String(column)] = val; } catch(e) { 
+                        Log.trace("ee = " + e); 
                     }
 
                     try{ (<any>obj)[(String(column))] = val; } catch(e) { 
-                        //Log.trace("eee = " + e); 
+                        Log.trace("eee = " + e); 
                     }
                 }
                 result.push(obj);
-                ////Log.trace("    All columns created for " + section.dept);
+                Log.trace("    All columns created for " + section.dept);
             }
             returnJSON = {
                 render: "TABLE",
                 result: (result)
             };
+            Log.trace("fulfilling formatJsonResponse...");
+            Log.trace("     - returnJSON render: " + returnJSON.render);
+            Log.trace("     - returnJSON result: " + JSON.stringify(returnJSON.result));
             fulfill(returnJSON);
         });
     }
@@ -1178,7 +1210,7 @@ export default class InsightFacade implements IInsightFacade {
                 section = "uuid";
                 break;
             default:
-                //Log.trace("WARNING: defaulted in sortHelper (should never get here)");
+                Log.trace("WARNING: defaulted in sortHelper (should never get here)");
                 section = null;
                 break;
         }
