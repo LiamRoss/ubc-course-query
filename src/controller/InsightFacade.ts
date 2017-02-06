@@ -247,17 +247,20 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             try {
                 delete that.dataSets[id];
-                // TODO: fix this
                 fs.unlinkSync(id + ".json");
                 //Log.trace("Removal(" + id + ") success");
 
             } catch(err) {
                 //Log.trace("Remove(" + id + ") unsuccessful, err = " + err);
-                var ir2: InsightResponse = {
-                    code: 404,
-                    body: {"error": ("the id " + id + " does not exist in the dataset.")}
-                };
-                reject(ir2);
+                try {
+                    fs.unlinkSync(id + ".json");
+                } catch(e) {
+                    var ir2: InsightResponse = {
+                        code: 404,
+                        body: {"error": ("the id " + id + " does not exist in the dataset.")}
+                    };
+                    reject(ir2);
+                }
             }
             fulfill(ir);
         });
