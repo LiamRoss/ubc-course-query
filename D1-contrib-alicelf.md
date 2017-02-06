@@ -1,5 +1,4 @@
-## Final test pass rate: 79% (42 passing, 11 failing, 0 skipped), final coverage rate: Line coverage: 64% 
-## NOTE: the bot wasn't running on Sunday night: so these values are probably outdated. Please use the most recent ones from the 8am run   instead.
+## Final test pass rate: 81% (43 passing, 10 failing, 0 skipped), final coverage rate: Line coverage: 69% 
 I contributed the `addDataset ` and ` removeDataset `functions, as well as tests for each. I also helped to bug-fix and write/rewrite many of the functions in Liam's work on ` queryResponse `, and created a few tests for ` queryResponse `.
 
 

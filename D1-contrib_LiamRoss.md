@@ -4,8 +4,8 @@ Liam Ross - @LiamRoss on GitHub
     are probably outdated. Please use the most recent ones from 
     the 8am run instead.
 ___________________________________________________________________
-Final Test Pass Rate:       79% (42 passing, 11 failing, 0 skipped)
-Coverage Rate:              64%
+Final Test Pass Rate:       81% (43 passing, 10 failing, 0 skipped)
+Coverage Rate:              69%
 
 A header with the final test pass rate and coverage rate at the deadline (Monday @ 0800).
 
