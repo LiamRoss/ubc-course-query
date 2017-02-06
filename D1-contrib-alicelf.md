@@ -1,4 +1,4 @@
-## Final test pass rate: , final coverage rate: 
+## Final test pass rate: 79% (42 passing, 11 failing, 0 skipped), final coverage rate: Line coverage: 64% 
 I contributed the `addDataset ` and ` removeDataset `functions, as well as tests for each. I also helped to bug-fix and write/rewrite many of the functions in Liam's work on ` queryResponse `, and created a few tests for ` queryResponse `.
 
 As I am one to commit very frequently, it slightly difficult to identify key commits where a large chunk of code is added.
