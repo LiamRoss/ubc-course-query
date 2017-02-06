@@ -247,6 +247,7 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             try {
                 delete that.dataSets[id];
+                // TODO: fix this
                 fs.unlinkSync(id + ".json");
                 //Log.trace("Removal(" + id + ") success");
 
@@ -1042,11 +1043,16 @@ export default class InsightFacade implements IInsightFacade {
                 if (section.hasOwnProperty("id")) {
                     var bool = this.SCompareToSectionHelper(sC.courses_id, section.id);
                     if (!bool) {
-                        this.missingIDs.push(sC.courses_id);
+                        if (!this.missingIDs.includes(sC.courses_id)) {
+                            this.missingIDs.push(sC.courses_id);
+                        }
                     }
                     return bool;
+                } else {
+                    if (!this.missingIDs.includes(sC.courses_id)) {
+                        this.missingIDs.push(sC.courses_id);
+                    }
                 }
-                this.missingIDs.push(sC.courses_id);
                 return false;
             case "courses_instructor":
                 if (section.hasOwnProperty("instructor")) {
@@ -1071,23 +1077,33 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to account for partial string queries
     SCompareToSectionHelper (sCProperty: string, sectionProperty: string): boolean {
+        var trimSC: string = sCProperty.replace('*', '');
         if (sCProperty.startsWith("*")) {
             // *string*
             if (sCProperty.endsWith("*")) {
-                return(sectionProperty.includes(sCProperty));
+                //Log.trace("Inside *string*");
+                var extraTrimSC: string = trimSC.replace('*', '');
+                //Log.trace(sectionProperty + " includes " + extraTrimSC + ": " + sectionProperty.includes(sCProperty));
+                return(sectionProperty.includes(extraTrimSC));
             } 
             // *string
             else {
-                return(sectionProperty.endsWith(sCProperty));
+                //Log.trace("Inside *string");
+                //Log.trace(sectionProperty + " ends with " + trimSC + ": " + sectionProperty.endsWith(sCProperty));
+                return(sectionProperty.endsWith(trimSC));
             }
         } 
         else {
             // string*
             if (sCProperty.endsWith("*")) {
-                return(sectionProperty.startsWith(sCProperty));
+                //Log.trace("Inside string*");
+                //Log.trace(sectionProperty + " starts with " + trimSC + ": " + sectionProperty.startsWith(sCProperty));
+                return(sectionProperty.startsWith(trimSC));
             } 
             // string
             else {
+                //Log.trace("Inside string");
+                //Log.trace("sectionProperty = sCProperty " + (sectionProperty === sCProperty));
                 return(sectionProperty === sCProperty);
             }
         }

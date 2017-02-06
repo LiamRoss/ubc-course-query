@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-    
+
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -154,9 +154,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
     
-    /**
-     * PERFORM QUERY TESTS
-     */
+    // PERFORM QUERY TESTS
 
     // Test 6
     // A simple query (from d1 page)
@@ -253,8 +251,8 @@ describe("InsightFacadeSpec", function () {
     
 
     // Test 7
-    // A overlapping not query
-    it("performQuery with overlapping NOT + no results", function () {
+    // A overlapping NOT query w/ no results
+    it("performQuery with overlapping NOT", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -420,6 +418,390 @@ describe("InsightFacadeSpec", function () {
             });
     });
     
+
+    // Test 9
+    // An AND query w/ no results
+    it("performQuery with contradictory AND", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "AND": [{
+                                "GT": {
+                                    "courses_avg":95
+                                }
+                            },
+                            {
+                                "LT": {
+                                    "courses_avg":90
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Value.code: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.body);
+                        expect(err.code).to.equal(400);
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 10
+    // Specific ID's, no results 
+    it("performQuery with non-existing IDs", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "OR": [{
+                                "IS": {
+                                    "courses_id":"testID1"
+                                }
+                            },
+                            {
+                                "IS": {
+                                    "courses_id":"testID2"
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("ERROR: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('err.body: ' + JSON.stringify(err.body));
+                        expect(err.code).to.equal(424);
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+
+    // Test 11
+    // Specific instructors
+    it("performQuery with specific instructors", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "OR": [{
+                                "IS": {
+                                    "courses_instructor":"testinstructor1"
+                                }
+                            },
+                            {
+                                "IS": {
+                                    "courses_instructor":"testinstructor2"
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg",
+                            "courses_instructor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+
+    // Test 12
+    // Specific instructors, partial strings string*
+    it("performQuery with specific instructors - string*", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "IS": {
+                            "courses_instructor":"testinstruct*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg",
+                            "courses_instructor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 13
+    // Specific instructors, partial strings *string
+    it("performQuery with specific instructors - *string", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "OR": [{
+                                "IS": {
+                                    "courses_instructor":"*tinstructor1"
+                                }
+                            },
+                            {
+                                "IS": {
+                                    "courses_instructor":"*tinstructor2"
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg",
+                            "courses_instructor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 14
+    // Specific instructors, partial strings *string*
+    it("performQuery with specific instructors - *string*", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "IS": {
+                            "courses_instructor":"*instruct*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg",
+                            "courses_instructor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 15
+    // Looks for courses with NOT instructor
+    it("performQuery with NOT specific instructor", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "NOT": {   
+                            "IS": {
+                                "courses_instructor":"testinstructor1"
+                            }
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg",
+                            "courses_instructor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 15
+    // Looks for courses with NOT instructor
+    it("performQuery with NOT specific instructor - string*", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "NOT": {   
+                            "IS": {
+                                "courses_instructor":"testinstructor*"
+                            }
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg",
+                            "courses_instructor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("ERROR: " + value.code);
+                        // Log.test("body: " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        expect(err.code).to.equal(400);
+                        // expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
 
 });
 
