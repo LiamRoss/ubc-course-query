@@ -868,11 +868,12 @@ export default class InsightFacade implements IInsightFacade {
     createFilter(filter: any): Filter {
         var f: Filter;
         for(let thing in f) {
-            if(thing == "AND") {
-                f = { AND: filter[thing] };
-            } else if(thing == "OR") {
-                f = { OR: filter[thing] };
-            } else if(thing == "LT") {
+            // if(thing == "AND") {
+            //     f = { AND: filter[thing] };
+            // } else if(thing == "OR") {
+            //     f = { OR: filter[thing] };
+            // } else 
+            if(thing == "LT") {
                 f = { LT: this.createMComparison(thing) };
             } else if(thing == "GT") {
                 f = { GT: this.createMComparison(thing) };
@@ -880,8 +881,8 @@ export default class InsightFacade implements IInsightFacade {
                 f = { EQ: this.createMComparison(thing) };
             } else if(thing == "IS") {
                 f = { IS: this.createSComparison(thing) };
-            } else if(thing == "NOT") {
-                f = {NOT: filter[thing] };
+            // } else if(thing == "NOT") {
+            //     f = {NOT: thing };
             }
         }
         return f;
@@ -1008,12 +1009,12 @@ export default class InsightFacade implements IInsightFacade {
         switch (k[0]) {
             case "courses_dept":
                 if (section.hasOwnProperty("avg")) {
-                    return (sC.courses_dept == section.dept);
+                    return (this.SCompareToSectionHelper(sC.courses_dept, section.dept));
                 }
                 return false;
             case "courses_id":
                 if (section.hasOwnProperty("id")) {
-                    var bool = (sC.courses_id == section.id);
+                    var bool = this.SCompareToSectionHelper(sC.courses_id, section.id);
                     if (!bool) {
                         this.missingIDs.push(sC.courses_id);
                     }
@@ -1023,22 +1024,45 @@ export default class InsightFacade implements IInsightFacade {
                 return false;
             case "courses_instructor":
                 if (section.hasOwnProperty("instructor")) {
-                    return (sC.courses_instructor == section.instructor);
+                    return (this.SCompareToSectionHelper(sC.courses_instructor, section.instructor));
                 }
                 return false;
             case "courses_title":
                 if (section.hasOwnProperty("title")) {
-                    return (sC.courses_title == section.title);
+                    return (this.SCompareToSectionHelper(sC.courses_title, section.title));
                 }
                 return false;
             case "courses_uuid":
                 if (section.hasOwnProperty("uuid")) {
-                    return (sC.courses_uuid == section.uuid);
+                    return (this.SCompareToSectionHelper(sC.courses_uuid, section.uuid));
                 }
                 return false;
             default:
                 //Log.trace("WARNING: defaulted in valueOfSComparison (should never get here)");
                 return null;
+        }
+    }
+
+    SCompareToSectionHelper (sCProperty: string, sectionProperty: string): boolean {
+        if (sCProperty.startsWith("*")) {
+            // *string*
+            if (sCProperty.endsWith("*")) {
+                return(sectionProperty.includes(sCProperty));
+            } 
+            // *string
+            else {
+                return(sectionProperty.endsWith(sCProperty));
+            }
+        } 
+        else {
+            // string*
+            if (sCProperty.endsWith("*")) {
+                return(sectionProperty.startsWith(sCProperty));
+            } 
+            // string
+            else {
+                return(sectionProperty === sCProperty);
+            }
         }
     }
 

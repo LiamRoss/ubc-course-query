@@ -52,7 +52,7 @@ export interface  SComparison {
 // OPTIONS
 export interface Options {
     //  reminder:   key has to be format: string '_' string
-    COLUMNS: Key[];  // must be key[]
+    COLUMNS: Key[];     // must be key[]
     ORDER?: string;     // must be key
     FORM: string;       // must be "TABLE"
 }
