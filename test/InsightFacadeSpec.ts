@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-    /*
+    
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -153,14 +153,14 @@ describe("InsightFacadeSpec", function () {
                 expect(err.code).to.equal(400);
             });
     });
-    */
+    
     /**
      * PERFORM QUERY TESTS
      */
 
     // Test 6
     // A simple query (from d1 page)
-    /*
+    
     it("performQuery with a simple query", function () {
         var id: string = "courses";
         this.timeout(10000);
@@ -250,7 +250,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-    */
+    
 
     // Test 6
     // A simple query (from d1 page)
@@ -304,7 +304,7 @@ describe("InsightFacadeSpec", function () {
 
 
 
-    /*
+    
     // Test 7
     // A complex query (from d1 page)
     it("performQuery with a complex query", function () {
@@ -421,7 +421,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-    */
+    
 
 });
 
