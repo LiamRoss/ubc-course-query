@@ -757,8 +757,8 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-    // Test 15
-    // Looks for courses with NOT instructor
+    // Test 16
+    // Looks for courses with NOT instructor and string*
     it("performQuery with NOT specific instructor - string*", function () {
         var id: string = "courses";
         this.timeout(10000);
@@ -794,6 +794,59 @@ describe("InsightFacadeSpec", function () {
                         Log.test('ERROR: ' + err.code);
                         expect(err.code).to.equal(400);
                         // expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 17
+    // tries Complex query with AND, EQ, and GT
+    it("Complex query with AND, EQ, and GT", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "AND": [
+                            {
+                                "EQ":{
+                                    "courses_avg":91.33
+                                }
+                            },
+                            {
+                                "GT":{
+                                    "courses_avg":90
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_id",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(400);
+                        expect.fail();
                     });
             })
             .catch(function (err: InsightResponse) {
