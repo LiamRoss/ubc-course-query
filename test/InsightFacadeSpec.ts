@@ -252,12 +252,12 @@ describe("InsightFacadeSpec", function () {
     });
     
 
-    // Test 6
-    // A simple query (from d1 page)
-    it("performQuery with a minimal dataset and NOT + set of instructors", function () {
+    // Test 7
+    // A overlapping not query
+    it("performQuery with overlapping NOT + no results", function () {
         var id: string = "courses";
         this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
                     "WHERE": {
@@ -303,9 +303,7 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-
-    
-    // Test 7
+    // Test 8
     // A complex query (from d1 page)
     it("performQuery with a complex query", function () {
         var id: string = "courses";
