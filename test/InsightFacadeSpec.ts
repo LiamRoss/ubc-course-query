@@ -467,31 +467,23 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 10
-    // Specific ID's, no results 
+    // 424 testing
     it("performQuery with non-existing IDs", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
+                var qr: any = {
                     "WHERE": {
-                        "OR": [{
-                                "IS": {
-                                    "courses_id":"testID1"
-                                }
-                            },
-                            {
-                                "IS": {
-                                    "courses_id":"testID2"
-                                }
-                            }
-                        ]
+                        "IS": {
+                            "test1_instructor": "a*"
+                        }
                     },
                     "OPTIONS": {
                         "COLUMNS": [
-                            "courses_dept",
+                            "test2_instructor",
                             "courses_avg"
                         ],
                         "ORDER": "courses_avg",
@@ -507,7 +499,9 @@ describe("InsightFacadeSpec", function () {
                     })
                     .catch(function (err: InsightResponse) {
                         Log.test('err.body: ' + JSON.stringify(err.body));
-                        expect(err.code).to.equal(424);
+                        expect(err.body).to.deep.equal({
+                            "missing": ["test1", "test2"]
+                        });
                     });
             })
             .catch(function (err: InsightResponse) {
@@ -515,7 +509,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
+*/
 
 
     // Test 11
@@ -571,7 +565,7 @@ describe("InsightFacadeSpec", function () {
 
 
 
-    // Test 12
+    // Test 12a
     // Specific instructors, partial strings string*
     it("performQuery with specific instructors - string*", function () {
         var id: string = "courses";
@@ -615,7 +609,237 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-    // Test 13
+
+    // Test 12b
+    // Specific instructors, full courses string*
+    it("full courses specific instructors - string*", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "IS": {
+                            "courses_instructor": "*ad"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_instructor",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                    "courses_instructor": "khatirinejad, mahdad",
+                                    "courses_avg": 61.36
+                                },
+                                {
+                                    "courses_instructor": "al-darbi, muhannad",
+                                    "courses_avg": 63.63
+                                },
+                                {
+                                    "courses_instructor": "bennington, chad",
+                                    "courses_avg": 64.6
+                                },
+                                {
+                                    "courses_instructor": "al-darbi, muhannad",
+                                    "courses_avg": 66.18
+                                },
+                                {
+                                    "courses_instructor": "akbar, mohammad",
+                                    "courses_avg": 66.18
+                                },
+                                {
+                                    "courses_instructor": "al-darbi, muhannad",
+                                    "courses_avg": 66.54
+                                },
+                                {
+                                    "courses_instructor": "akbar, mohammad",
+                                    "courses_avg": 67.3
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 67.34
+                                },
+                                {
+                                    "courses_instructor": "alfantazi, akram;mohammadi, farzad",
+                                    "courses_avg": 67.77
+                                },
+                                {
+                                    "courses_instructor": "akbar, mohammad",
+                                    "courses_avg": 67.89
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 69.11
+                                },
+                                {
+                                    "courses_instructor": "al-darbi, muhannad",
+                                    "courses_avg": 69.74
+                                },
+                                {
+                                    "courses_instructor": "akbar, mohammad",
+                                    "courses_avg": 70.62
+                                },
+                                {
+                                    "courses_instructor": "mokmeli, mohammad",
+                                    "courses_avg": 70.65
+                                },
+                                {
+                                    "courses_instructor": "tufail, muhammad",
+                                    "courses_avg": 70.96
+                                },
+                                {
+                                    "courses_instructor": "bennington, chad",
+                                    "courses_avg": 72.24
+                                },
+                                {
+                                    "courses_instructor": "akbar, mohammad",
+                                    "courses_avg": 72.29
+                                },
+                                {
+                                    "courses_instructor": "el smaily, mohammad",
+                                    "courses_avg": 72.36
+                                },
+                                {
+                                    "courses_instructor": "mallick, shankhanaad",
+                                    "courses_avg": 75.02
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 75.72
+                                },
+                                {
+                                    "courses_instructor": "babaei khorzoughi, mohammad",
+                                    "courses_avg": 75.73
+                                },
+                                {
+                                    "courses_instructor": "tufail, muhammad",
+                                    "courses_avg": 75.82
+                                },
+                                {
+                                    "courses_instructor": "nemati, sajjad",
+                                    "courses_avg": 75.89
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 76.47
+                                },
+                                {
+                                    "courses_instructor": "narimani, mohammad",
+                                    "courses_avg": 76.96
+                                },
+                                {
+                                    "courses_instructor": "alemi ardakani, mohammad",
+                                    "courses_avg": 77.07
+                                },
+                                {
+                                    "courses_instructor": "morshed, muhammad",
+                                    "courses_avg": 77.21
+                                },
+                                {
+                                    "courses_instructor": "babaei khorzoughi, mohammad",
+                                    "courses_avg": 77.48
+                                },
+                                {
+                                    "courses_instructor": "tufail, muhammad",
+                                    "courses_avg": 77.8
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 78
+                                },
+                                {
+                                    "courses_instructor": "nemati, sajjad",
+                                    "courses_avg": 79.4
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 80.8
+                                },
+                                {
+                                    "courses_instructor": "babaei khorzoughi, mohammad",
+                                    "courses_avg": 80.95
+                                },
+                                {
+                                    "courses_instructor": "chapariha, mehrdad",
+                                    "courses_avg": 83.9
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 84
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 85
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 85
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 85.33
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 86.6
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 88.4
+                                },
+                                {
+                                    "courses_instructor": "mallick, shankhanaad",
+                                    "courses_avg": 89
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 89.17
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 89.5
+                                },
+                                {
+                                    "courses_instructor": "haber, eldad",
+                                    "courses_avg": 90.33
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 91
+                                },
+                                {
+                                    "courses_instructor": "walus, konrad",
+                                    "courses_avg": 93
+                                }
+                            ]
+                        });
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 13a
     // Specific instructors, partial strings *string
     it("performQuery with specific instructors - *string", function () {
         var id: string = "courses";
@@ -667,9 +891,250 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-    // Test 14
+    // Test 13b
+    // Specific instructors, full courses *string
+    it("full courses specific instructors - *string", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "IS": {
+                            "courses_instructor": "ac*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_instructor",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 65.17
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 66.83
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 68.54
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 68.79
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 69.24
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 69.25
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 69.26
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 69.53
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 69.65
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 70.5
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 70.66
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 70.7
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 70.87
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.04
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.05
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.33
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 71.5
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.59
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.72
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.75
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 71.81
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 72
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 72
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 72.18
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 72.23
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 73
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 73
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 73.13
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 73.37
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 73.45
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 74.29
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 75.43
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 75.63
+                                },
+                                {
+                                    "courses_instructor": "acton, donald",
+                                    "courses_avg": 76.31
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 76.42
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 76.73
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 77.57
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 78.09
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 79.85
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 80.5
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 81.53
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 82
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 82.4
+                                },
+                                {
+                                    "courses_instructor": "acheson, alison",
+                                    "courses_avg": 83.25
+                                },
+                                {
+                                    "courses_instructor": "acheson, alison",
+                                    "courses_avg": 83.27
+                                },
+                                {
+                                    "courses_instructor": "ackerman, paige adrienne",
+                                    "courses_avg": 84.69
+                                },
+                                {
+                                    "courses_instructor": "accili, eric;allan, douglas;kieffer, tim;kurata, harley;luciani, dan;mason, barry",
+                                    "courses_avg": 87.75
+                                },
+                                {
+                                    "courses_instructor": "accili, eric;clee, susanne michelle;horne, andrew;kindler, pawel;kwok, yin nam kenny;osborne, salma;tanentzapf, guy",
+                                    "courses_avg": 88.14
+                                },
+                                {
+                                    "courses_instructor": "acheson, alison",
+                                    "courses_avg": 95
+                                }
+                            ]
+                        });
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 14a
     // Specific instructors, partial strings *string*
-    it("performQuery with specific instructors - *string*", function () {
+    it("specific instructors (small courses) - *string*", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64_3)
@@ -696,6 +1161,63 @@ describe("InsightFacadeSpec", function () {
                         Log.test("code: " + value.code);
                         Log.test("body: " + JSON.stringify(value.body));
                         expect(value.code).to.equal(200);
+                        // expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.code);
+                        // expect(err.code).to.equal(424);
+                        expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 14b
+    // Specific instructors, partial strings *string*
+    it("specific instructors (full courses) - *string*", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "IS": {
+                            "courses_instructor": "*abba*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_instructor",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("code: " + value.code);
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                    "courses_instructor": "abbaspour, hesam",
+                                    "courses_avg": 57.32
+                                },
+                                {
+                                    "courses_instructor": "abbaspour, hesam",
+                                    "courses_avg": 60.58
+                                },
+                                {
+                                    "courses_instructor": "momeni, abbas",
+                                    "courses_avg": 69.88
+                                }
+                            ]
+                        });
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {

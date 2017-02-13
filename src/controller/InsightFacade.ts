@@ -772,8 +772,8 @@ export default class InsightFacade implements IInsightFacade {
             if (typeof key === 'string' /* || key instanceof String*/ ) {
                 // TODO: check if this regex is ok
                 // this one worked on online version:
-                //  /(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/test(key)
-                if (/(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+                // if (/(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)){
+                if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
                     //Log.trace("Fancy regex passed");
                     fulfill();
                 }
