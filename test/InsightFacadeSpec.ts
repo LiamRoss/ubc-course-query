@@ -149,7 +149,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             })
             .catch(function (err: InsightResponse) {
-                Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
+                // Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
                 expect(err.code).to.equal(400);
             });
     });
@@ -158,7 +158,6 @@ describe("InsightFacadeSpec", function () {
 
     // Test 6
     // A simple query (from d1 page)
-    
     it("performQuery with a simple query", function () {
         var id: string = "courses";
         this.timeout(10000);
@@ -467,10 +466,10 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 10
     // 424 testing
-    it("performQuery with non-existing IDs", function () {
+    it("performQuery with non-existing datasets", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -509,7 +508,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 
 
     // Test 11
@@ -1369,6 +1368,57 @@ describe("InsightFacadeSpec", function () {
                         Log.test('ERROR: ' + err.code);
                         // expect(err.code).to.equal(400);
                         expect.fail();
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+    
+
+    // Test 18
+    // A query with sort not in columns
+    it("performQuery with SORT not in COLUMNS", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "NOT": {
+                            "OR": [{
+                                    "GT": {
+                                        "courses_avg":85
+                                    }
+                                },
+                                {
+                                    "LT": {
+                                        "courses_avg":99
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_professor"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Value.code: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + err.body);
+                        expect(err.code).to.equal(400);
                     });
             })
             .catch(function (err: InsightResponse) {

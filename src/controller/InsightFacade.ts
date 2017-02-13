@@ -290,6 +290,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("Inside performQuery");
         let that = this;
         var ir: InsightResponse = {code: 0, body: {}};
+        this.missingIDs = [];
 
         return new Promise(function(fulfill, reject) {
             that.validQuery(query).then(function() {
@@ -559,84 +560,73 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     // helper to filter: checks if math comparison is valid, rejects with string of all errors
-    checkMComparison(mC: MComparison): Promise <any> {
+    checkMComparison(mC: any): Promise <any> {
         //Log.trace("Inside checkMComparison");
         let that = this;
         var k = Object.keys(mC);
+        var key: string = k[0];
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
+        //Log.trace("key = " + key + ", type = " + (key).constructor.name);
+        var value: any = mC[key];
+        //Log.trace("value = " + value + ", type = " + (value).constructor.name);
+        var keyParts = key.split("_");
+        var keyID = keyParts[0];
+        Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
+        
 
-        return new Promise(function(fulfill, reject) {
-            // checks each MComparison to make sure it's a valid number
-            switch (k[0]) {
-                case "courses_avg":
-                    if (isNaN(mC.courses_avg)) {
-                       reject("MComparison " + mC + " is not a number");
-                    }
-                    break;
-                case "courses_pass":
-                    if (isNaN(mC.courses_pass)) {
-                       reject("MComparison " + mC + " is not a number");
-                    }
-                    break;
-                case "courses_fail":
-                    if (isNaN(mC.courses_fail)) {
-                       reject("MComparison " + mC + " is not a number");
-                    }
-                    break;
-                case "courses_audit":
-                    if (isNaN(mC.courses_audit)) {
-                       reject("MComparison " + mC + " is not a number"); 
-                    }
-                    break;
-                default:
-                    reject("invalid MComparison property \"" + JSON.stringify(mC) + "\"");
-                    break;
+        return new Promise(function (fulfill, reject) {
+            // checks to see if data exists, if not fulfills,
+            //  but adds to array of missingIDs if it doesn't exists
+            if (!that.dataAlreadyExists(keyID)) {
+                that.missingIDs.push(keyID);
+                fulfill();
             }
-            fulfill();
+            // checks each MComparison to make sure it's a number
+            // /([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)
+            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
+                if (isNaN(value)) {
+                    reject("MComparison " + value + " is not a number");
+                } else {
+                    fulfill();
+                }
+            } else {
+                reject("invalid NComparison key \"" + key + "\"");
+            }
         });
     }
 
     // helper to filter: checks if string comparison is valid, rejects with string of all errors
-    checkSComparison(sC: SComparison): Promise <any> {
+    checkSComparison(sC: any): Promise < any > {
         //Log.trace("Inside checkSComparison");
         let that = this;
         var k = Object.keys(sC);
+        var key: any = k[0];
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
-
-        return new Promise(function(fulfill, reject) {
-            // checks each SComparison to make sure it's a string
-            switch (k[0]) {
-                case "courses_dept":
-                    // TODO: make sure this logic statement works, may not
-                    if (typeof sC.courses_dept !== 'string') {
-                       reject("MComparison " + sC + " is not a string");
-                    }
-                    break;
-                case "courses_id":
-                    if (typeof sC.courses_id !== 'string') {
-                       reject("MComparison " + sC + " is not a string");  
-                    }
-                    break;
-                case "courses_instructor":
-                    if (typeof sC.courses_instructor !== 'string') {
-                       reject("MComparison " + sC + " is not a string"); 
-                    }
-                    break;
-                case "courses_title":
-                    if (typeof sC.courses_title !== 'string') {
-                       reject("MComparison " + sC + " is not a string"); 
-                    }
-                    break;
-                case "courses_uuid":
-                    if (typeof sC.courses_uuid !== 'string') {
-                       reject("MComparison " + sC + " is not a string");
-                    }
-                    break;
-                default:
-                    reject("invalid SComparison property \"" + sC + "\"");
-                    break;
+        //Log.trace("key = " + key + ", type = " + (key).constructor.name);
+        var value: any = sC[key];
+        //Log.trace("value = " + value + ", type = " + (value).constructor.name);
+        var keyParts = key.split("_");
+        var keyID = keyParts[0];
+        Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
+        
+        return new Promise(function (fulfill, reject) {
+            // checks to see if data exists, if not fulfills,
+            //  but adds to array of missingIDs if it doesn't exists
+            if (!that.dataAlreadyExists(keyID)) {
+                that.missingIDs.push(keyID);
+                fulfill();
             }
-            fulfill();
+            // checks each SComparison to make sure it's a string
+            // /([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)
+            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
+                if (typeof value !== 'string') {
+                    reject("SComparison " + value + " is not a string");
+                } else {
+                    fulfill();
+                }
+            } else {
+                reject("invalid SComparison key \"" + key + "\"");
+            }
         });
     }
 
@@ -790,8 +780,6 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("Inside retrieveData");
         let that = this;
         var validSections: Section[] = [];
-        // initialize missingIDs
-        that.missingIDs = [];
 
         return new Promise(function (fulfill, reject) {
             // For each data set on disk
