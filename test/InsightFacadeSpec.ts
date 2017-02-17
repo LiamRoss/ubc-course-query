@@ -182,7 +182,7 @@ describe("InsightFacadeSpec", function () {
 
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
-                        Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
                         expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
@@ -344,7 +344,7 @@ describe("InsightFacadeSpec", function () {
                     };
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
-                        Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
                         expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
@@ -467,7 +467,7 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-    // Test 10
+    // Test 10a
     // 424 testing
     it("performQuery with non-existing datasets", function () {
         var id: string = "courses";
@@ -478,6 +478,49 @@ describe("InsightFacadeSpec", function () {
                     "WHERE": {
                         "IS": {
                             "test1_instructor": "a*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "test2_instructor",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("ERROR: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('err.body: ' + JSON.stringify(err.body));
+                        expect(err.body).to.deep.equal({
+                            "missing": ["test1", "test2"]
+                        });
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+
+    // Test 10b
+    // 424 testing
+    it("performQuery with non-existing datasets and incorrect types", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "IS": {
+                            "test1_instructor": 4
                         }
                     },
                     "OPTIONS": {
@@ -1333,15 +1376,14 @@ describe("InsightFacadeSpec", function () {
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
                     "WHERE": {
-                        "AND": [
-                            {
-                                "EQ":{
-                                    "courses_avg":91.33
+                        "AND": [{
+                                "EQ": {
+                                    "courses_avg": 91.33
                                 }
                             },
                             {
-                                "GT":{
-                                    "courses_avg":90
+                                "GT": {
+                                    "courses_avg": 90
                                 }
                             }
                         ]
@@ -1361,7 +1403,151 @@ describe("InsightFacadeSpec", function () {
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
                         Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
+                        // expect(value.code).to.equal(200);
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                    "courses_dept": "epse",
+                                    "courses_id": "526",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "adhe",
+                                    "courses_id": "330",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "audi",
+                                    "courses_id": "593",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "audi",
+                                    "courses_id": "593",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "chem",
+                                    "courses_id": "533",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "chem",
+                                    "courses_id": "533",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_id": "524",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_id": "524",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_id": "586",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_id": "594",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_id": "594",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "eece",
+                                    "courses_id": "597",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_id": "431",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_id": "431",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "adhe",
+                                    "courses_id": "330",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_id": "526",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_id": "606",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "etec",
+                                    "courses_id": "510",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "hunu",
+                                    "courses_id": "505",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "hunu",
+                                    "courses_id": "505",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_id": "425",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_id": "425",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "nurs",
+                                    "courses_id": "338",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "nurs",
+                                    "courses_id": "338",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "phys",
+                                    "courses_id": "508",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "phys",
+                                    "courses_id": "508",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "psyc",
+                                    "courses_id": "542",
+                                    "courses_avg": 91.33
+                                },
+                                {
+                                    "courses_dept": "psyc",
+                                    "courses_id": "542",
+                                    "courses_avg": 91.33
+                                }
+                            ]
+                        })
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
