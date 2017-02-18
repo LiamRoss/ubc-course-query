@@ -572,6 +572,7 @@ export default class InsightFacade implements IInsightFacade {
         
 
         return new Promise(function (fulfill, reject) {
+            /*
             // checks to see if data exists, if not fulfills,
             //  but adds to array of missingIDs if it doesn't exists
             if (!that.dataAlreadyExists(keyID)) {
@@ -591,6 +592,7 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 reject("invalid NComparison key \"" + key + "\"");
             }
+            */
         });
     }
 
