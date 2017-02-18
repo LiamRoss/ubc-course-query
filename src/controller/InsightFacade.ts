@@ -557,7 +557,7 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     // helper to filter: checks if math comparison is valid, rejects with string of all errors
-    checkMComparison(mC: any): Promise <any> {
+    checkMComparison(mC: any): Promise < any > {
         //Log.trace("Inside checkMComparison");
         let that = this;
         var k = Object.keys(mC);
@@ -569,31 +569,33 @@ export default class InsightFacade implements IInsightFacade {
         var keyParts = key.split("_");
         var keyID = keyParts[0];
         //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-        
+
 
         return new Promise(function (fulfill, reject) {
-            /*
-            // checks to see if data exists, if not fulfills,
-            //  but adds to array of missingIDs if it doesn't exists
-            if (!that.dataAlreadyExists(keyID)) {
-                that.missingIDs.push(keyID);
-                //Log.trace("fulfill checkMComparison, no dataset");
-                fulfill();
-            }
-            // checks each MComparison to make sure it's a number
-            // /([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)
-            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
-                if (isNaN(value)) {
-                    reject("MComparison " + value + " is not a number");
-                } else {
-                    //Log.trace("fulfill checkMComparison");
+            try {
+                // checks to see if data exists, if not fulfills,
+                //  but adds to array of missingIDs if it doesn't exists
+                if (!that.dataAlreadyExists(keyID)) {
+                    that.missingIDs.push(keyID);
+                    //Log.trace("fulfill checkMComparison, no dataset");
                     fulfill();
                 }
-            } else {
-                reject("invalid NComparison key \"" + key + "\"");
+                // checks each MComparison to make sure it's a number
+                // /([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)
+                if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
+                    if (isNaN(value)) {
+                        reject("MComparison " + value + " is not a number");
+                    } else {
+                        //Log.trace("fulfill checkMComparison");
+                        fulfill();
+                    }
+                } else {
+                    reject("invalid NComparison key \"" + key + "\"");
+                }
+            } catch (e) {
+                console.log("MComparison error: " + e);
+                reject("caught within MComparison");
             }
-            */
-            fulfill();
         });
     }
 
@@ -610,26 +612,31 @@ export default class InsightFacade implements IInsightFacade {
         var keyParts = key.split("_");
         var keyID = keyParts[0];
         //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-        
+
         return new Promise(function (fulfill, reject) {
-            // checks to see if data exists, if not fulfills,
-            //  but adds to array of missingIDs if it doesn't exists
-            if (!that.dataAlreadyExists(keyID)) {
-                that.missingIDs.push(keyID);
-                //Log.trace("fulfill checkSComparison, no dataset");
-                fulfill();
-            }
-            // checks each SComparison to make sure it's a string
-            // /([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)
-            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
-                if (typeof value !== 'string') {
-                    reject("SComparison " + value + " is not a string");
-                } else {
-                    //Log.trace("fulfill checkSComparison");
+            try {
+                // checks to see if data exists, if not fulfills,
+                //  but adds to array of missingIDs if it doesn't exists
+                if (!that.dataAlreadyExists(keyID)) {
+                    that.missingIDs.push(keyID);
+                    //Log.trace("fulfill checkSComparison, no dataset");
                     fulfill();
                 }
-            } else {
-                reject("invalid SComparison key \"" + key + "\"");
+                // checks each SComparison to make sure it's a string
+                // /([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)
+                if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
+                    if (typeof value !== 'string') {
+                        reject("SComparison " + value + " is not a string");
+                    } else {
+                        //Log.trace("fulfill checkSComparison");
+                        fulfill();
+                    }
+                } else {
+                    reject("invalid SComparison key \"" + key + "\"");
+                }
+            } catch (e) {
+                console.log("SComparison error: " + e);
+                reject("caught within SComparison");
             }
         });
     }
