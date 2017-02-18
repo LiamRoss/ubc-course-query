@@ -1402,7 +1402,7 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
+                        // Log.test("body: " + JSON.stringify(value.body));
                         // expect(value.code).to.equal(200);
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",

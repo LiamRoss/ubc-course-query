@@ -754,20 +754,6 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
-    // var keyParts = key.split("_");
-    // var keyID = keyParts[0];
-    // //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-        
-
-    // return new Promise(function (fulfill, reject) {
-    //     // checks to see if data exists, if not fulfills,
-    //     //  but adds to array of missingIDs if it doesn't exists
-    //     if (!that.dataAlreadyExists(keyID)) {
-    //         that.missingIDs.push(keyID);
-    //         //Log.trace("fulfill checkMComparison, no dataset");
-    //         fulfill();
-    //     }
-
     // helper: validates keys with regex, returns true if valid, false otherwise
     validKey(key: any): Promise < any > {
         //Log.trace("Inside validKey");
@@ -786,7 +772,6 @@ export default class InsightFacade implements IInsightFacade {
             if (typeof key === 'string' /* || key instanceof String*/ ) {
                 // TODO: check if this regex is ok
                 // this one worked on online version:
-                // if (/(courses_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)){
                 if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
                     //Log.trace("Fancy regex passed");
                     fulfill();
@@ -854,61 +839,23 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     createMComparison(obj: any): MComparison {
-        var mc: MComparison;
+        var mc: any = {};
         for(let thing in obj) {
-            if(thing == "courses_avg") {
-                mc = { courses_avg: obj[thing] };
-            } else if(thing == "courses_pass") {
-                mc = { courses_pass: obj[thing] };
-            } else if(thing == "courses_fail") {
-                mc = { courses_fail: obj[thing] };
-            } else if(thing == "courses_audit") {
-                mc = { courses_audit: obj[thing] };
+            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(thing)) {
+                mc[thing] = obj[thing];
             }
         }
         return mc;
     }
 
     createSComparison(obj: any): SComparison {
-        var sc: SComparison;
+        var sc: any = {};
         for(let thing in obj) {
-            if(thing == "courses_dept") {
-                sc = { courses_dept: obj[thing] };
-            } else if(thing == "courses_id") {
-                sc = { courses_id: obj[thing] };
-            } else if(thing == "courses_instructor") {
-                sc = { courses_instructor: obj[thing] };
-            } else if(thing == "courses_title") {
-                sc = { courses_title: obj[thing] };
-            } else if(thing == "courses_uuid") {
-                sc = { courses_uuid: obj[thing] };
+            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(thing)) {
+                sc[thing] = obj[thing];
             }
         }
         return sc;
-    }
-
-    
-    createFilter(filter: any): Filter {
-        var f: Filter;
-        for(let thing in f) {
-            // if(thing == "AND") {
-            //     f = { AND: filter[thing] };
-            // } else if(thing == "OR") {
-            //     f = { OR: filter[thing] };
-            // } else 
-            if(thing == "LT") {
-                f = { LT: this.createMComparison(thing) };
-            } else if(thing == "GT") {
-                f = { GT: this.createMComparison(thing) };
-            } else if(thing == "EQ") {
-                f = { EQ: this.createMComparison(thing) };
-            } else if(thing == "IS") {
-                f = { IS: this.createSComparison(thing) };
-            // } else if(thing == "NOT") {
-            //     f = {NOT: thing };
-            }
-        }
-        return f;
     }
 
     matchesQuery(filter: Filter, section: Section): boolean {
@@ -925,7 +872,6 @@ export default class InsightFacade implements IInsightFacade {
                 //Log.trace("AND found" + ", Filter.AND = " + JSON.stringify(filter.AND));
                 for (var element of filter.AND) {
                     //Log.trace("AND found, element = " + JSON.stringify(element));
-                    // var f: Filter = this.createFilter(element);
                     var bool: boolean = this.matchesQuery(element, section);
                     if (!bool) {
                         //Log.trace("went into the false bool for AND");
@@ -940,8 +886,6 @@ export default class InsightFacade implements IInsightFacade {
                 var runs: boolean[] = [];
                 for (var element of filter.OR) {
                     //Log.trace("OR found, element = " + JSON.stringify(element));
-                    // var f: Filter = this.createFilter(element);
-                    // var bool = this.matchesQuery(f, section);
                     var bool: boolean = this.matchesQuery(element, section);
                     runs.push(bool);
                 }
@@ -969,7 +913,6 @@ export default class InsightFacade implements IInsightFacade {
                     //Log.trace("compValues in matchesQuery is empty");
                     return false;
                 };
-                // if(compValues[1] > compValues[0]) { //Log.trace("compValues comparison for GT is true"); }
                 return(compValues[1] > compValues[0]);
             case "EQ":
                 //Log.trace("EQ found" + ", Filter.EQ = " + JSON.stringify(filter.EQ));
@@ -988,7 +931,6 @@ export default class InsightFacade implements IInsightFacade {
             // negates recursive call to check filter
             case "NOT":
                 //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
-                // var f: Filter = this.createFilter(filter.NOT);
                 //Log.trace("return value of NOT: " + !this.matchesQuery(filter.NOT, section));
                 return !this.matchesQuery(filter.NOT, section);
             default:
@@ -998,81 +940,31 @@ export default class InsightFacade implements IInsightFacade {
     }
 
 
-    MCompareToSection(mC: MComparison, section: Section): number[] {
+    MCompareToSection(mC: any, section: any): number[] {
         //Log.trace("Inside MCompareToSection");
-        let identifier: String = "MCompareToSection identifier uninitialized!";
-        for(let thing in mC) {
-            identifier = thing;
-        }
+        var k = Object.keys(mC);
+        var key = k[0];
         //Log.trace("identifier set to " + identifier);
-
-        switch (identifier) {
-            case "courses_avg":
-                //Log.trace("courses_avg found");
-                if (section.hasOwnProperty("avg")) {
-                    //Log.trace("Returning [" + mC.courses_avg + ", " + section.avg + "]");
-                    return [mC.courses_avg, section.avg];
-                }
-                return [];
-            case "courses_pass":
-                //Log.trace("courses_pass found");
-                if (section.hasOwnProperty("pass")) {
-                    return [mC.courses_pass, section.pass];
-                }
-                return [];
-            case "courses_fail":
-                //Log.trace("courses_fail found");
-                if (section.hasOwnProperty("fail")) {
-                    return [mC.courses_fail, section.fail];
-                }
-                return [];
-            case "courses_audit":
-                //Log.trace("courses_audit found");
-                if (section.hasOwnProperty("audit")) {
-                    return [mC.courses_audit, section.audit];
-                }
-                return [];
-            default:
-                //Log.trace("WARNING: defaulted in valueOfMComparison (should never get here)");
-                return [];
+        if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
+            var keyType = this.keyToSection(key);
+            if (section.hasOwnProperty(keyType)) {
+                return [mC[key], section[keyType]];
+            }
+            return [];
         }
     }
 
-    SCompareToSection(sC: SComparison, section: Section): boolean {
+    SCompareToSection(sC: any, section: any): boolean {
         var k = Object.keys(sC);
+        var key = k[0];
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
-        switch (k[0]) {
-            case "courses_dept":
-                if (section.hasOwnProperty("avg")) {
-                    return (this.SCompareToSectionHelper(sC.courses_dept, section.dept));
-                }
-                return false;
-            case "courses_id":
-                if (section.hasOwnProperty("id")) {
-                    var bool = this.SCompareToSectionHelper(sC.courses_id, section.id);
-                    return bool;
-                } else {
-                    return false;
-                }
-            case "courses_instructor":
-                if (section.hasOwnProperty("instructor")) {
-                    return (this.SCompareToSectionHelper(sC.courses_instructor, section.instructor));
-                }
-                return false;
-            case "courses_title":
-                if (section.hasOwnProperty("title")) {
-                    return (this.SCompareToSectionHelper(sC.courses_title, section.title));
-                }
-                return false;
-            case "courses_uuid":
-                if (section.hasOwnProperty("uuid")) {
-                    return (this.SCompareToSectionHelper(sC.courses_uuid, section.uuid));
-                }
-                return false;
-            default:
-                //Log.trace("WARNING: defaulted in valueOfSComparison (should never get here)");
-                return null;
+        if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
+            var keyType: string = this.keyToSection(key);
+            if (section.hasOwnProperty(keyType)) {
+                return (this.SCompareToSectionHelper(sC[key], section[keyType]));
+            }
+            return false;
         }
     }
 
@@ -1110,34 +1002,12 @@ export default class InsightFacade implements IInsightFacade {
         }
     }
 
-    getVal(section: Section, sectionKey: string): any {
-        if(sectionKey == "dept") {
-            return section.dept;
-        } else if(sectionKey == "id") {
-            return section.id;
-        } else if(sectionKey == "avg") {
-            return section.avg;
-        } else if(sectionKey == "instructor") {
-            return section.instructor;
-        } else if(sectionKey == "title") {
-            return section.title;
-        } else if(sectionKey == "pass") {
-            return section.pass;
-        } else if(sectionKey == "fail") {
-            return section.fail;
-        } else if(sectionKey == "audit") {
-            return section.audit;
-        } else if(sectionKey == "uuid") {
-            return section.uuid;
-        }
-    }
-
     // performQuery
     //  |
     //   - retrieveData
     //      |
     //       - formatJsonResponse
-    formatJsonResponse(options: Options, validSections: Section[]): Promise < any > {
+    formatJsonResponse(options: Options, validSections: any): Promise < any > {
         //Log.trace("Inside formatJsonResponse");
         let that = this;
         var returnJSON: ReturnJSON;
@@ -1153,11 +1023,8 @@ export default class InsightFacade implements IInsightFacade {
                 let obj: Object = {};
                 var key: HashTable<string>;
                 for (let column of options.COLUMNS) {
-                    var sectionKey: string = that.keyToSection(String(column));
-                    let val: any;
-                    try{ val = that.getVal(section, sectionKey); } catch(e) { 
-                        //Log.trace("e = " + e);
-                    }
+                    var sectionKey: any = that.keyToSection(String(column));
+                    var val = section[sectionKey];
 
                     //Log.trace(" ");
                     //Log.trace("    Adding " + column + " column");
@@ -1194,42 +1061,13 @@ export default class InsightFacade implements IInsightFacade {
             return returnSort;
         }
     }
-
+    
     keyToSection (key: string): string {
         var section: string;
-
-        switch (key) {
-            case "courses_avg":
-                section = "avg";
-                break;
-            case "courses_pass":
-                section = "pass";
-                break;
-            case "courses_fail":
-                section = "fail";
-                break;
-            case "courses_audit":
-                section = "audit";
-                break;
-            case "courses_dept":
-                section = "dept";
-                break;
-            case "courses_id":
-                section = "id";
-                break;
-            case "courses_instructor":
-                section = "instructor";
-                break;
-            case "courses_title":
-                section = "title";
-                break;
-            case "courses_uuid":
-                section = "uuid";
-                break;
-            default:
-                //Log.trace("WARNING: defaulted in sortHelper (should never get here)");
-                section = null;
-                break;
+        if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+            var keyParts: string[] = key.split("_");
+            var keyType: string = keyParts[1];
+            section = keyType;
         }
         return section;
     }
