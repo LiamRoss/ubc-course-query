@@ -593,6 +593,7 @@ export default class InsightFacade implements IInsightFacade {
                 reject("invalid NComparison key \"" + key + "\"");
             }
             */
+            fulfill();
         });
     }
 
