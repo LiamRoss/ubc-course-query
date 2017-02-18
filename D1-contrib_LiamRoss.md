@@ -1,8 +1,4 @@
 Liam Ross - @LiamRoss on GitHub
-
-    NOTE: the bot wasn't running on Sunday night, so these values 
-    are probably outdated. Please use the most recent ones from 
-    the 8am run instead.
 ___________________________________________________________________
 Final Test Pass Rate:       81% (43 passing, 10 failing, 0 skipped)
 Coverage Rate:              69%

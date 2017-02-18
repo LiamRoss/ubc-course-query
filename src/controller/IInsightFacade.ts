@@ -59,7 +59,7 @@ export interface Options {
 
 // interface structure for Section
 export interface Section {
-    dept: any;
+    dept?: any;
     id?: string;
     avg?: number;
     instructor?: string;
