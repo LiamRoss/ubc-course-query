@@ -1625,7 +1625,7 @@ describe("InsightFacadeSpec", function () {
                     "WHERE": {
                         "AND": [{
                                 "GT": {
-                                    "courses_avg":0
+                                    2:0
                                 }
                             },
                             {

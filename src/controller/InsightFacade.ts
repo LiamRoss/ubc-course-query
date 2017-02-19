@@ -480,91 +480,95 @@ export default class InsightFacade implements IInsightFacade {
             // TODO: is this the right way to do it??
             // TODO: instead of filter.AND, should it just be "AND"??
             //Log.trace("made it to switch in checkFilter");
-            switch (k[0]) {
+            if (typeof key === "string") {
+                switch (k[0]) {
 
-                // LOGICCOMPARISON
-                case "AND":
-                    that.checkLogicComparison(filter.AND)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
-                case "OR":
-                    that.checkLogicComparison(filter.OR)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
+                    // LOGICCOMPARISON
+                    case "AND":
+                        that.checkLogicComparison(filter.AND)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
+                    case "OR":
+                        that.checkLogicComparison(filter.OR)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
 
-                    // MCOMPARISON:    
-                case "LT":
-                    that.checkMComparison(filter.LT)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
-                case "GT":
-                    //Log.trace("checkFilter" + ", Filter.GT = " + JSON.stringify(filter.GT));
-                    that.checkMComparison(filter.GT)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
-                case "EQ":
-                    that.checkMComparison(filter.EQ)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
+                        // MCOMPARISON:    
+                    case "LT":
+                        that.checkMComparison(filter.LT)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
+                    case "GT":
+                        //Log.trace("checkFilter" + ", Filter.GT = " + JSON.stringify(filter.GT));
+                        that.checkMComparison(filter.GT)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
+                    case "EQ":
+                        that.checkMComparison(filter.EQ)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
 
-                    // SCOMPARISON:
-                case "IS":
-                    that.checkSComparison(filter.IS)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
+                        // SCOMPARISON:
+                    case "IS":
+                        that.checkSComparison(filter.IS)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
 
-                    // NEGATION:
-                case "NOT":
-                    that.checkFilter(filter.NOT)
-                        .then(function () {
-                            //Log.trace("checkFilter fulfills");
-                            fulfill();
-                        })
-                        .catch(function (err: string) {
-                            reject(err);
-                        });
-                    break;
+                        // NEGATION:
+                    case "NOT":
+                        that.checkFilter(filter.NOT)
+                            .then(function () {
+                                //Log.trace("checkFilter fulfills");
+                                fulfill();
+                            })
+                            .catch(function (err: string) {
+                                reject(err);
+                            });
+                        break;
 
-                default:
-                    //Log.trace("checkFilter defaults");
-                    reject("WARNING, checkFilter default: invalid Filter property \"" + JSON.stringify(filter) + "\"");
-                    break;
+                    default:
+                        //Log.trace("checkFilter defaults");
+                        reject("WARNING, checkFilter default: invalid Filter property \"" + JSON.stringify(filter) + "\"");
+                        break;
+                }
+            } else {
+                reject("filter key is not a string");
             }
         });
     }
@@ -618,7 +622,7 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // checks if key is not string
             if (typeof key !== "string") {
-                //Log.trace("MComparison " + String(key) + " is not a string");
+                Log.trace("MComparison " + String(key) + " is not a string");
                 reject("MComparison " + String(key) + " is not a string");
             }
             var keyParts = key.split("_");
@@ -660,7 +664,7 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // checks if key is not string
             if (typeof key !== "string") {
-                //Log.trace("MComparison " + String(key) + " is not a string");
+                Log.trace("MComparison " + String(key) + " is not a string");
                 reject("SComparison " + String(key) + " is not a string");
             }
             var keyParts = key.split("_");
@@ -737,8 +741,8 @@ export default class InsightFacade implements IInsightFacade {
                                 //Log.trace("checkColumns fulfills");
                                 fulfill();
                             })
-                            .catch(function () {
-                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS");
+                            .catch(function (e) {
+                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS: "+ e);
                             });
                     } else {
                         reject("COLUMNS is empty");
@@ -837,10 +841,10 @@ export default class InsightFacade implements IInsightFacade {
                 } catch (e) {
                     //Log.trace("validKey error: " + e);
                     //Log.trace("validKey " + String(key) + " is not a string");
-                    reject("validKey " + String(key) + " is not a string");
+                    reject("validKey, " + String(key) + " is not a string");
                 }
             }
-            reject();
+            reject("validKey, " + String(key) + " is not a string");
         });
     }
 
@@ -977,7 +981,6 @@ export default class InsightFacade implements IInsightFacade {
         }
         return false;
     }
-
 
     MCompareToSection(mC: any, section: any): number[] {
         //Log.trace("Inside MCompareToSection");
