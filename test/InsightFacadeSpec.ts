@@ -289,12 +289,12 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.body);
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
                         expect(err.code).to.equal(400);
                     });
             })
             .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
+                Log.test('ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });
@@ -456,12 +456,12 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.body);
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
                         expect(err.code).to.equal(400);
                     });
             })
             .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
+                Log.test('ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });
@@ -1603,7 +1603,105 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.body);
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
+                        expect(err.code).to.equal(400);
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + JSON.stringify(err.body));
+                expect.fail();
+            });
+    });
+
+
+    // Test 19
+    // Query with non-string keys in WHERE
+    it("performQuery with non-string keys in WHERE", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64_3)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "AND": [{
+                                "GT": {
+                                    "courses_avg":0
+                                }
+                            },
+                            {
+                                "LT": {
+                                    "courses_avg":100
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Value.code: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
+                        expect(err.code).to.equal(400);
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + JSON.stringify(err.body));
+                expect.fail();
+            });
+    });
+    
+
+    // Test 20
+    // Query with non-string keys in OPTIONS
+    it("performQuery with non-string keys in OPTIONS", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: QueryRequest = {
+                    "WHERE": {
+                        "AND": [{
+                                "GT": {
+                                    "courses_avg":95
+                                }
+                            },
+                            {
+                                "LT": {
+                                    "courses_avg":90
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            2,
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Value.code: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
                         expect(err.code).to.equal(400);
                     });
             })
@@ -1612,7 +1710,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
 
 });
 
