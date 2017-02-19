@@ -217,51 +217,30 @@ export default class InsightFacade implements IInsightFacade {
                         that.addToDatabase(id, content)
                             .then(function () {
                                 //Log.trace("addToDatabase success, fulfilling with fulfill(201)");
-                                var ir: InsightResponse = {
-                                    code: 201,
-                                    body: {}
-                                };
+                                var ir: InsightResponse = { code: 201, body: {} };
                                 fulfill(ir);
                             })
                             .catch(function (err: any) {
                                 //Log.trace("addToDatabase catch, err = " + err);
-                                var ir: InsightResponse = {
-                                    code: 400,
-                                    body: {
-                                        "error": err
-                                    }
-                                };
+                                var ir: InsightResponse = { code: 400, body: { "error": err } };
                                 reject(ir);
                             });
                     })
                     .catch(function (err: any) {
                         //Log.trace("removeFromDatabase catch, err = " + err);
-                        var ir: InsightResponse = {
-                            code: 400,
-                            body: {
-                                "error": err
-                            }
-                        };
+                        var ir: InsightResponse = { code: 400, body: { "error": err } };
                         reject(ir);
                     });
             } else {
                 //Log.trace("iff");
                 that.addToDatabase(id, content).then(function () {
                         //Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
-                        var ir: InsightResponse = {
-                            code: 204,
-                            body: {}
-                        };
+                        var ir: InsightResponse = { code: 204, body: {} };
                         fulfill(ir);
                     })
                     .catch(function (err: any) {
                         //Log.trace("addToDatabase catch, err = " + err);
-                        var ir: InsightResponse = {
-                            code: 400,
-                            body: {
-                                "error": err
-                            }
-                        };
+                        var ir: InsightResponse = { code: 400, body: { "error": err } };
                         reject(ir);
                     });
             }
