@@ -251,10 +251,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("Inside removeDataset()");
         let that = this;
         // Remove id from ids[] and delete its .json
-        var ir: InsightResponse = {
-            code: 204,
-            body: {}
-        };
+        var ir: InsightResponse = { code: 204, body: {} };
         return new Promise(function (fulfill, reject) {
             try {
                 delete that.dataSets[id];
@@ -266,12 +263,7 @@ export default class InsightFacade implements IInsightFacade {
                 try {
                     fs.unlinkSync(id + ".json");
                 } catch (e) {
-                    var ir2: InsightResponse = {
-                        code: 404,
-                        body: {
-                            "error": ("the id " + id + " does not exist in the dataset.")
-                        }
-                    };
+                    var ir2: InsightResponse = { code: 404, body: { "error": ("the id " + id + " does not exist in the dataset.") } };
                     reject(ir2);
                 }
             }
