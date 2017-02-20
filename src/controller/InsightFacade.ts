@@ -15,6 +15,7 @@ import {
 } from "./IInsightFacade";
 
 import Log from "../Util";
+import {stringify} from "querystring";
 var fs = require("fs");
 var JSZip = require("jszip");
 var parse5 = require('parse5');
@@ -48,6 +49,7 @@ export default class InsightFacade implements IInsightFacade {
     // array of missing IDs for QueryRequest
     private missingIDs: string[];
 
+    private foundDivs: HashTable<Node[]> = {};
 
     constructor() {
         //Log.trace('InsightFacadeImpl::init()');
@@ -105,13 +107,19 @@ export default class InsightFacade implements IInsightFacade {
     isValidHtmFile(data: string): boolean {
         try {
            let parsedData =  parse5.parse(data);
-           return parsedData.childNodes[0].nodeName == "#documentType"
+           return parsedData.childNodes[0].nodeName == "#documentType";
         } catch(e) {
             return false;
         }
     }
 
-    createJSONObject(data: string): Object[] {
+    /**
+     * Helper function
+     * Creates an object for each course
+     * @param data A JSON string
+     * @returns {Object[]}
+     */
+    createJsonObject(data: string): Object[] {
         var obj: Object[] = [];
 
         let parsedData = JSON.parse(data);
@@ -148,12 +156,140 @@ export default class InsightFacade implements IInsightFacade {
         return obj;
     }
 
-    createHtmObject(data: string): Object[] {
-        var obj: Object[] = [];
+    /**
+     * Helper function
+     * @param div  The div to check
+     * @returns {string}  The value of 'value' nested inside the div's attrs
+     */
+    getDivAttrsValue(div: any) {
+        for(let divChilds in div.attrs) {
+           return div.attrs[divChilds].value;
+        }
+    }
 
-        let parsedData = parse5.parse(data);
-        for (let i = 0; i < parsedData.childNodes.length; i++) {
-            //Log.trace(parsedData.childNodes[i].nodeName);
+    /**
+     * Helper function
+     * @param div  The div to search
+     * @param divs  The list of found divs
+     * @param fileName The filename of the current divs being parsed
+     */
+    recursiveDivSearch(div: Node, divs: Node[], fileName: string) {
+        let that = this;
+
+        // Base cases
+        let divValue = that.getDivAttrsValue(div);
+        switch(divValue) {
+            case "building-info":
+                Log.trace("                    building-info div found!");
+                try {that.foundDivs[fileName].push(div);} catch(e) {Log.trace(e);}
+                divs.push(div);
+            case "view-content":
+                Log.trace("                    view-content div found!");
+                try {that.foundDivs[fileName].push(div);} catch(e) {Log.trace(e);}
+                divs.push(div)
+        }
+
+        // Recursion through all of the node's children...
+        if(div.childNodes) {
+            for(let child in div.childNodes) {
+                let childs = div.childNodes[child];
+                that.recursiveDivSearch(childs, divs, fileName);
+            }
+        }
+    }
+
+    /**
+     * TODO: implement
+     * Helper function
+     * Parses a div with attrs value "view-content"
+     * @param div  the div to parse
+     * @param fileName  the name of the file containing the div
+     */
+    parseViewContent(div: Node, fileName: string) {
+
+    }
+
+    /**
+     * TODO: implement
+     * Helper function
+     * Parses a div with attrs value "building-info"
+     * @param div  the div to parse
+     * @param fileName  the name of the file containing the div
+     */
+    parseBuildingInfo(div: Node, fileName: string) {
+
+    }
+
+    /**
+     * Helper function
+     * why does this exist
+     * @param div
+     * @param fileName  The name of the file that the div belongs to
+     */
+    parseFullWidthContainerDiv(div: any, fileName: string) {
+        let that = this;
+        let divs: any = [];
+        that.foundDivs[fileName] = [];
+        that.recursiveDivSearch(div, divs, fileName);
+        Log.trace("                Done parsing full-width-container");
+
+        for(div in that.foundDivs[fileName]) {
+            switch(that.getDivAttrsValue(that.foundDivs[fileName][div])) {
+                case "view-content":
+                    that.parseViewContent(that.foundDivs[fileName][div], fileName);
+                    break;
+                case "building-info":
+                    that.parseBuildingInfo(that.foundDivs[fileName][div], fileName);
+            }
+        }
+    }
+
+    /**
+     * Helper function
+     * Creates an object for each room
+     * @param data in html string
+     * @param fileName  the name of the file holding data
+     * @returns {Object[]}
+     */
+    createHtmObject(data: string, fileName: string): Object[] {
+        var obj: Object[] = [];
+        let that = this;
+
+        let document = parse5.parse(data);
+        for (let i in document.childNodes) {
+            if(document.childNodes[i].nodeName == "html") {
+                /*
+                 * html of file found
+                 */
+                Log.trace("    Found html...");
+                for(let j in document.childNodes[i].childNodes) {
+                    //Log.trace("        " + document.childNodes[i].childNodes[j].nodeName);
+                    if(document.childNodes[i].childNodes[j].nodeName == "body") {
+                        /*
+                         * body of html found
+                         */
+                        Log.trace("        Found body...");
+                        for(let k in document.childNodes[i].childNodes[j].childNodes) {
+                            if(document.childNodes[i].childNodes[j].childNodes[k].nodeName == "div") {
+                                /*
+                                 * div found in body of html
+                                 */
+                                Log.trace("            Found div...");
+                                //Log.trace("            Div type: " + that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]))
+                                if(that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]) == "full-width-container") {
+                                    /*
+                                     * div identified as full-width-container
+                                     */
+                                    Log.trace("                It has value = full-width-container...");
+                                    Log.trace("                Beginning recursive div search on it...");
+                                    // Pass it into the helper function to recursively check it for the information we want
+                                    that.parseFullWidthContainerDiv(document.childNodes[i].childNodes[j].childNodes[k], fileName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return obj;
@@ -211,15 +347,16 @@ export default class InsightFacade implements IInsightFacade {
                                         //Log.trace(fileNames[<any>k] + " is a valid html file");
                                         var obj: Object[];
                                         try {
-                                            obj = that.createHtmObject(ret[k]);
-                                        } catch (e) { /*//Log.trace("createJSONObject e = " + e); */ }
+                                            Log.trace("Creating htm object for " + fileNames[<any>k] + ":");
+                                            obj = that.createHtmObject(ret[k], fileNames[<any>k]);
+                                        } catch (e) { /*//Log.trace("createHtmObject e = " + e); */ }
                                         dataHashTable[fileNames[ < any > k]] = obj;
                                     }
 
                                 } else {
                                     var obj: Object[];
                                     try {
-                                        obj = that.createJSONObject(ret[k]);
+                                        obj = that.createJsonObject(ret[k]);
                                     } catch (e) { /*//Log.trace("createJSONObject e = " + e); */ }
                                     dataHashTable[fileNames[ < any > k]] = obj;
                                 }
