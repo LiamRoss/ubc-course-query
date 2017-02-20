@@ -11,8 +11,6 @@ var fs = require('fs');
 
 // Global vars
 var testBase64: string = null;
-var testBase64_2: string = null;
-var testBase64_3: string = null;
 var insightFacade: InsightFacade = null;
 
 /**
@@ -25,7 +23,7 @@ function base64_encode(file: any) {
     return new Buffer(bitmap).toString('base64');
 }
 
-describe("InsightFacadeSpecD2", function () {
+describe("InsightFacadeD2Spec", function () {
 
     function sanityCheck(response: InsightResponse) {
         expect(response).to.have.property('code');
@@ -40,10 +38,7 @@ describe("InsightFacadeSpecD2", function () {
 
     beforeEach(function () {
         // Initialize zip file
-        try { testBase64 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
-        try { testBase64_2 = base64_encode("test/bad_courses.zip"); } catch(e) { Log.trace("e = " + e); }
-        // try { testBase64_3 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
-        try { testBase64_3 = base64_encode("test/courses_1course.zip"); } catch(e) { Log.trace("e = " + e); }
+        try { testBase64 = base64_encode("test/rooms.zip"); } catch(e) { Log.trace("e = " + e); }
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
@@ -60,9 +55,9 @@ describe("InsightFacadeSpecD2", function () {
     });
 
     // Test 1
-    // Add single dataset
-    it("addDataset with test base64 zip, should return code 204", function () {
-        var id: string = "courses";
+    // Add single rooms set
+    it("addDataset with rooms base64 zip, should return code 204", function () {
+        var id: string = "rooms";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
@@ -70,7 +65,7 @@ describe("InsightFacadeSpecD2", function () {
                 expect(value.code).to.equal(204);
             })
             .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
+                Log.test('ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });

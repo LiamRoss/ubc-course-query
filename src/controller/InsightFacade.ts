@@ -17,6 +17,7 @@ import {
 import Log from "../Util";
 var fs = require("fs");
 var JSZip = require("jszip");
+var parse5 = require('parse5');
 
 /**
  * Helper interface for HashTables
@@ -82,17 +83,36 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
-     * Checks if the given file is valid (contains a "result" key)
+     * Checks if the given file is a valid JSON file (contains a "result" key)
      * @param data  The file data to check
      * @returns {boolean}
      */
-    isValidFile(data: string): boolean {
-        let parsedData = JSON.parse(data);
-        return parsedData.hasOwnProperty("result");
+    isValidJsonFile(data: string): boolean {
+        try {
+            let parsedData = JSON.parse(data);
+            return parsedData.hasOwnProperty("result");
+        } catch(e) {
+            return false;
+        }
     }
 
-    createObject(data: string): Object[] {
-        var course: Object[] = [];
+    /**
+     * Helper function
+     * Checks if the given file is parseable via parse5
+     * @param data  The file data to check
+     * @returns {boolean}
+     */
+    isValidHtmFile(data: string): boolean {
+        try {
+           let parsedData =  parse5.parse(data);
+           return parsedData.childNodes[0].nodeName == "#documentType"
+        } catch(e) {
+            return false;
+        }
+    }
+
+    createJSONObject(data: string): Object[] {
+        var obj: Object[] = [];
 
         let parsedData = JSON.parse(data);
         for (let i = 0; i < parsedData["result"].length; i++) {
@@ -107,8 +127,11 @@ export default class InsightFacade implements IInsightFacade {
             var fail: number = sessionData.Fail;
             var audit: number = sessionData.Audit;
             var uuid: string = String(sessionData.id);
+            // year property added in d2:
+            var year: number = sessionData.year;
+            if(sessionData.Section == "overall") year = 1990;
 
-            course[i] = {
+            obj[i] = {
                 dept,
                 id,
                 avg,
@@ -117,11 +140,23 @@ export default class InsightFacade implements IInsightFacade {
                 pass,
                 fail,
                 audit,
-                uuid
+                uuid,
+                year
             };
         }
 
-        return course;
+        return obj;
+    }
+
+    createHtmObject(data: string): Object[] {
+        var obj: Object[] = [];
+
+        let parsedData = parse5.parse(data);
+        for (let i = 0; i < parsedData.childNodes.length; i++) {
+            //Log.trace(parsedData.childNodes[i].nodeName);
+        }
+
+        return obj;
     }
 
     /**
@@ -137,9 +172,7 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("Inside addToDatabase, adding " + id);
 
             let zip = new JSZip();
-            zip.loadAsync(content, {
-                    base64: true
-                })
+            zip.loadAsync(content, { base64: true })
                 .then(function (asyncData: any) {
                     //Log.trace("loadAsync success");
 
@@ -157,23 +190,37 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function (ret: any) {
-                            //Log.trace("inside promise.all.then");
                             var shouldWrite: boolean = true;
                             for (let k in ret) {
                                 //Log.trace(fileNames[ < any > k] + " stored.");
-                                let validFile: boolean;
-                                try {
-                                    validFile = that.isValidFile(ret[k]);
-                                } catch (e) { /*//Log.trace("validFile e = " + e);*/ }
+                                // Check if the file is a valid JSON file
+                                let isJson: boolean = that.isValidJsonFile(ret[k]);
+                                if (isJson == false) {
+                                    // If not, check if it is a valid htm/html file
+                                    let isHtm: boolean = that.isValidHtmFile(ret[k]);
+                                    if(isHtm == false) {
+                                        // Ignore the "error" if the item being analyzed is a directory/folder
+                                        if(fileNames[<any>k].slice(-1) != "/") {
+                                            // Now make sure its not a .DS_Store file
+                                            if (!fileNames[<any>k].includes(".DS_Store")) {
+                                                shouldWrite = false;
+                                                reject("file named '" + fileNames[< any > k] + "' (#" + k + " in '" + id + "') is not a valid file.");
+                                            }
+                                        }
+                                    } else {
+                                        //Log.trace(fileNames[<any>k] + " is a valid html file");
+                                        var obj: Object[];
+                                        try {
+                                            obj = that.createHtmObject(ret[k]);
+                                        } catch (e) { /*//Log.trace("createJSONObject e = " + e); */ }
+                                        dataHashTable[fileNames[ < any > k]] = obj;
+                                    }
 
-                                if (validFile == false) {
-                                    shouldWrite = false;
-                                    reject("file named '" + fileNames[ < any > k] + "' (#" + k + ") ( in " + id + " is not a valid file.");
                                 } else {
                                     var obj: Object[];
                                     try {
-                                        obj = that.createObject(ret[k]);
-                                    } catch (e) { /*//Log.trace("createObject e = " + e); */ }
+                                        obj = that.createJSONObject(ret[k]);
+                                    } catch (e) { /*//Log.trace("createJSONObject e = " + e); */ }
                                     dataHashTable[fileNames[ < any > k]] = obj;
                                 }
                             }
