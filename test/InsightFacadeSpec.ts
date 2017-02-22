@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-/*
+
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -472,7 +472,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 10a
     // 424 testing
     it("performQuery with non-existing datasets", function () {
