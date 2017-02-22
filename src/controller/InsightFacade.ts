@@ -422,7 +422,7 @@ export default class InsightFacade implements IInsightFacade {
                         fulfill();
                     } else {
                         reject();
-                    }
+                    } 
                 })
                 .catch(function (err: string) {
                     reject(err);
