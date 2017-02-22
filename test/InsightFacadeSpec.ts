@@ -560,7 +560,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 12b
     // Specific instructors, full courses string*
     it("full courses specific instructors - string*", function () {
@@ -588,7 +588,7 @@ describe("InsightFacadeSpec", function () {
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
                         expect(value.code).to.equal(200);
-                        /*
+                        // /*
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -777,7 +777,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        */
+                        // 
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -791,8 +791,8 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
-
+*/
+/*
     // Test 13b
     // Specific instructors, full courses *string
     it("full courses specific instructors - *string", function () {
@@ -820,7 +820,7 @@ describe("InsightFacadeSpec", function () {
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
                         expect(value.code).to.equal(200);
-                        /*
+                        // /*
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -1021,7 +1021,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        */
+                        // 
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1035,8 +1035,8 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
-
+*/
+/*
     // Test 14b
     // Specific instructors, partial strings *string*
     it("specific instructors (full courses) - *string*", function () {
@@ -1092,7 +1092,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
+*/
 
     // Test 15
     // Looks for courses with NOT instructor
