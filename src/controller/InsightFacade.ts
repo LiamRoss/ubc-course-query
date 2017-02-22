@@ -382,11 +382,11 @@ export default class InsightFacade implements IInsightFacade {
                         })
                 })
                 // 1. catch for validQuery
-                .catch(function (errors) {
+                .catch(function (error) {
                     if (that.missingIDs.length === 0) {
                         ir.code = 400;
                         ir.body = {
-                            "error": "invalid query, error(s): " + errors
+                            "error": error
                         };
                         reject(ir);
                     } else {
@@ -418,8 +418,11 @@ export default class InsightFacade implements IInsightFacade {
 
             Promise.all(promises)
                 .then(function () {
-                    //Log.trace("validQuery fulfills");
-                    fulfill();
+                    if (that.missingIDs.length === 0) {
+                        fulfill();
+                    } else {
+                        reject();
+                    }
                 })
                 .catch(function (err: string) {
                     reject(err);
@@ -524,7 +527,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                         break;
 
-                    // MCOMPARISON:    
+                        // MCOMPARISON:    
                     case "LT":
                         that.checkMComparison(filter.LT)
                             .then(function () {
@@ -557,7 +560,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                         break;
 
-                    // SCOMPARISON:
+                        // SCOMPARISON:
                     case "IS":
                         that.checkSComparison(filter.IS)
                             .then(function () {
@@ -569,7 +572,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                         break;
 
-                    // NEGATION:
+                        // NEGATION:
                     case "NOT":
                         that.checkFilter(filter.NOT)
                             .then(function () {
@@ -637,33 +640,19 @@ export default class InsightFacade implements IInsightFacade {
 
 
         return new Promise(function (fulfill, reject) {
-            // checks if key is not string
-            if (typeof key !== "string") {
-                Log.trace("MComparison " + String(key) + " is not a string");
-                reject("MComparison " + String(key) + " is not a string");
-            }
-            var keyParts = key.split("_");
-            var keyID = keyParts[0];
-            //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-            // checks to see if data exists, if not fulfills,
-            //  but adds to array of missingIDs if it doesn't exists
-            if (!that.dataAlreadyExists(keyID)) {
-                //Log.trace("checkMComparison: pushing keyID into missingIDs, keyID = " + keyID);
-                that.missingIDs.push(keyID);
-                //Log.trace("fulfill checkMComparison, no dataset");
-                fulfill();
-            }
-            // checks each MComparison to make sure it's a number
-            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
-                if (isNaN(value)) {
-                    reject("MComparison " + value + " is not a number");
-                } else {
-                    //Log.trace("fulfill checkMComparison");
-                    fulfill();
-                }
-            } else {
-                reject("invalid MComparison key \"" + key + "\"");
-            }
+            that.validKey(key)
+                .then(function () {
+                    // checks each MComparison to make sure it's a number
+                    if (isNaN(value)) {
+                        reject("MComparison " + value + " is not a number");
+                    } else {
+                        //Log.trace("fulfill checkMComparison");
+                        fulfill();
+                    }
+                })
+                .catch(function (e: string) {
+                    reject(e);
+                })
         });
     }
     // checkFilter helper: checks if string comparison is valid, rejects with string of all errors
@@ -678,33 +667,19 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("value = " + value + ", type = " + (value).constructor.name);
 
         return new Promise(function (fulfill, reject) {
-            // checks if key is not string
-            if (typeof key !== "string") {
-                Log.trace("MComparison " + String(key) + " is not a string");
-                reject("SComparison " + String(key) + " is not a string");
-            }
-            var keyParts = key.split("_");
-            var keyID = keyParts[0];
-            //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-            // checks to see if data exists, if not fulfills,
-            //  but adds to array of missingIDs if it doesn't exists
-            if (!that.dataAlreadyExists(keyID)) {
-                //Log.trace("checkSComparison: pushing keyID into missingIDs, keyID = " + keyID);
-                that.missingIDs.push(keyID);
-                //Log.trace("fulfill checkSComparison, no dataset");
-                fulfill();
-            }
-            // checks each SComparison to make sure it's a string
-            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
-                if (typeof value !== 'string') {
-                    reject("SComparison " + value + " is not a string");
-                } else {
-                    //Log.trace("fulfill checkSComparison");
-                    fulfill();
-                }
-            } else {
-                reject("invalid SComparison key \"" + key + "\"");
-            }
+            that.validKey(key)
+                .then(function () {
+                    // checks each SComparison to make sure it's a string
+                    if (typeof value !== 'string') {
+                        reject("SComparison " + value + " is not a string");
+                    } else {
+                        //Log.trace("fulfill checkSComparison");
+                        fulfill();
+                    }
+                })
+                .catch(function (e: string) {
+                    reject(e);
+                })
         });
     }
 
@@ -729,7 +704,7 @@ export default class InsightFacade implements IInsightFacade {
                 })
         });
     }
-    // checkOptions helper: checks if options are valid, rejects with error
+    // checkOptions helper #1
     checkColumns(options: Options): Promise < any > {
         //Log.trace("Inside checkColumns");
         let that = this;
@@ -756,7 +731,7 @@ export default class InsightFacade implements IInsightFacade {
                                 fulfill();
                             })
                             .catch(function (e) {
-                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS: "+ e);
+                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS: " + e);
                             });
                     } else {
                         reject("COLUMNS is empty");
@@ -769,7 +744,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-    // checkOptions helper: checks if options are valid, rejects with error
+    // checkOptions helper #2
     checkOrder(options: Options): Promise < any > {
         //Log.trace("Inside checkOrder");
         let that = this;
@@ -804,7 +779,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-    // checkOptions helper: checks if options are valid, rejects with error
+    // checkOptions helper #3
     checkForm(options: Options): Promise < any > {
         //Log.trace("Inside checkForm");
         let that = this;
@@ -827,36 +802,42 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
-    // helper: validates keys with regex, returns true if valid, false otherwise
+    // helper: validates keys with regex, fulfills if true, rejects otherwise
     validKey(key: any): Promise < any > {
         //Log.trace("Inside validKey");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
+            //Log.trace("key: " + key + " - type of key: " + typeof key);
             if (typeof key === 'string' /* || key instanceof String*/ ) {
-                var keyParts = key.split("_");
-                var keyID = keyParts[0];
-                // checks to see if data exists, if not fulfills,
-                //  but adds to array of missingIDs if it doesn't exists
-                if (!that.dataAlreadyExists(keyID)) {
-                    //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
-                    that.missingIDs.push(keyID);
-                    //Log.trace("inside validKey, no dataset");
-                }
                 // try, catch if key is not valid string
                 //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
                 try {
-                    if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+                    if (/(.+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+                        var keyParts = key.split("_");
+                        var keyID = keyParts[0];
+                        // adds to array of missingIDs if it doesn't exists
+                        if (!that.dataAlreadyExists(keyID)) {
+                            //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
+                            that.missingIDs.push(keyID);
+                            //Log.trace("inside validKey, no dataset");
+                        }
                         //Log.trace("Fancy regex passed");
                         fulfill();
+                    } else {
+                        //Log.trace("validKey, " + String(key) + " is an invalid key");
+                        reject("validKey, " + String(key) + " is an invalid key");
                     }
                 } catch (e) {
                     //Log.trace("validKey error: " + e);
-                    //Log.trace("validKey " + String(key) + " is not a string");
-                    reject("validKey, " + String(key) + " is not a string");
+                    //Log.trace("validKey, " + String(key) + " failed try");
+                    reject("validKey, " + String(key) + " failed try");
                 }
+            } else {
+                //Log.trace("validKey, " + String(key) + " is not a string");
+                reject("validKey, " + String(key) + " is not a string");
             }
-            reject("validKey, " + String(key) + " is not a string");
+            
         });
     }
 
@@ -999,7 +980,7 @@ export default class InsightFacade implements IInsightFacade {
         var k = Object.keys(mC);
         var key = k[0];
         try {
-            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
+            if (/(.+_(avg|pass|fail|audit))/.test(key)) {
                 var keyType = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return [mC[key], section[keyType]];
@@ -1018,7 +999,7 @@ export default class InsightFacade implements IInsightFacade {
         var key = k[0];
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
         try {
-            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
+            if (/(.+_(dept|id|instructor|title|uuid))/.test(key)) {
                 var keyType: string = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return (this.SCompareToSectionHelper(sC[key], section[keyType]));
@@ -1136,7 +1117,7 @@ export default class InsightFacade implements IInsightFacade {
     keyToSection(key: string): string {
         var section: string;
         try {
-            if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+            if (/(.+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
                 var keyParts: string[] = key.split("_");
                 var keyType: string = keyParts[1];
                 section = keyType;

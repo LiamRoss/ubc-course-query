@@ -497,6 +497,7 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
+                        Log.test('err.code: ' + err.code);
                         Log.test('err.body: ' + JSON.stringify(err.body));
                         expect(err.body).to.deep.equal({
                             "missing": ["test1", "test2"]
@@ -540,6 +541,7 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
+                        Log.test('err.code: ' + err.code);
                         Log.test('err.body: ' + JSON.stringify(err.body));
                         expect(err.body).to.deep.equal({
                             "missing": ["test1", "test2"]
@@ -551,7 +553,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
 
 
     // Test 12b
@@ -1156,8 +1157,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("succeeded in performQuery");
-                        Log.test("ERROR: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
+                        // Log.test("ERROR: " + value.code);
+                        // Log.test("body: " + JSON.stringify(value.body));
                         expect(value.code).to.equal(200);
                         // expect.fail();
                     })
