@@ -535,7 +535,7 @@ describe("InsightFacadeSpec", function () {
                             "test2_instructor",
                             "courses_avg"
                         ],
-                        "ORDER": "courses_avg",
+                        "ORDER": "test3_avg",
                         "FORM": "TABLE"
                     }
                 };
@@ -550,7 +550,7 @@ describe("InsightFacadeSpec", function () {
                         Log.test('err.code: ' + err.code);
                         Log.test('err.body: ' + JSON.stringify(err.body));
                         expect(err.body).to.deep.equal({
-                            "missing": ["test1", "test2"]
+                            "missing": ["test1", "test2", "test3"]
                         });
                     });
             })
@@ -560,7 +560,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 12b
     // Specific instructors, full courses string*
     it("full courses specific instructors - string*", function () {
@@ -1093,7 +1093,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
