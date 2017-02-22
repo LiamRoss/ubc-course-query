@@ -1093,7 +1093,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
@@ -1583,6 +1583,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 });
 
