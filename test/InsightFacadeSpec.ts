@@ -1709,7 +1709,56 @@ describe("InsightFacadeSpec", function () {
                 Log.test('ERROR: ' + err.body);
                 expect.fail();
             });
-    });*/
+    });
 
+
+    // Test 21
+    // Query with non-valid property in query (no WHERE)
+    it("performQuery with non-valid property in query (no WHERE)", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "HERE": {
+                        "AND": [{
+                                "GT": {
+                                    "courses_avg":95
+                                }
+                            },
+                            {
+                                "LT": {
+                                    "courses_avg":90
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Value.code: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
+                        expect(err.code).to.equal(400);
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+*/
 });
 

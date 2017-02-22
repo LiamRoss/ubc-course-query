@@ -15,10 +15,8 @@ import {
 } from "./IInsightFacade";
 
 import Log from "../Util";
-import {stringify} from "querystring";
 var fs = require("fs");
 var JSZip = require("jszip");
-var parse5 = require('parse5');
 
 /**
  * Helper interface for HashTables
@@ -49,7 +47,6 @@ export default class InsightFacade implements IInsightFacade {
     // array of missing IDs for QueryRequest
     private missingIDs: string[];
 
-    private foundDivs: HashTable<Node[]> = {};
 
     constructor() {
         //Log.trace('InsightFacadeImpl::init()');
@@ -85,42 +82,17 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
-     * Checks if the given file is a valid JSON file (contains a "result" key)
+     * Checks if the given file is valid (contains a "result" key)
      * @param data  The file data to check
      * @returns {boolean}
      */
-    isValidJsonFile(data: string): boolean {
-        try {
-            let parsedData = JSON.parse(data);
-            return parsedData.hasOwnProperty("result");
-        } catch(e) {
-            return false;
-        }
+    isValidFile(data: string): boolean {
+        let parsedData = JSON.parse(data);
+        return parsedData.hasOwnProperty("result");
     }
 
-    /**
-     * Helper function
-     * Checks if the given file is parseable via parse5
-     * @param data  The file data to check
-     * @returns {boolean}
-     */
-    isValidHtmFile(data: string): boolean {
-        try {
-           let parsedData =  parse5.parse(data);
-           return parsedData.childNodes[0].nodeName == "#documentType";
-        } catch(e) {
-            return false;
-        }
-    }
-
-    /**
-     * Helper function
-     * Creates an object for each course
-     * @param data A JSON string
-     * @returns {Object[]}
-     */
-    createJsonObject(data: string): Object[] {
-        var obj: Object[] = [];
+    createObject(data: string): Object[] {
+        var course: Object[] = [];
 
         let parsedData = JSON.parse(data);
         for (let i = 0; i < parsedData["result"].length; i++) {
@@ -135,11 +107,8 @@ export default class InsightFacade implements IInsightFacade {
             var fail: number = sessionData.Fail;
             var audit: number = sessionData.Audit;
             var uuid: string = String(sessionData.id);
-            // year property added in d2:
-            var year: number = sessionData.year;
-            if(sessionData.Section == "overall") year = 1990;
 
-            obj[i] = {
+            course[i] = {
                 dept,
                 id,
                 avg,
@@ -148,151 +117,11 @@ export default class InsightFacade implements IInsightFacade {
                 pass,
                 fail,
                 audit,
-                uuid,
-                year
+                uuid
             };
         }
 
-        return obj;
-    }
-
-    /**
-     * Helper function
-     * @param div  The div to check
-     * @returns {string}  The value of 'value' nested inside the div's attrs
-     */
-    getDivAttrsValue(div: any) {
-        for(let divChilds in div.attrs) {
-           return div.attrs[divChilds].value;
-        }
-    }
-
-    /**
-     * Helper function
-     * @param div  The div to search
-     * @param divs  The list of found divs
-     * @param fileName The filename of the current divs being parsed
-     */
-    recursiveDivSearch(div: Node, divs: Node[], fileName: string) {
-        let that = this;
-
-        // Base cases
-        let divValue = that.getDivAttrsValue(div);
-        switch(divValue) {
-            case "building-info":
-                Log.trace("                    building-info div found!");
-                try {that.foundDivs[fileName].push(div);} catch(e) {Log.trace(e);}
-                divs.push(div);
-            case "view-content":
-                Log.trace("                    view-content div found!");
-                try {that.foundDivs[fileName].push(div);} catch(e) {Log.trace(e);}
-                divs.push(div)
-        }
-
-        // Recursion through all of the node's children...
-        if(div.childNodes) {
-            for(let child in div.childNodes) {
-                let childs = div.childNodes[child];
-                that.recursiveDivSearch(childs, divs, fileName);
-            }
-        }
-    }
-
-    /**
-     * TODO: implement
-     * Helper function
-     * Parses a div with attrs value "view-content"
-     * @param div  the div to parse
-     * @param fileName  the name of the file containing the div
-     */
-    parseViewContent(div: Node, fileName: string) {
-
-    }
-
-    /**
-     * TODO: implement
-     * Helper function
-     * Parses a div with attrs value "building-info"
-     * @param div  the div to parse
-     * @param fileName  the name of the file containing the div
-     */
-    parseBuildingInfo(div: Node, fileName: string) {
-
-    }
-
-    /**
-     * Helper function
-     * why does this exist
-     * @param div
-     * @param fileName  The name of the file that the div belongs to
-     */
-    parseFullWidthContainerDiv(div: any, fileName: string) {
-        let that = this;
-        let divs: any = [];
-        that.foundDivs[fileName] = [];
-        that.recursiveDivSearch(div, divs, fileName);
-        Log.trace("                Done parsing full-width-container");
-
-        for(div in that.foundDivs[fileName]) {
-            switch(that.getDivAttrsValue(that.foundDivs[fileName][div])) {
-                case "view-content":
-                    that.parseViewContent(that.foundDivs[fileName][div], fileName);
-                    break;
-                case "building-info":
-                    that.parseBuildingInfo(that.foundDivs[fileName][div], fileName);
-            }
-        }
-    }
-
-    /**
-     * Helper function
-     * Creates an object for each room
-     * @param data in html string
-     * @param fileName  the name of the file holding data
-     * @returns {Object[]}
-     */
-    createHtmObject(data: string, fileName: string): Object[] {
-        var obj: Object[] = [];
-        let that = this;
-
-        let document = parse5.parse(data);
-        for (let i in document.childNodes) {
-            if(document.childNodes[i].nodeName == "html") {
-                /*
-                 * html of file found
-                 */
-                Log.trace("    Found html...");
-                for(let j in document.childNodes[i].childNodes) {
-                    //Log.trace("        " + document.childNodes[i].childNodes[j].nodeName);
-                    if(document.childNodes[i].childNodes[j].nodeName == "body") {
-                        /*
-                         * body of html found
-                         */
-                        Log.trace("        Found body...");
-                        for(let k in document.childNodes[i].childNodes[j].childNodes) {
-                            if(document.childNodes[i].childNodes[j].childNodes[k].nodeName == "div") {
-                                /*
-                                 * div found in body of html
-                                 */
-                                Log.trace("            Found div...");
-                                //Log.trace("            Div type: " + that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]))
-                                if(that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]) == "full-width-container") {
-                                    /*
-                                     * div identified as full-width-container
-                                     */
-                                    Log.trace("                It has value = full-width-container...");
-                                    Log.trace("                Beginning recursive div search on it...");
-                                    // Pass it into the helper function to recursively check it for the information we want
-                                    that.parseFullWidthContainerDiv(document.childNodes[i].childNodes[j].childNodes[k], fileName);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return obj;
+        return course;
     }
 
     /**
@@ -308,7 +137,9 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("Inside addToDatabase, adding " + id);
 
             let zip = new JSZip();
-            zip.loadAsync(content, { base64: true })
+            zip.loadAsync(content, {
+                    base64: true
+                })
                 .then(function (asyncData: any) {
                     //Log.trace("loadAsync success");
 
@@ -326,38 +157,23 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function (ret: any) {
+                            //Log.trace("inside promise.all.then");
                             var shouldWrite: boolean = true;
                             for (let k in ret) {
                                 //Log.trace(fileNames[ < any > k] + " stored.");
-                                // Check if the file is a valid JSON file
-                                let isJson: boolean = that.isValidJsonFile(ret[k]);
-                                if (isJson == false) {
-                                    // If not, check if it is a valid htm/html file
-                                    let isHtm: boolean = that.isValidHtmFile(ret[k]);
-                                    if(isHtm == false) {
-                                        // Ignore the "error" if the item being analyzed is a directory/folder
-                                        if(fileNames[<any>k].slice(-1) != "/") {
-                                            // Now make sure its not a .DS_Store file
-                                            if (!fileNames[<any>k].includes(".DS_Store")) {
-                                                shouldWrite = false;
-                                                reject("file named '" + fileNames[< any > k] + "' (#" + k + " in '" + id + "') is not a valid file.");
-                                            }
-                                        }
-                                    } else {
-                                        //Log.trace(fileNames[<any>k] + " is a valid html file");
-                                        var obj: Object[];
-                                        try {
-                                            Log.trace("Creating htm object for " + fileNames[<any>k] + ":");
-                                            obj = that.createHtmObject(ret[k], fileNames[<any>k]);
-                                        } catch (e) { /*//Log.trace("createHtmObject e = " + e); */ }
-                                        dataHashTable[fileNames[ < any > k]] = obj;
-                                    }
+                                let validFile: boolean;
+                                try {
+                                    validFile = that.isValidFile(ret[k]);
+                                } catch (e) { /*//Log.trace("validFile e = " + e);*/ }
 
+                                if (validFile == false) {
+                                    shouldWrite = false;
+                                    reject("file named '" + fileNames[ < any > k] + "' (#" + k + ") ( in " + id + " is not a valid file.");
                                 } else {
                                     var obj: Object[];
                                     try {
-                                        obj = that.createJsonObject(ret[k]);
-                                    } catch (e) { /*//Log.trace("createJSONObject e = " + e); */ }
+                                        obj = that.createObject(ret[k]);
+                                    } catch (e) { /*//Log.trace("createObject e = " + e); */ }
                                     dataHashTable[fileNames[ < any > k]] = obj;
                                 }
                             }
@@ -401,30 +217,51 @@ export default class InsightFacade implements IInsightFacade {
                         that.addToDatabase(id, content)
                             .then(function () {
                                 //Log.trace("addToDatabase success, fulfilling with fulfill(201)");
-                                var ir: InsightResponse = { code: 201, body: {} };
+                                var ir: InsightResponse = {
+                                    code: 201,
+                                    body: {}
+                                };
                                 fulfill(ir);
                             })
                             .catch(function (err: any) {
                                 //Log.trace("addToDatabase catch, err = " + err);
-                                var ir: InsightResponse = { code: 400, body: { "error": err } };
+                                var ir: InsightResponse = {
+                                    code: 400,
+                                    body: {
+                                        "error": err
+                                    }
+                                };
                                 reject(ir);
                             });
                     })
                     .catch(function (err: any) {
                         //Log.trace("removeFromDatabase catch, err = " + err);
-                        var ir: InsightResponse = { code: 400, body: { "error": err } };
+                        var ir: InsightResponse = {
+                            code: 400,
+                            body: {
+                                "error": err
+                            }
+                        };
                         reject(ir);
                     });
             } else {
                 //Log.trace("iff");
                 that.addToDatabase(id, content).then(function () {
                         //Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
-                        var ir: InsightResponse = { code: 204, body: {} };
+                        var ir: InsightResponse = {
+                            code: 204,
+                            body: {}
+                        };
                         fulfill(ir);
                     })
                     .catch(function (err: any) {
                         //Log.trace("addToDatabase catch, err = " + err);
-                        var ir: InsightResponse = { code: 400, body: { "error": err } };
+                        var ir: InsightResponse = {
+                            code: 400,
+                            body: {
+                                "error": err
+                            }
+                        };
                         reject(ir);
                     });
             }
@@ -435,7 +272,10 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("Inside removeDataset()");
         let that = this;
         // Remove id from ids[] and delete its .json
-        var ir: InsightResponse = { code: 204, body: {} };
+        var ir: InsightResponse = {
+            code: 204,
+            body: {}
+        };
         return new Promise(function (fulfill, reject) {
             try {
                 delete that.dataSets[id];
@@ -447,13 +287,35 @@ export default class InsightFacade implements IInsightFacade {
                 try {
                     fs.unlinkSync(id + ".json");
                 } catch (e) {
-                    var ir2: InsightResponse = { code: 404, body: { "error": ("the id " + id + " does not exist in the dataset.") } };
+                    var ir2: InsightResponse = {
+                        code: 404,
+                        body: {
+                            "error": ("the id " + id + " does not exist in the dataset.")
+                        }
+                    };
                     reject(ir2);
                 }
             }
             fulfill(ir);
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**
@@ -482,9 +344,11 @@ export default class InsightFacade implements IInsightFacade {
             code: 0,
             body: {}
         };
+        // initialize missingIDs array
         this.missingIDs = [];
 
         return new Promise(function (fulfill, reject) {
+            // check if query is valid
             that.validQuery(query).then(function () {
                     that.retrieveData(query)
                         .then(function (validSections: Section[]) {
@@ -547,6 +411,7 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             var promises: Promise < any > [] = [];
             //Log.trace("query = " + JSON.stringify(query));
+            // checks if query only has two properties
             promises[0] = that.validQueryProperties(query);
             promises[1] = that.validWhere(query);
             promises[2] = that.validOptions(query);
@@ -561,7 +426,7 @@ export default class InsightFacade implements IInsightFacade {
                 })
         });
     }
-
+    // validQuery helper #1
     validQueryProperties(query: QueryRequest): Promise < any > {
         //Log.trace("Inside validQueryProperties");
         let that = this;
@@ -577,7 +442,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
+    // validQuery helper #2
     validWhere(query: QueryRequest): Promise < any > {
         //Log.trace("Inside validWhere");
         let that = this;
@@ -586,7 +451,7 @@ export default class InsightFacade implements IInsightFacade {
             //-------------------------------------
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
-                // check WHERE
+                // check WHERE internals
                 that.checkFilter(query.WHERE).then(function () {
                         //Log.trace("validWhere fulfills");
                         fulfill();
@@ -599,7 +464,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
+    // validQuery helper #3
     validOptions(query: QueryRequest): Promise < any > {
         //Log.trace("Inside validOptions");
         let that = this;
@@ -622,7 +487,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
+    
     // helper: checks if filter is valid, rejects with string of all errors
     checkFilter(filter: Filter): Promise < any > {
         //Log.trace("Inside checkFilter");
@@ -727,8 +592,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper to filter: checks if logic comparison is valid, rejects with string of all errors
+    // checkFilter helper: checks if logic comparison is valid, rejects with string of all errors
     checkLogicComparison(filters: Filter[]): Promise < any > {
         //Log.trace("Inside checkLogicComparison");
         let that = this;
@@ -761,8 +625,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper to filter: checks if math comparison is valid, rejects with string of all errors
+    // checkFilter helper: checks if math comparison is valid, rejects with string of all errors
     checkMComparison(mC: any): Promise < any > {
         //Log.trace("Inside checkMComparison");
         let that = this;
@@ -804,8 +667,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper to filter: checks if string comparison is valid, rejects with string of all errors
+    // checkFilter helper: checks if string comparison is valid, rejects with string of all errors
     checkSComparison(sC: any): Promise < any > {
         //Log.trace("Inside checkSComparison");
         let that = this;
@@ -847,7 +709,6 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
-
     // helper: checks if options are valid, rejects with string of all errors
     checkOptions(options: Options): Promise < any > {
         //Log.trace("Inside checkOptions");
@@ -869,8 +730,7 @@ export default class InsightFacade implements IInsightFacade {
                 })
         });
     }
-
-    // helper: checks if options are valid, rejects with error
+    // checkOptions helper: checks if options are valid, rejects with error
     checkColumns(options: Options): Promise < any > {
         //Log.trace("Inside checkColumns");
         let that = this;
@@ -910,8 +770,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper: checks if options are valid, rejects with string of all errors
+    // checkOptions helper: checks if options are valid, rejects with error
     checkOrder(options: Options): Promise < any > {
         //Log.trace("Inside checkOrder");
         let that = this;
@@ -946,8 +805,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper: checks if options are valid, rejects with string of all errors
+    // checkOptions helper: checks if options are valid, rejects with error
     checkForm(options: Options): Promise < any > {
         //Log.trace("Inside checkForm");
         let that = this;
