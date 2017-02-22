@@ -64,7 +64,7 @@ describe("InsightFacadeSpec", function () {
     // Add single dataset
     it("addDataset with test base64 zip, should return code 204", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 Log.test("Value.code: " + value.code);
@@ -80,7 +80,7 @@ describe("InsightFacadeSpec", function () {
     // Adding same dataset twice
     it("addDataset with test base64 zip, then addDataSet with same test base64 zip should return code 201", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 Log.test("First add value.code: " + value.code);
@@ -104,7 +104,7 @@ describe("InsightFacadeSpec", function () {
     // Adding dataset and then removing it
     it("addDataset with test base64 zip, then removeDataset on it should return code 204", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 Log.test("First add value.code: " + value.code);
@@ -128,7 +128,7 @@ describe("InsightFacadeSpec", function () {
     // Removing 'courses' which hasn't been added yet
     it("removeDataset at 'courses' before adding it should return error 400", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.removeDataset(id)
             .then(function (value: InsightResponse) {
                 expect.fail();
@@ -143,7 +143,7 @@ describe("InsightFacadeSpec", function () {
     // Testing test base64 zip 2 (which has no proper files)
     it("addDataset with bad base64 zip, should return error code", function () {
         var id: string = "courses_bad";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64_2)
             .then(function (value: InsightResponse) {
                 expect.fail();
@@ -160,7 +160,7 @@ describe("InsightFacadeSpec", function () {
     // A simple query (from d1 page)
     it("performQuery with a simple query", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest =
@@ -256,7 +256,7 @@ describe("InsightFacadeSpec", function () {
     // A overlapping NOT query w/ no results
     it("performQuery with overlapping NOT", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -307,7 +307,7 @@ describe("InsightFacadeSpec", function () {
     // A complex query (from d1 page)
     it("performQuery with a complex query", function () {
         var id: string = "courses";
-        //this.timeout(100000);
+        this.timeout(100000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest =
@@ -428,7 +428,7 @@ describe("InsightFacadeSpec", function () {
     // An AND query w/ no results
     it("performQuery with contradictory AND", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -477,7 +477,7 @@ describe("InsightFacadeSpec", function () {
     // 424 testing
     it("performQuery with non-existing datasets", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: any = {
@@ -521,7 +521,7 @@ describe("InsightFacadeSpec", function () {
     // 424 testing
     it("performQuery with non-existing datasets and incorrect types", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: any = {
@@ -560,12 +560,12 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 12b
     // Specific instructors, full courses string*
     it("full courses specific instructors - string*", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -588,7 +588,7 @@ describe("InsightFacadeSpec", function () {
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
                         expect(value.code).to.equal(200);
-                        // /*
+                        /*
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -777,7 +777,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        // 
+                        */
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -791,13 +791,13 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
-/*
+
+
     // Test 13b
     // Specific instructors, full courses *string
     it("full courses specific instructors - *string", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -820,7 +820,7 @@ describe("InsightFacadeSpec", function () {
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
                         expect(value.code).to.equal(200);
-                        // /*
+                        /*
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -1021,7 +1021,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        // 
+                        */
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1035,13 +1035,13 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
-/*
+
+
     // Test 14b
     // Specific instructors, partial strings *string*
     it("specific instructors (full courses) - *string*", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -1092,13 +1092,13 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -1144,7 +1144,7 @@ describe("InsightFacadeSpec", function () {
     // Looks for courses with NOT instructor and string*
     it("performQuery with NOT specific instructor - string*", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -1192,7 +1192,7 @@ describe("InsightFacadeSpec", function () {
     // tries Complex query with AND, EQ, and GT
     it("Complex query with AND, EQ, and GT", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -1386,12 +1386,12 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 18
     // A query with sort not in columns
     it("performQuery with SORT not in COLUMNS", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -1436,13 +1436,13 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
+*/
 
     // Test 19
     // Query with non-string keys in WHERE
     it("performQuery with non-string keys in WHERE", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: any = {
@@ -1491,7 +1491,7 @@ describe("InsightFacadeSpec", function () {
     // Query with non-string keys in OPTIONS
     it("performQuery with non-string keys in OPTIONS", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
@@ -1540,7 +1540,7 @@ describe("InsightFacadeSpec", function () {
     // Query with non-valid property in query (no WHERE)
     it("performQuery with non-valid property in query (no WHERE)", function () {
         var id: string = "courses";
-        //this.timeout(10000);
+        this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: any = {
