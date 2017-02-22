@@ -472,7 +472,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 10a
     // 424 testing
     it("performQuery with non-existing datasets", function () {
@@ -560,7 +560,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 12b
     // Specific instructors, full courses string*
     it("full courses specific instructors - string*", function () {
