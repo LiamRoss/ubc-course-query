@@ -422,7 +422,7 @@ export default class InsightFacade implements IInsightFacade {
                         fulfill();
                     } else {
                         reject();
-                    } 
+                    }
                 })
                 .catch(function (err: string) {
                     reject(err);
@@ -1015,6 +1015,7 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to account for partial string queries
     SCompareToSectionHelper(sCProperty: string, sectionProperty: string): boolean {
+        /*
         var trimSC: string = sCProperty.replace('*', '');
         if (sCProperty.startsWith("*")) {
             // *string*
@@ -1044,6 +1045,8 @@ export default class InsightFacade implements IInsightFacade {
                 return (sectionProperty === sCProperty);
             }
         }
+        */
+        return false;
     }
 
     // performQuery
