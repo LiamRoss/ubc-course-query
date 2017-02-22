@@ -12,7 +12,7 @@ var fs = require('fs');
 // Global vars
 var testBase64: string = null;
 var testBase64_2: string = null;
-var testBase64_3: string = null;
+// var testBase64_3: string = null;
 var insightFacade: InsightFacade = null;
 
 /**
@@ -43,7 +43,7 @@ describe("InsightFacadeSpec", function () {
         try { testBase64 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
         try { testBase64_2 = base64_encode("test/bad_courses.zip"); } catch(e) { Log.trace("e = " + e); }
         // try { testBase64_3 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
-        try { testBase64_3 = base64_encode("test/courses_1course.zip"); } catch(e) { Log.trace("e = " + e); }
+        // try { testBase64_3 = base64_encode("test/courses_1course.zip"); } catch(e) { Log.trace("e = " + e); }
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-/*
+
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -554,104 +554,6 @@ describe("InsightFacadeSpec", function () {
 
 
 
-    // Test 11
-    // Specific instructors
-    it("performQuery with specific instructors", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "OR": [{
-                                "IS": {
-                                    "courses_instructor":"testinstructor1"
-                                }
-                            },
-                            {
-                                "IS": {
-                                    "courses_instructor":"testinstructor2"
-                                }
-                            }
-                        ]
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-
-    // Test 12a
-    // Specific instructors, partial strings string*
-    it("performQuery with specific instructors - string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor":"testinstruct*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-
     // Test 12b
     // Specific instructors, full courses string*
     it("full courses specific instructors - string*", function () {
@@ -866,58 +768,6 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 13a
-    // Specific instructors, partial strings *string
-    it("performQuery with specific instructors - *string", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "OR": [{
-                                "IS": {
-                                    "courses_instructor":"*tinstructor1"
-                                }
-                            },
-                            {
-                                "IS": {
-                                    "courses_instructor":"*tinstructor2"
-                                }
-                            }
-                        ]
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1174,50 +1024,6 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-    // Test 14a
-    // Specific instructors, partial strings *string*
-    it("specific instructors (small courses) - *string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor":"*instruct*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
     // Test 14b
     // Specific instructors, partial strings *string*
     it("specific instructors (full courses) - *string*", function () {
@@ -1280,7 +1086,7 @@ describe("InsightFacadeSpec", function () {
     it("performQuery with NOT specific instructor", function () {
         var id: string = "courses";
         this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
                     "WHERE": {
@@ -1304,7 +1110,7 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
+                        // Log.test("body: " + JSON.stringify(value.body));
                         expect(value.code).to.equal(200);
                         // expect.fail();
                     })
@@ -1326,7 +1132,7 @@ describe("InsightFacadeSpec", function () {
     it("performQuery with NOT specific instructor - string*", function () {
         var id: string = "courses";
         this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
                     "WHERE": {
@@ -1349,19 +1155,21 @@ describe("InsightFacadeSpec", function () {
 
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
+                        Log.test("succeeded in performQuery");
                         Log.test("ERROR: " + value.code);
-                        // Log.test("body: " + JSON.stringify(value.body));
-                        // expect(value.code).to.equal(200);
-                        expect.fail();
+                        Log.test("body: " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+                        // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
                         Log.test('ERROR: ' + err.code);
-                        expect(err.code).to.equal(400);
-                        // expect.fail();
+                        // expect(err.code).to.equal(400);
+                        expect.fail();
                     });
             })
             .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
+                Log.test("failed addDataset");
+                Log.test('ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });
@@ -1619,7 +1427,7 @@ describe("InsightFacadeSpec", function () {
     it("performQuery with non-string keys in WHERE", function () {
         var id: string = "courses";
         this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: any = {
                     "WHERE": {
@@ -1759,6 +1567,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 });
 
