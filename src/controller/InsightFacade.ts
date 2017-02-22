@@ -448,7 +448,6 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function (fulfill, reject) {
-            //-------------------------------------
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
                 // check WHERE internals
@@ -487,7 +486,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-    
+
     // helper: checks if filter is valid, rejects with string of all errors
     checkFilter(filter: Filter): Promise < any > {
         //Log.trace("Inside checkFilter");
@@ -525,7 +524,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                         break;
 
-                        // MCOMPARISON:    
+                    // MCOMPARISON:    
                     case "LT":
                         that.checkMComparison(filter.LT)
                             .then(function () {
@@ -558,7 +557,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                         break;
 
-                        // SCOMPARISON:
+                    // SCOMPARISON:
                     case "IS":
                         that.checkSComparison(filter.IS)
                             .then(function () {
@@ -570,7 +569,7 @@ export default class InsightFacade implements IInsightFacade {
                             });
                         break;
 
-                        // NEGATION:
+                    // NEGATION:
                     case "NOT":
                         that.checkFilter(filter.NOT)
                             .then(function () {
