@@ -1187,7 +1187,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 17
     // tries Complex query with AND, EQ, and GT
     it("Complex query with AND, EQ, and GT", function () {
@@ -1583,6 +1583,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
+*/
 });
 
