@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-
+/*
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -183,8 +183,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
                         // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        /*
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
@@ -238,7 +238,7 @@ describe("InsightFacadeSpec", function () {
                                         { courses_dept: 'math', courses_avg: 99.78 },
                                         { courses_dept: 'math', courses_avg: 99.78 } ] }
                         );
-                        */
+                        
                     })
                     .catch(function(err: InsightResponse) {
                         Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
@@ -348,8 +348,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
                         // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        /*
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
@@ -410,7 +410,7 @@ describe("InsightFacadeSpec", function () {
                                         { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
                                         { courses_dept: 'adhe', courses_id: '329', courses_avg: 96.11 } ] }
                         );
-                        */
+                        
                     })
                     .catch(function(err: InsightResponse) {
                         Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
@@ -472,7 +472,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 10a
     // 424 testing
     it("performQuery with non-existing datasets", function () {
@@ -515,8 +515,8 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
-/*
+
+
     // Test 10b
     // 424 testing
     it("performQuery with non-existing datasets and incorrect types", function () {
@@ -559,7 +559,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 
     // Test 12b
     // Specific instructors, full courses string*
@@ -587,8 +587,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
-                        expect(value.code).to.equal(200);
-                        /*
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -777,7 +777,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        */
+                        
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -819,8 +819,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
-                        expect(value.code).to.equal(200);
-                        /*
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -1021,7 +1021,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        */
+                        
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1225,8 +1225,8 @@ describe("InsightFacadeSpec", function () {
                         Log.test("code: " + value.code);
                         // Log.test("body: " + JSON.stringify(value.body));
                         // expect(value.code).to.equal(200);
-                        expect(value.code).to.equal(200);
-                        /*
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -1371,7 +1371,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         })
-                        */
+                        
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1386,7 +1386,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 18
     // A query with sort not in columns
     it("performQuery with SORT not in COLUMNS", function () {
@@ -1436,7 +1436,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 
     // Test 19
     // Query with non-string keys in WHERE
@@ -1583,6 +1583,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
+*/
 });
 
