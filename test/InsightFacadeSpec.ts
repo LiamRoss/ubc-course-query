@@ -472,7 +472,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 10a
     // 424 testing
     it("performQuery with non-existing datasets", function () {
@@ -515,7 +515,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-
+*/
 
     // Test 10b
     // 424 testing
