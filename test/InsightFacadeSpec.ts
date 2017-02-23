@@ -949,7 +949,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
@@ -993,54 +993,6 @@ describe("InsightFacadeSpec", function () {
             })
             .catch(function (err: InsightResponse) {
                 Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 16
-    // Looks for courses with NOT instructor and string*
-    it("performQuery with NOT specific instructor - string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "NOT": {
-                            "IS": {
-                                "courses_instructor":"testinstructor*"
-                            }
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("succeeded in performQuery");
-                        // Log.test("ERROR: " + value.code);
-                        // Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(400);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test("failed addDataset");
-                Log.test('ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });
@@ -1441,6 +1393,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 });
 

@@ -47,6 +47,9 @@ export default class InsightFacade implements IInsightFacade {
     // array of missing IDs for QueryRequest
     private missingIDs: string[];
 
+    // current dataSet to draw from
+    private activeDataset: string;
+
 
     constructor() {
         //Log.trace('InsightFacadeImpl::init()');
@@ -346,6 +349,8 @@ export default class InsightFacade implements IInsightFacade {
         };
         // initialize missingIDs array
         this.missingIDs = [];
+        // initialize current dataset
+        this.activeDataset = "";
 
         return new Promise(function (fulfill, reject) {
             // check if query is valid
@@ -823,6 +828,12 @@ export default class InsightFacade implements IInsightFacade {
                             that.missingIDs.push(keyID);
                             //Log.trace("inside validKey, no dataset");
                         }
+                        // sets activeDataset if not already set
+                        if (that.activeDataset.length === 0) {
+                            that.activeDataset = keyID;
+                        } else if (that.activeDataset !== keyID) {
+                            reject("unmatching IDs for key values");
+                        }
                         //Log.trace("Fancy regex passed");
                         fulfill();
                     } else {
@@ -1016,36 +1027,33 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to account for partial string queries
     SCompareToSectionHelper(sCProperty: string, sectionProperty: string): boolean {
-        var trimSC: string = sCProperty.replace('*', '');
-        // if (sCProperty.startsWith("*")) {
+        // var trimSC: string = sCProperty.replace('*', '');
+        var trimSC: string = sCProperty;
+        while (trimSC.indexOf("*") !== -1) {
+            trimSC = trimSC.replace('*', '');
+        }
         //Log.trace("sCProperty: " + sCProperty);
         //Log.trace("Testing string (should be 0)" + String(sCProperty.indexOf("*")));
         if (sCProperty.indexOf("*") == 0) {
             // *string*
-            // if (sCProperty.endsWith("*")) {
             //Log.trace("Testing *string (should not be -1)" + String(sCProperty.indexOf("*")));
             if (sCProperty.indexOf("*", sCProperty.length - "*".length) !== -1) {
                 //Log.trace("Inside *string*");
-                var extraTrimSC: string = trimSC.replace('*', '');
                 //Log.trace(sectionProperty + " includes " + extraTrimSC + ": " + sectionProperty.includes(sCProperty));
-                // return (sectionProperty.includes(extraTrimSC));
-                return (sectionProperty.indexOf(extraTrimSC) !== -1);
+                return (sectionProperty.indexOf(trimSC) !== -1);
             }
             // *string
             else {
                 //Log.trace("Inside *string");
                 //Log.trace(sectionProperty + " ends with " + trimSC + ": " + sectionProperty.endsWith(sCProperty));
-                // return (sectionProperty.endsWith(trimSC));
                 return (sectionProperty.indexOf(trimSC, sectionProperty.length - trimSC.length) !== -1);
             }
         } else {
             // string*
-            // if (sCProperty.endsWith("*")) {
             //Log.trace("Testing string* (should not be -1)" + String(sCProperty.indexOf("*")));
             if (sCProperty.indexOf("*", sCProperty.length - "*".length) !== -1) {
                 //Log.trace("Inside string*");
                 //Log.trace(sectionProperty + " starts with " + trimSC + ": " + sectionProperty.startsWith(sCProperty));
-                // return (sectionProperty.startsWith(trimSC));
                 return (sectionProperty.indexOf(trimSC) == 0);
             }
             // string
