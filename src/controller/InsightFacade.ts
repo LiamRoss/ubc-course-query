@@ -574,6 +574,7 @@ export default class InsightFacade implements IInsightFacade {
 
                         // NEGATION:
                     case "NOT":
+                    //Log.trace("filter.NOT (in checkFilter): " + JSON.stringify(filter.NOT));
                         that.checkFilter(filter.NOT)
                             .then(function () {
                                 //Log.trace("checkFilter fulfills");
@@ -966,7 +967,7 @@ export default class InsightFacade implements IInsightFacade {
                 return (this.SCompareToSection(filter.IS, section));
                 // negates recursive call to check filter
             case "NOT":
-                //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
+                //Log.trace("filter.NOT (in matchesQuery): " + JSON.stringify(filter.NOT));
                 //Log.trace("return value of NOT: " + !this.matchesQuery(filter.NOT, section));
                 return !this.matchesQuery(filter.NOT, section);
             default:
@@ -1015,7 +1016,6 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to account for partial string queries
     SCompareToSectionHelper(sCProperty: string, sectionProperty: string): boolean {
-        /*
         var trimSC: string = sCProperty.replace('*', '');
         if (sCProperty.startsWith("*")) {
             // *string*
@@ -1023,7 +1023,8 @@ export default class InsightFacade implements IInsightFacade {
                 //Log.trace("Inside *string*");
                 var extraTrimSC: string = trimSC.replace('*', '');
                 //Log.trace(sectionProperty + " includes " + extraTrimSC + ": " + sectionProperty.includes(sCProperty));
-                return (sectionProperty.includes(extraTrimSC));
+                // return (sectionProperty.includes(extraTrimSC));
+                return (sectionProperty.indexOf(extraTrimSC) !== -1);
             }
             // *string
             else {
@@ -1045,8 +1046,6 @@ export default class InsightFacade implements IInsightFacade {
                 return (sectionProperty === sCProperty);
             }
         }
-        */
-        return false;
     }
 
     // performQuery

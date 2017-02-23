@@ -1093,7 +1093,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
@@ -1104,8 +1104,10 @@ describe("InsightFacadeSpec", function () {
                 var qr: QueryRequest = {
                     "WHERE": {
                         "NOT": {
-                            "IS": {
-                                "courses_instructor":"testinstructor1"
+                            "NOT": {
+                                "IS": {
+                                    "courses_instructor":"testinstructor1"
+                                }
                             }
                         }
                     },
@@ -1122,15 +1124,15 @@ describe("InsightFacadeSpec", function () {
 
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
+                        Log.test("ERROR: " + value.code);
                         // Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
+                        // expect(value.code).to.equal(200);
                         expect.fail();
+                    })
+                    .catch(function (value: InsightResponse) {
+                        Log.test('code: ' + value.code);
+                        expect(value.code).to.equal(400);
+                        // expect.fail();
                     });
             })
             .catch(function (err: InsightResponse) {
@@ -1187,7 +1189,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+
     // Test 17
     // tries Complex query with AND, EQ, and GT
     it("Complex query with AND, EQ, and GT", function () {
