@@ -53,6 +53,8 @@ export default class InsightFacade implements IInsightFacade {
 
     private currRooms: HashTable<Object[]> = {};
 
+    private activeDataset: string = "";
+
     constructor() {
         //Log.trace('InsightFacadeImpl::init()');
     }
@@ -108,8 +110,8 @@ export default class InsightFacade implements IInsightFacade {
      */
     isValidHtmFile(data: string): boolean {
         try {
-           let parsedData =  parse5.parse(data);
-           return parsedData.childNodes[0].nodeName == "#documentType";
+            let parsedData =  parse5.parse(data);
+            return parsedData.childNodes[0].nodeName == "#documentType";
         } catch(e) {
             return false;
         }
@@ -175,7 +177,7 @@ export default class InsightFacade implements IInsightFacade {
      */
     getDivAttrsValue(div: any) {
         for(let divChilds in div.attrs) {
-           return div.attrs[divChilds].value;
+            return div.attrs[divChilds].value;
         }
     }
 
@@ -302,7 +304,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
         return new Promise(function(fulfill) {
-           fulfill(rooms);
+            fulfill(rooms);
         });
     }
 
@@ -474,6 +476,12 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+    /**
+     * Helper function
+     * Recursively checks the divs to find the ones we want
+     * @param div  The div to check
+     * @param fileName  The name of the file that the div belongs to
+     */
     private foundDivs: HashTable<any[]> = {};
     checkChilds(div: any, fileName: string) {
         let that = this;
@@ -498,9 +506,9 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
-     * why does this exist
-     * @param div
+     * @param div The full-width-container div to check and parse if it has the correct sub divs
      * @param fileName  The name of the file that the div belongs to
+     * @param id  The id of the dataset being added
      */
     parseFullWidthContainerDiv(div: any, fileName: string, id: string): Promise<any> {
         let that = this;
@@ -514,6 +522,9 @@ export default class InsightFacade implements IInsightFacade {
         that.checkChilds(div, fileName);
         Log.trace("Checking " +  that.foundDivs[fileName]);
 
+        /*
+         * Parse the found divs
+         */
         for(let k in that.foundDivs[fileName]) {
             if(that.getDivAttrsValue(that.foundDivs[fileName][k]) == "building-info") {
                 let p: Promise<any> = that.parseBuildingInfo(that.foundDivs[fileName][k], fileName);
@@ -527,7 +538,8 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function(fulfill, reject) {
             Promise.all(promises)
                 .then(function(ret: any) {
-                    Log.trace("woohoo!");
+                    Log.trace("Success!");
+                    // TODO: Create object from rooms and building and fulfill it
                 })
                 .catch(function(err) {
                     Log.trace("parseFullWidthContainerDiv's Promise.all failed, error: " + err);
@@ -656,7 +668,7 @@ export default class InsightFacade implements IInsightFacade {
                                         isHtmWrite = true;
                                         try {
                                             Log.trace("Creating htm object for " + fileNames[<any>k] + ":");
-                                            let p: Promise<any> = that.createHtmObject(ret[k], fileNames[<any>k], id)
+                                            let p: Promise<any> = that.createHtmObject(ret[k], fileNames[<any>k], id);
                                             promisesHtm.push(p);
                                         } catch (e) {
                                             Log.trace("createHtmObject e = " + e);
@@ -680,7 +692,7 @@ export default class InsightFacade implements IInsightFacade {
                                     .then(function(ret) {
                                         Log.trace("done?! ... ret = " + JSON.stringify(ret));
 
-                                        Log.trace("shit to write: " + JSON.stringify(that.dataSets[id]));
+                                        Log.trace("stuff to write: " + JSON.stringify(that.dataSets[id]));
 
                                         try { that.writeToDisk(id); } catch(e) { Log.trace("Error while writing to disk, error: " + e); }
                                     })
@@ -688,7 +700,6 @@ export default class InsightFacade implements IInsightFacade {
                                         Log.trace("addToDataBase Promise.all failed, error: " + err);
                                     });
                             }
-
                         })
                         .catch(function (err: any) {
                             //Log.trace("Promise.all catch, err = " + err);
@@ -711,11 +722,11 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
 
             /* Fulfill conditions:
-                * 201: the operation was successful and the id already existed (was added in
-                this session or was previously cached).
-                * 204: the operation was successful and the id was new (not added in this
-                session or was previously cached).
-            */
+             * 201: the operation was successful and the id already existed (was added in
+             this session or was previously cached).
+             * 204: the operation was successful and the id was new (not added in this
+             session or was previously cached).
+             */
 
             if (that.dataAlreadyExists(id) == true) {
                 //Log.trace("if");
@@ -744,10 +755,10 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 //Log.trace("iff");
                 that.addToDatabase(id, content).then(function () {
-                        Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
-                        var ir: InsightResponse = { code: 204, body: {} };
-                        //fulfill(ir);
-                    })
+                    Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
+                    var ir: InsightResponse = { code: 204, body: {} };
+                    //fulfill(ir);
+                })
                     .catch(function (err: any) {
                         Log.trace("addToDatabase catch, err = " + err);
                         var ir: InsightResponse = { code: 400, body: { "error": err } };
@@ -757,11 +768,15 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+
     removeDataset(id: string): Promise < InsightResponse > {
         //Log.trace("Inside removeDataset()");
         let that = this;
         // Remove id from ids[] and delete its .json
-        var ir: InsightResponse = { code: 204, body: {} };
+        var ir: InsightResponse = {
+            code: 204,
+            body: {}
+        };
         return new Promise(function (fulfill, reject) {
             try {
                 delete that.dataSets[id];
@@ -773,14 +788,18 @@ export default class InsightFacade implements IInsightFacade {
                 try {
                     fs.unlinkSync(id + ".json");
                 } catch (e) {
-                    var ir2: InsightResponse = { code: 404, body: { "error": ("the id " + id + " does not exist in the dataset.") } };
+                    var ir2: InsightResponse = {
+                        code: 404,
+                        body: {
+                            "error": ("the id " + id + " does not exist in the dataset.")
+                        }
+                    };
                     reject(ir2);
                 }
             }
             fulfill(ir);
         });
     }
-
 
     /**
      * Perform a query on UBCInsight.
@@ -800,7 +819,6 @@ export default class InsightFacade implements IInsightFacade {
      * 424: the query failed because it depends on a resource that has not been PUT. The body should contain {"missing": ["id1", "id2"...]}.
      *
      */
-
     performQuery(query: QueryRequest): Promise < InsightResponse > {
         //Log.trace("Inside performQuery");
         let that = this;
@@ -808,9 +826,13 @@ export default class InsightFacade implements IInsightFacade {
             code: 0,
             body: {}
         };
+        // initialize missingIDs array
         this.missingIDs = [];
+        // initialize current dataset
+        this.activeDataset = "";
 
         return new Promise(function (fulfill, reject) {
+            // check if query is valid
             that.validQuery(query).then(function () {
                     that.retrieveData(query)
                         .then(function (validSections: Section[]) {
@@ -844,11 +866,11 @@ export default class InsightFacade implements IInsightFacade {
                         })
                 })
                 // 1. catch for validQuery
-                .catch(function (errors) {
+                .catch(function (error) {
                     if (that.missingIDs.length === 0) {
                         ir.code = 400;
                         ir.body = {
-                            "error": "invalid query, error(s): " + errors
+                            "error": error
                         };
                         reject(ir);
                     } else {
@@ -873,21 +895,25 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             var promises: Promise < any > [] = [];
             //Log.trace("query = " + JSON.stringify(query));
+            // checks if query only has two properties
             promises[0] = that.validQueryProperties(query);
             promises[1] = that.validWhere(query);
             promises[2] = that.validOptions(query);
 
             Promise.all(promises)
                 .then(function () {
-                    //Log.trace("validQuery fulfills");
-                    fulfill();
+                    if (that.missingIDs.length === 0) {
+                        fulfill();
+                    } else {
+                        reject();
+                    }
                 })
                 .catch(function (err: string) {
                     reject(err);
                 })
         });
     }
-
+    // validQuery helper #1
     validQueryProperties(query: QueryRequest): Promise < any > {
         //Log.trace("Inside validQueryProperties");
         let that = this;
@@ -903,16 +929,15 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
+    // validQuery helper #2
     validWhere(query: QueryRequest): Promise < any > {
         //Log.trace("Inside validWhere");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
-            //-------------------------------------
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
-                // check WHERE
+                // check WHERE internals
                 that.checkFilter(query.WHERE).then(function () {
                         //Log.trace("validWhere fulfills");
                         fulfill();
@@ -925,7 +950,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
+    // validQuery helper #3
     validOptions(query: QueryRequest): Promise < any > {
         //Log.trace("Inside validOptions");
         let that = this;
@@ -1033,6 +1058,7 @@ export default class InsightFacade implements IInsightFacade {
 
                         // NEGATION:
                     case "NOT":
+                    //Log.trace("filter.NOT (in checkFilter): " + JSON.stringify(filter.NOT));
                         that.checkFilter(filter.NOT)
                             .then(function () {
                                 //Log.trace("checkFilter fulfills");
@@ -1053,8 +1079,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper to filter: checks if logic comparison is valid, rejects with string of all errors
+    // checkFilter helper: checks if logic comparison is valid, rejects with string of all errors
     checkLogicComparison(filters: Filter[]): Promise < any > {
         //Log.trace("Inside checkLogicComparison");
         let that = this;
@@ -1087,8 +1112,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper to filter: checks if math comparison is valid, rejects with string of all errors
+    // checkFilter helper: checks if math comparison is valid, rejects with string of all errors
     checkMComparison(mC: any): Promise < any > {
         //Log.trace("Inside checkMComparison");
         let that = this;
@@ -1101,37 +1125,22 @@ export default class InsightFacade implements IInsightFacade {
 
 
         return new Promise(function (fulfill, reject) {
-            // checks if key is not string
-            if (typeof key !== "string") {
-                Log.trace("MComparison " + String(key) + " is not a string");
-                reject("MComparison " + String(key) + " is not a string");
-            }
-            var keyParts = key.split("_");
-            var keyID = keyParts[0];
-            //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-            // checks to see if data exists, if not fulfills,
-            //  but adds to array of missingIDs if it doesn't exists
-            if (!that.dataAlreadyExists(keyID)) {
-                //Log.trace("checkMComparison: pushing keyID into missingIDs, keyID = " + keyID);
-                that.missingIDs.push(keyID);
-                //Log.trace("fulfill checkMComparison, no dataset");
-                fulfill();
-            }
-            // checks each MComparison to make sure it's a number
-            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
-                if (isNaN(value)) {
-                    reject("MComparison " + value + " is not a number");
-                } else {
-                    //Log.trace("fulfill checkMComparison");
-                    fulfill();
-                }
-            } else {
-                reject("invalid MComparison key \"" + key + "\"");
-            }
+            that.validKey(key)
+                .then(function () {
+                    // checks each MComparison to make sure it's a number
+                    if (isNaN(value)) {
+                        reject("MComparison " + value + " is not a number");
+                    } else {
+                        //Log.trace("fulfill checkMComparison");
+                        fulfill();
+                    }
+                })
+                .catch(function (e: string) {
+                    reject(e);
+                })
         });
     }
-
-    // helper to filter: checks if string comparison is valid, rejects with string of all errors
+    // checkFilter helper: checks if string comparison is valid, rejects with string of all errors
     checkSComparison(sC: any): Promise < any > {
         //Log.trace("Inside checkSComparison");
         let that = this;
@@ -1143,36 +1152,21 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("value = " + value + ", type = " + (value).constructor.name);
 
         return new Promise(function (fulfill, reject) {
-            // checks if key is not string
-            if (typeof key !== "string") {
-                Log.trace("MComparison " + String(key) + " is not a string");
-                reject("SComparison " + String(key) + " is not a string");
-            }
-            var keyParts = key.split("_");
-            var keyID = keyParts[0];
-            //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
-            // checks to see if data exists, if not fulfills,
-            //  but adds to array of missingIDs if it doesn't exists
-            if (!that.dataAlreadyExists(keyID)) {
-                //Log.trace("checkSComparison: pushing keyID into missingIDs, keyID = " + keyID);
-                that.missingIDs.push(keyID);
-                //Log.trace("fulfill checkSComparison, no dataset");
-                fulfill();
-            }
-            // checks each SComparison to make sure it's a string
-            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
-                if (typeof value !== 'string') {
-                    reject("SComparison " + value + " is not a string");
-                } else {
-                    //Log.trace("fulfill checkSComparison");
-                    fulfill();
-                }
-            } else {
-                reject("invalid SComparison key \"" + key + "\"");
-            }
+            that.validKey(key)
+                .then(function () {
+                    // checks each SComparison to make sure it's a string
+                    if (typeof value !== 'string') {
+                        reject("SComparison " + value + " is not a string");
+                    } else {
+                        //Log.trace("fulfill checkSComparison");
+                        fulfill();
+                    }
+                })
+                .catch(function (e: string) {
+                    reject(e);
+                })
         });
     }
-
 
     // helper: checks if options are valid, rejects with string of all errors
     checkOptions(options: Options): Promise < any > {
@@ -1195,8 +1189,7 @@ export default class InsightFacade implements IInsightFacade {
                 })
         });
     }
-
-    // helper: checks if options are valid, rejects with error
+    // checkOptions helper #1
     checkColumns(options: Options): Promise < any > {
         //Log.trace("Inside checkColumns");
         let that = this;
@@ -1223,7 +1216,7 @@ export default class InsightFacade implements IInsightFacade {
                                 fulfill();
                             })
                             .catch(function (e) {
-                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS: "+ e);
+                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS: " + e);
                             });
                     } else {
                         reject("COLUMNS is empty");
@@ -1236,8 +1229,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper: checks if options are valid, rejects with string of all errors
+    // checkOptions helper #2
     checkOrder(options: Options): Promise < any > {
         //Log.trace("Inside checkOrder");
         let that = this;
@@ -1272,8 +1264,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-
-    // helper: checks if options are valid, rejects with string of all errors
+    // checkOptions helper #3
     checkForm(options: Options): Promise < any > {
         //Log.trace("Inside checkForm");
         let that = this;
@@ -1296,36 +1287,48 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
-    // helper: validates keys with regex, returns true if valid, false otherwise
+    // helper: validates keys with regex, fulfills if true, rejects otherwise
     validKey(key: any): Promise < any > {
         //Log.trace("Inside validKey");
         let that = this;
 
         return new Promise(function (fulfill, reject) {
+            //Log.trace("key: " + key + " - type of key: " + typeof key);
             if (typeof key === 'string' /* || key instanceof String*/ ) {
-                var keyParts = key.split("_");
-                var keyID = keyParts[0];
-                // checks to see if data exists, if not fulfills,
-                //  but adds to array of missingIDs if it doesn't exists
-                if (!that.dataAlreadyExists(keyID)) {
-                    //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
-                    that.missingIDs.push(keyID);
-                    //Log.trace("inside validKey, no dataset");
-                }
                 // try, catch if key is not valid string
                 //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
                 try {
-                    if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+                    if (/(.+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+                        var keyParts = key.split("_");
+                        var keyID = keyParts[0];
+                        // adds to array of missingIDs if it doesn't exists
+                        if (!that.dataAlreadyExists(keyID)) {
+                            //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
+                            that.missingIDs.push(keyID);
+                            //Log.trace("inside validKey, no dataset");
+                        }
+                        // sets activeDataset if not already set
+                        if (that.activeDataset.length === 0) {
+                            that.activeDataset = keyID;
+                        } else if (that.activeDataset !== keyID) {
+                            reject("unmatching IDs for key values");
+                        }
                         //Log.trace("Fancy regex passed");
                         fulfill();
+                    } else {
+                        //Log.trace("validKey, " + String(key) + " is an invalid key");
+                        reject("validKey, " + String(key) + " is an invalid key");
                     }
                 } catch (e) {
                     //Log.trace("validKey error: " + e);
-                    //Log.trace("validKey " + String(key) + " is not a string");
-                    reject("validKey, " + String(key) + " is not a string");
+                    //Log.trace("validKey, " + String(key) + " failed try");
+                    reject("validKey, " + String(key) + " failed try");
                 }
+            } else {
+                //Log.trace("validKey, " + String(key) + " is not a string");
+                reject("validKey, " + String(key) + " is not a string");
             }
-            reject("validKey, " + String(key) + " is not a string");
+            
         });
     }
 
@@ -1454,7 +1457,7 @@ export default class InsightFacade implements IInsightFacade {
                 return (this.SCompareToSection(filter.IS, section));
                 // negates recursive call to check filter
             case "NOT":
-                //Log.trace("NOT found" + ", Filter.NOT = " + JSON.stringify(filter.NOT));
+                //Log.trace("filter.NOT (in matchesQuery): " + JSON.stringify(filter.NOT));
                 //Log.trace("return value of NOT: " + !this.matchesQuery(filter.NOT, section));
                 return !this.matchesQuery(filter.NOT, section);
             default:
@@ -1468,7 +1471,7 @@ export default class InsightFacade implements IInsightFacade {
         var k = Object.keys(mC);
         var key = k[0];
         try {
-            if (/([A-Za-z]+_(avg|pass|fail|audit))/.test(key)) {
+            if (/(.+_(avg|pass|fail|audit))/.test(key)) {
                 var keyType = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return [mC[key], section[keyType]];
@@ -1487,7 +1490,7 @@ export default class InsightFacade implements IInsightFacade {
         var key = k[0];
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
         try {
-            if (/([A-Za-z]+_(dept|id|instructor|title|uuid))/.test(key)) {
+            if (/(.+_(dept|id|instructor|title|uuid))/.test(key)) {
                 var keyType: string = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return (this.SCompareToSectionHelper(sC[key], section[keyType]));
@@ -1503,27 +1506,34 @@ export default class InsightFacade implements IInsightFacade {
 
     // helper to account for partial string queries
     SCompareToSectionHelper(sCProperty: string, sectionProperty: string): boolean {
-        var trimSC: string = sCProperty.replace('*', '');
-        if (sCProperty.startsWith("*")) {
+        // var trimSC: string = sCProperty.replace('*', '');
+        var trimSC: string = sCProperty;
+        while (trimSC.indexOf("*") !== -1) {
+            trimSC = trimSC.replace('*', '');
+        }
+        //Log.trace("sCProperty: " + sCProperty);
+        //Log.trace("Testing string (should be 0)" + String(sCProperty.indexOf("*")));
+        if (sCProperty.indexOf("*") == 0) {
             // *string*
-            if (sCProperty.endsWith("*")) {
+            //Log.trace("Testing *string (should not be -1)" + String(sCProperty.indexOf("*")));
+            if (sCProperty.indexOf("*", sCProperty.length - "*".length) !== -1) {
                 //Log.trace("Inside *string*");
-                var extraTrimSC: string = trimSC.replace('*', '');
                 //Log.trace(sectionProperty + " includes " + extraTrimSC + ": " + sectionProperty.includes(sCProperty));
-                return (sectionProperty.includes(extraTrimSC));
+                return (sectionProperty.indexOf(trimSC) !== -1);
             }
             // *string
             else {
                 //Log.trace("Inside *string");
                 //Log.trace(sectionProperty + " ends with " + trimSC + ": " + sectionProperty.endsWith(sCProperty));
-                return (sectionProperty.endsWith(trimSC));
+                return (sectionProperty.indexOf(trimSC, sectionProperty.length - trimSC.length) !== -1);
             }
         } else {
             // string*
-            if (sCProperty.endsWith("*")) {
+            //Log.trace("Testing string* (should not be -1)" + String(sCProperty.indexOf("*")));
+            if (sCProperty.indexOf("*", sCProperty.length - "*".length) !== -1) {
                 //Log.trace("Inside string*");
                 //Log.trace(sectionProperty + " starts with " + trimSC + ": " + sectionProperty.startsWith(sCProperty));
-                return (sectionProperty.startsWith(trimSC));
+                return (sectionProperty.indexOf(trimSC) == 0);
             }
             // string
             else {
@@ -1605,7 +1615,7 @@ export default class InsightFacade implements IInsightFacade {
     keyToSection(key: string): string {
         var section: string;
         try {
-            if (/([A-Za-z]+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
+            if (/(.+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
                 var keyParts: string[] = key.split("_");
                 var keyType: string = keyParts[1];
                 section = keyType;

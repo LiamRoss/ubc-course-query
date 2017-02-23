@@ -12,7 +12,7 @@ var fs = require('fs');
 // Global vars
 var testBase64: string = null;
 var testBase64_2: string = null;
-var testBase64_3: string = null;
+// var testBase64_3: string = null;
 var insightFacade: InsightFacade = null;
 
 /**
@@ -43,7 +43,7 @@ describe("InsightFacadeSpec", function () {
         try { testBase64 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
         try { testBase64_2 = base64_encode("test/bad_courses.zip"); } catch(e) { Log.trace("e = " + e); }
         // try { testBase64_3 = base64_encode("test/courses.zip"); } catch(e) { Log.trace("e = " + e); }
-        try { testBase64_3 = base64_encode("test/courses_1course.zip"); } catch(e) { Log.trace("e = " + e); }
+        // try { testBase64_3 = base64_encode("test/courses_1course.zip"); } catch(e) { Log.trace("e = " + e); }
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-/*
+
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -183,6 +183,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
                         // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
@@ -236,6 +238,7 @@ describe("InsightFacadeSpec", function () {
                                         { courses_dept: 'math', courses_avg: 99.78 },
                                         { courses_dept: 'math', courses_avg: 99.78 } ] }
                         );
+                        
                     })
                     .catch(function(err: InsightResponse) {
                         Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
@@ -345,6 +348,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function(value: InsightResponse) {
                         // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal(
                             { render: 'TABLE',
                                 result:
@@ -405,6 +410,7 @@ describe("InsightFacadeSpec", function () {
                                         { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
                                         { courses_dept: 'adhe', courses_id: '329', courses_avg: 96.11 } ] }
                         );
+                        
                     })
                     .catch(function(err: InsightResponse) {
                         Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
@@ -497,6 +503,7 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
+                        Log.test('err.code: ' + err.code);
                         Log.test('err.body: ' + JSON.stringify(err.body));
                         expect(err.body).to.deep.equal({
                             "missing": ["test1", "test2"]
@@ -528,7 +535,7 @@ describe("InsightFacadeSpec", function () {
                             "test2_instructor",
                             "courses_avg"
                         ],
-                        "ORDER": "courses_avg",
+                        "ORDER": "test3_avg",
                         "FORM": "TABLE"
                     }
                 };
@@ -540,9 +547,10 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
+                        Log.test('err.code: ' + err.code);
                         Log.test('err.body: ' + JSON.stringify(err.body));
                         expect(err.body).to.deep.equal({
-                            "missing": ["test1", "test2"]
+                            "missing": ["test1", "test2", "test3"]
                         });
                     });
             })
@@ -553,108 +561,9 @@ describe("InsightFacadeSpec", function () {
     });
 
 
-
-    // Test 11
-    // Specific instructors
-    it("performQuery with specific instructors", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "OR": [{
-                                "IS": {
-                                    "courses_instructor":"testinstructor1"
-                                }
-                            },
-                            {
-                                "IS": {
-                                    "courses_instructor":"testinstructor2"
-                                }
-                            }
-                        ]
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-
-    // Test 12a
-    // Specific instructors, partial strings string*
-    it("performQuery with specific instructors - string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor":"testinstruct*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-
     // Test 12b
     // Specific instructors, full courses string*
-    it("full courses specific instructors - string*", function () {
+    it("full courses specific instructors - *string", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -662,7 +571,7 @@ describe("InsightFacadeSpec", function () {
                 var qr: QueryRequest = {
                     "WHERE": {
                         "IS": {
-                            "courses_instructor": "*ad"
+                            "courses_instructor": "*dad"
                         }
                     },
                     "OPTIONS": {
@@ -678,6 +587,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
+                        // expect(value.code).to.equal(200);
+                        // Log.test(JSON.stringify(value.body));
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -685,164 +596,28 @@ describe("InsightFacadeSpec", function () {
                                     "courses_avg": 61.36
                                 },
                                 {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 63.63
-                                },
-                                {
-                                    "courses_instructor": "bennington, chad",
-                                    "courses_avg": 64.6
-                                },
-                                {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 66.18
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 66.18
-                                },
-                                {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 66.54
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 67.3
-                                },
-                                {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 67.34
-                                },
-                                {
-                                    "courses_instructor": "alfantazi, akram;mohammadi, farzad",
-                                    "courses_avg": 67.77
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 67.89
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 69.11
-                                },
-                                {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 69.74
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 70.62
-                                },
-                                {
-                                    "courses_instructor": "mokmeli, mohammad",
-                                    "courses_avg": 70.65
-                                },
-                                {
-                                    "courses_instructor": "tufail, muhammad",
-                                    "courses_avg": 70.96
-                                },
-                                {
-                                    "courses_instructor": "bennington, chad",
-                                    "courses_avg": 72.24
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 72.29
-                                },
-                                {
-                                    "courses_instructor": "el smaily, mohammad",
-                                    "courses_avg": 72.36
-                                },
-                                {
-                                    "courses_instructor": "mallick, shankhanaad",
-                                    "courses_avg": 75.02
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 75.72
-                                },
-                                {
-                                    "courses_instructor": "babaei khorzoughi, mohammad",
-                                    "courses_avg": 75.73
-                                },
-                                {
-                                    "courses_instructor": "tufail, muhammad",
-                                    "courses_avg": 75.82
-                                },
-                                {
-                                    "courses_instructor": "nemati, sajjad",
-                                    "courses_avg": 75.89
                                 },
                                 {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 76.47
                                 },
                                 {
-                                    "courses_instructor": "narimani, mohammad",
-                                    "courses_avg": 76.96
-                                },
-                                {
-                                    "courses_instructor": "alemi ardakani, mohammad",
-                                    "courses_avg": 77.07
-                                },
-                                {
-                                    "courses_instructor": "morshed, muhammad",
-                                    "courses_avg": 77.21
-                                },
-                                {
-                                    "courses_instructor": "babaei khorzoughi, mohammad",
-                                    "courses_avg": 77.48
-                                },
-                                {
-                                    "courses_instructor": "tufail, muhammad",
-                                    "courses_avg": 77.8
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 78
-                                },
-                                {
-                                    "courses_instructor": "nemati, sajjad",
-                                    "courses_avg": 79.4
-                                },
-                                {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 80.8
-                                },
-                                {
-                                    "courses_instructor": "babaei khorzoughi, mohammad",
-                                    "courses_avg": 80.95
                                 },
                                 {
                                     "courses_instructor": "chapariha, mehrdad",
                                     "courses_avg": 83.9
                                 },
                                 {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 84
-                                },
-                                {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 85
                                 },
                                 {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 85
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 85.33
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 86.6
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 88.4
-                                },
-                                {
-                                    "courses_instructor": "mallick, shankhanaad",
-                                    "courses_avg": 89
                                 },
                                 {
                                     "courses_instructor": "haber, eldad",
@@ -855,69 +630,10 @@ describe("InsightFacadeSpec", function () {
                                 {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 90.33
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 91
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 93
                                 }
                             ]
                         });
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
 
-
-    // Test 13a
-    // Specific instructors, partial strings *string
-    it("performQuery with specific instructors - *string", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "OR": [{
-                                "IS": {
-                                    "courses_instructor":"*tinstructor1"
-                                }
-                            },
-                            {
-                                "IS": {
-                                    "courses_instructor":"*tinstructor2"
-                                }
-                            }
-                        ]
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -934,8 +650,8 @@ describe("InsightFacadeSpec", function () {
 
 
     // Test 13b
-    // Specific instructors, full courses *string
-    it("full courses specific instructors - *string", function () {
+    // Specific instructors, full courses string
+    it("full courses specific instructors - string*", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -959,6 +675,8 @@ describe("InsightFacadeSpec", function () {
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -1159,50 +877,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         });
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 14a
-    // Specific instructors, partial strings *string*
-    it("specific instructors (small courses) - *string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor":"*instruct*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
+                        
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1274,65 +949,21 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-
+/*
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
         var id: string = "courses";
         this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: QueryRequest = {
                     "WHERE": {
                         "NOT": {
-                            "IS": {
-                                "courses_instructor":"testinstructor1"
-                            }
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg",
-                            "courses_instructor"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        Log.test("body: " + JSON.stringify(value.body));
-                        expect(value.code).to.equal(200);
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 16
-    // Looks for courses with NOT instructor and string*
-    it("performQuery with NOT specific instructor - string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "NOT": {
-                            "IS": {
-                                "courses_instructor":"testinstructor*"
+                            "NOT": {
+                                "IS": {
+                                    "courses_instructor":"testinstructor1"
+                                }
                             }
                         }
                     },
@@ -1354,9 +985,9 @@ describe("InsightFacadeSpec", function () {
                         // expect(value.code).to.equal(200);
                         expect.fail();
                     })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        expect(err.code).to.equal(400);
+                    .catch(function (value: InsightResponse) {
+                        Log.test('code: ' + value.code);
+                        expect(value.code).to.equal(400);
                         // expect.fail();
                     });
             })
@@ -1404,6 +1035,8 @@ describe("InsightFacadeSpec", function () {
                         Log.test("code: " + value.code);
                         // Log.test("body: " + JSON.stringify(value.body));
                         // expect(value.code).to.equal(200);
+                        // expect(value.code).to.equal(200);
+                        
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -1548,6 +1181,7 @@ describe("InsightFacadeSpec", function () {
                                 }
                             ]
                         })
+                        
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -1619,7 +1253,7 @@ describe("InsightFacadeSpec", function () {
     it("performQuery with non-string keys in WHERE", function () {
         var id: string = "courses";
         this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_3)
+        return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 var qr: any = {
                     "WHERE": {
@@ -1709,7 +1343,56 @@ describe("InsightFacadeSpec", function () {
                 Log.test('ERROR: ' + err.body);
                 expect.fail();
             });
-    });*/
+    });
 
+
+    // Test 21
+    // Query with non-valid property in query (no WHERE)
+    it("performQuery with non-valid property in query (no WHERE)", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "HERE": {
+                        "AND": [{
+                                "GT": {
+                                    "courses_avg":95
+                                }
+                            },
+                            {
+                                "LT": {
+                                    "courses_avg":90
+                                }
+                            }
+                        ]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_dept",
+                            "courses_avg"
+                        ],
+                        "ORDER": "courses_avg",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.test("Value.code: " + value.code);
+                        // expect(value.code).to.equal(204);
+                        expect.fail();
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.test('ERROR: ' + JSON.stringify(err.body));
+                        expect(err.code).to.equal(400);
+                    });
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+*/
 });
 
