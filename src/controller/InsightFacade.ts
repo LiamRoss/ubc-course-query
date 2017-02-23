@@ -16,6 +16,8 @@ import {
 
 import Log from "../Util";
 import {stringify} from "querystring";
+import {Hash} from "crypto";
+import {type} from "os";
 var fs = require("fs");
 var JSZip = require("jszip");
 var parse5 = require('parse5');
@@ -49,7 +51,7 @@ export default class InsightFacade implements IInsightFacade {
     // array of missing IDs for QueryRequest
     private missingIDs: string[];
 
-    private foundDivs: HashTable<Node[]> = {};
+    private currRooms: HashTable<Object[]> = {};
 
     constructor() {
         //Log.trace('InsightFacadeImpl::init()');
@@ -156,6 +158,16 @@ export default class InsightFacade implements IInsightFacade {
         return obj;
     }
 
+
+    hasTbody(div: any): boolean {
+        for(let i in div.childNodes) {
+            if (div.childNodes[i].nodeName == "table") {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Helper function
      * @param div  The div to check
@@ -169,56 +181,320 @@ export default class InsightFacade implements IInsightFacade {
 
     /**
      * Helper function
-     * @param div  The div to search
-     * @param divs  The list of found divs
-     * @param fileName The filename of the current divs being parsed
+     * Converts the given address to a web-fetching friendly format, IE:
+     *      6245 Agronomy Road V6T 1Z4
+     *             converts to:
+     *      6245%20Agronomy%20Road%20V6T%201Z4
+     * @param address  The address to convert
      */
-    recursiveDivSearch(div: Node, divs: Node[], fileName: string) {
-        let that = this;
-
-        // Base cases
-        let divValue = that.getDivAttrsValue(div);
-        switch(divValue) {
-            case "building-info":
-                Log.trace("                    building-info div found!");
-                try {that.foundDivs[fileName].push(div);} catch(e) {Log.trace(e);}
-                divs.push(div);
-            case "view-content":
-                Log.trace("                    view-content div found!");
-                try {that.foundDivs[fileName].push(div);} catch(e) {Log.trace(e);}
-                divs.push(div)
-        }
-
-        // Recursion through all of the node's children...
-        if(div.childNodes) {
-            for(let child in div.childNodes) {
-                let childs = div.childNodes[child];
-                that.recursiveDivSearch(childs, divs, fileName);
-            }
-        }
+    webify(address: string): string {
+        return encodeURI(address);
     }
 
     /**
-     * TODO: implement
      * Helper function
      * Parses a div with attrs value "view-content"
      * @param div  the div to parse
      * @param fileName  the name of the file containing the div
      */
-    parseViewContent(div: Node, fileName: string) {
+    parseViewContent(div: Node, fileName: string): any {
+        let that = this;
+        Log.trace("                        Parsing it...");
+        var rooms: Object[] = [];
+        /*
+         * Format of data:
+         *  Room number
+         *  Capacity
+         *  Furniture type
+         *  Room type
+         */
+        for(let i in div.childNodes) {
+            if(div.childNodes[i].nodeName == "table") {
+                for(let j in div.childNodes[i].childNodes) {
+                    if(div.childNodes[i].childNodes[j].nodeName == "tbody") {
+                        Log.trace("                            found a tbody, lets check it for room information...");
+                        for(let k in div.childNodes[i].childNodes[j].childNodes) {
+                            if(div.childNodes[i].childNodes[j].childNodes[k].nodeName == "tr") {
+                                /*
+                                 * Each 'tr' tag contains a room with 'td' tagged properties that need to be extracted
+                                 */
+                                let tr = div.childNodes[i].childNodes[j].childNodes[k];
 
+                                /*
+                                 * Declaring properties before they're set (to ensure types)
+                                 */
+                                let name: string;
+                                let number: string;
+                                let seats: number;
+                                let href: string;
+                                let furniture: string;
+                                let type: string;
+
+                                let room = {};
+
+                                for(let l in tr.childNodes) {
+                                    if(tr.childNodes[l].nodeName == "td") {
+                                        let td = tr.childNodes[l];
+                                        let tdVal = that.getDivAttrsValue(td);
+
+                                        switch(tdVal) {
+                                            case "views-field views-field-field-room-number":
+                                                /*
+                                                 * This part contains the href as well as the room number
+                                                 */
+                                                for(let c in td.childNodes) {
+                                                    if(td.childNodes[c].nodeName == "a") {
+                                                        href = that.getDivAttrsValue(td.childNodes[c]);
+                                                        //Log.trace("                            href found: " + href);
+                                                        for(let d in td.childNodes[c].childNodes) {
+                                                            if(td.childNodes[c].childNodes[d].nodeName == "#text"){
+                                                                number = (<any>(td.childNodes[c].childNodes[d])).value;
+                                                                name = (fileName.replace(/^.*[\\\/]/, '')).concat("_").concat(number);
+                                                                //Log.trace("                            room number found: " + number + ", setting its name to: " + name);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                break;
+
+                                            case "views-field views-field-field-room-capacity":
+                                                for(let c in td.childNodes) {
+                                                    if(td.childNodes[c].nodeName == "#text") {
+                                                        seats = parseInt((<any>(td.childNodes[c])).value);
+                                                        //Log.trace("                            seats found: " + seats);
+                                                    }
+                                                }
+                                                break;
+
+                                            case "views-field views-field-field-room-furniture":
+                                                for(let c in td.childNodes) {
+                                                    if(td.childNodes[c].nodeName == "#text") {
+                                                        furniture = ((<any>(td.childNodes[c])).value).trim();
+                                                        //Log.trace("                            furniture found: " + furniture);
+                                                    }
+                                                }
+                                                break;
+
+                                            case "views-field views-field-field-room-type":
+                                                for(let c in td.childNodes) {
+                                                    if(td.childNodes[c].nodeName == "#text") {
+                                                        type = ((<any>(td.childNodes[c])).value).trim();
+                                                        //Log.trace("                            type found: " + type);
+                                                    }
+                                                }
+                                                break;
+                                        }
+                                    }
+                                }
+                                room = {
+                                    name,
+                                    number,
+                                    seats,
+                                    href,
+                                    furniture,
+                                    type
+                                };
+                                rooms.push(room);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return new Promise(function(fulfill) {
+           fulfill(rooms);
+        });
     }
 
     /**
-     * TODO: implement
+     * Helper function
+     * Gets the lat-lon from an address in the form of an array [lat, lon]
+     * @param address  The address to get the lat-lon for
+     * @returns {Promise<T>}
+     */
+    getLatLon(address: string): Promise<any> {
+        let that = this;
+        Log.trace("                            making request for latlon...");
+
+        return new Promise(function(fulfill, reject) {
+
+            let http = require('http');
+
+            let teamNumber: string = "46";
+            let webAddress = that.webify(address);
+            let addressPath: string = "/api/v1/team".concat(teamNumber).concat("/").concat(webAddress);
+
+            let options = {
+                host: 'skaha.cs.ubc.ca',
+                port: 11316,
+                path: addressPath,
+                method: 'GET'
+            };
+
+            http.get(options, (res: any) => {
+                //Log.trace("In http.get callback");
+
+                let statusCode = res.statusCode;
+                let contentType = res.headers['content-type'];
+                let error;
+
+                if(statusCode !== 200) {
+                    error = new Error("lat-lon request failed. Status code: " + statusCode);
+                } else if (!/^application\/json/.test(contentType)) {
+                    error = new Error("Invalid content type.");
+                }
+
+                if(error) {
+                    Log.trace(error.message);
+                    res.resume();
+                    reject(error.message);
+                }
+
+                res.setEncoding('utf8');
+                let rawData = '';
+
+                res.on('data', (chunk: any) => rawData += chunk);
+                res.on('end', () => {
+                    try {
+                        //Log.trace(JSON.stringify(rawData));
+                        fulfill(rawData);
+                    } catch(ee) {
+                        Log.trace("Error in latlon promise, e = " + ee.message);
+                        reject(ee.message);
+                    }
+                });
+            }).on('error', (e: any) => {
+                Log.trace("Got error " + e.message);
+                reject(e);
+            });
+        });
+    }
+
+    /**
      * Helper function
      * Parses a div with attrs value "building-info"
      * @param div  the div to parse
      * @param fileName  the name of the file containing the div
      */
-    parseBuildingInfo(div: Node, fileName: string) {
+    parseBuildingInfo(div: Node, fileName: string): any {
+        let that = this;
+        Log.trace("                        Parsing it...");
 
+        let building: Object = {};
+
+        /*
+         * Building properties:
+         * fullname:  Full building name (e.g., "Hugh Dempster Pavilion")
+         * shortname: Short building name (e.g., "DMP")
+         * address: The building address. (e.g., "6245 Agronomy Road V6T 1Z4").
+         * lat: The latitude of the building
+         * lon: The longitude of the building
+         */
+
+        let fullname: string;
+        let shortname: string = fileName.replace(/^.*[\\\/]/, '');
+        let address: string;
+        let lat: number;
+        let lon: number;
+
+        for(let i in div.childNodes) {
+            let divValueParent = that.getDivAttrsValue(div.childNodes[i]);
+            if(divValueParent == "building-field") {
+                //Log.trace("                            building-field found!");
+                for(let j in div.childNodes[i].childNodes) {
+                    let divValueChild = that.getDivAttrsValue(div.childNodes[i].childNodes[j]);
+                    if(divValueChild == "field-content") {
+                        //Log.trace("                                field-content found!");
+                        for(let k in div.childNodes[i].childNodes[j].childNodes) {
+                            let textDiv = div.childNodes[i].childNodes[j].childNodes[k];
+                            switch(textDiv.nodeName) {
+                                case "#text":
+                                    /*
+                                     * Printing of building-info such as address, hours, href
+                                     */
+                                    let text = (<any>(textDiv)).value;
+                                    Log.trace("                            text found, it's data is... " + text);
+                                    if(!text.includes("Hours")) {
+                                        /*
+                                         * Contains the address
+                                         */
+                                        address = text;
+                                        //Log.trace("                                data identified as an address");
+                                    }
+                                    break;
+                                case "a":
+                                    /*
+                                     * Contains the href
+                                     * Not actually used for now...
+                                     */
+                                    let url = that.getDivAttrsValue(textDiv);
+                                    Log.trace("                            href found, it's data is... " + url);
+                            }
+                        }
+                    }
+                }
+            } else if(div.childNodes[i].nodeName == "h2") {
+                for(let j in div.childNodes[i].childNodes) {
+                    if(div.childNodes[i].childNodes[j].nodeName == "span") {
+                        for(let k in div.childNodes[i].childNodes[j].childNodes) {
+                            if(div.childNodes[i].childNodes[j].childNodes[k].nodeName == "#text") {
+                                fullname = (<any>(div.childNodes[i].childNodes[j].childNodes[k])).value;
+                                Log.trace("                            fullname found, it's data is... " + fullname);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return new Promise(function(fulfill, reject) {
+            that.getLatLon(address)
+                .then(function(body: any) {
+                    let parsedData = JSON.parse(body);
+                    Log.trace("that.getLatLon(address) success.");
+                    lat = parsedData['lat'];
+                    //Log.trace("lat set to... " + lat);
+                    lon = parsedData['lon'];
+                    //Log.trace("lon set to... " + lon);
+
+                    building = {
+                        fullname,
+                        shortname,
+                        address,
+                        lat,
+                        lon,
+                    };
+
+                    fulfill(building);
+                })
+                .catch(function(err: any) {
+                    Log.trace("that.getLatLon(address) error: " + err + ", rejecting with it...");
+                    reject(err);
+                });
+        });
     }
+
+    private foundDivs: HashTable<any[]> = {};
+    checkChilds(div: any, fileName: string) {
+        let that = this;
+
+        if(that.getDivAttrsValue(div) == "building-info") {
+            Log.trace("FBI");
+            that.foundDivs[fileName].push(div);
+        } else if(that.getDivAttrsValue(div) == "view-content") {
+            if(that.hasTbody(div)) {
+                Log.trace("FVC with table");
+                that.foundDivs[fileName].push(div);
+            }
+        }
+
+        if(div.childNodes) {
+            for(let x in div.childNodes) {
+                that.checkChilds(div.childNodes[x], fileName);
+            }
+        }
+    }
+
 
     /**
      * Helper function
@@ -226,22 +502,38 @@ export default class InsightFacade implements IInsightFacade {
      * @param div
      * @param fileName  The name of the file that the div belongs to
      */
-    parseFullWidthContainerDiv(div: any, fileName: string) {
+    parseFullWidthContainerDiv(div: any, fileName: string, id: string): Promise<any> {
         let that = this;
-        let divs: any = [];
-        that.foundDivs[fileName] = [];
-        that.recursiveDivSearch(div, divs, fileName);
-        Log.trace("                Done parsing full-width-container");
+        var dataHashTable: HashTable < any > = {};
+        that.dataSets[id] = dataHashTable;
 
-        for(div in that.foundDivs[fileName]) {
-            switch(that.getDivAttrsValue(that.foundDivs[fileName][div])) {
-                case "view-content":
-                    that.parseViewContent(that.foundDivs[fileName][div], fileName);
-                    break;
-                case "building-info":
-                    that.parseBuildingInfo(that.foundDivs[fileName][div], fileName);
+        let promises: Promise<any>[] = [];
+
+        // Initialize it
+        that.foundDivs[fileName] = [];
+        that.checkChilds(div, fileName);
+        Log.trace("Checking " +  that.foundDivs[fileName]);
+
+        for(let k in that.foundDivs[fileName]) {
+            if(that.getDivAttrsValue(that.foundDivs[fileName][k]) == "building-info") {
+                let p: Promise<any> = that.parseBuildingInfo(that.foundDivs[fileName][k], fileName);
+                promises.push(p);
+            } else if(that.getDivAttrsValue(that.foundDivs[fileName][k]) == "view-content") {
+                let p: Promise<any> = that.parseViewContent(that.foundDivs[fileName][k], fileName);
+                promises.push(p);
             }
         }
+
+        return new Promise(function(fulfill, reject) {
+            Promise.all(promises)
+                .then(function(ret: any) {
+                    Log.trace("woohoo!");
+                })
+                .catch(function(err) {
+                    Log.trace("parseFullWidthContainerDiv's Promise.all failed, error: " + err);
+                    reject(err)
+                });
+        });
     }
 
     /**
@@ -251,48 +543,57 @@ export default class InsightFacade implements IInsightFacade {
      * @param fileName  the name of the file holding data
      * @returns {Object[]}
      */
-    createHtmObject(data: string, fileName: string): Object[] {
-        var obj: Object[] = [];
+    createHtmObject(data: string, fileName: string, id: string): Promise<any> {
         let that = this;
 
+        var obj: Object[] = [];
         let document = parse5.parse(data);
-        for (let i in document.childNodes) {
-            if(document.childNodes[i].nodeName == "html") {
-                /*
-                 * html of file found
-                 */
-                Log.trace("    Found html...");
-                for(let j in document.childNodes[i].childNodes) {
-                    //Log.trace("        " + document.childNodes[i].childNodes[j].nodeName);
-                    if(document.childNodes[i].childNodes[j].nodeName == "body") {
-                        /*
-                         * body of html found
-                         */
-                        Log.trace("        Found body...");
-                        for(let k in document.childNodes[i].childNodes[j].childNodes) {
-                            if(document.childNodes[i].childNodes[j].childNodes[k].nodeName == "div") {
-                                /*
-                                 * div found in body of html
-                                 */
-                                Log.trace("            Found div...");
-                                //Log.trace("            Div type: " + that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]))
-                                if(that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]) == "full-width-container") {
+
+        return new Promise(function(fulfill, reject) {
+            for (let i in document.childNodes) {
+                if(document.childNodes[i].nodeName == "html") {
+                    /*
+                     * html of file found
+                     */
+                    Log.trace("    Found html...");
+                    for(let j in document.childNodes[i].childNodes) {
+                        //Log.trace("        " + document.childNodes[i].childNodes[j].nodeName);
+                        if(document.childNodes[i].childNodes[j].nodeName == "body") {
+                            /*
+                             * body of html found
+                             */
+                            Log.trace("        Found body...");
+                            for(let k in document.childNodes[i].childNodes[j].childNodes) {
+                                if(document.childNodes[i].childNodes[j].childNodes[k].nodeName == "div") {
                                     /*
-                                     * div identified as full-width-container
+                                     * div found in body of html
                                      */
-                                    Log.trace("                It has value = full-width-container...");
-                                    Log.trace("                Beginning recursive div search on it...");
-                                    // Pass it into the helper function to recursively check it for the information we want
-                                    that.parseFullWidthContainerDiv(document.childNodes[i].childNodes[j].childNodes[k], fileName);
+                                    Log.trace("            Found div...");
+                                    //Log.trace("            Div type: " + that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]))
+                                    if(that.getDivAttrsValue(document.childNodes[i].childNodes[j].childNodes[k]) == "full-width-container") {
+                                        /*
+                                         * div identified as full-width-container
+                                         */
+                                        Log.trace("                It has value = full-width-container...");
+                                        Log.trace("                Beginning recursive div search on it...");
+                                        // Pass it into the helper function to recursively check it for the information we want
+                                        that.parseFullWidthContainerDiv(document.childNodes[i].childNodes[j].childNodes[k], fileName, id)
+                                            .then(function(ret: any) {
+                                                Log.trace("that.parseFullWidthContainerDiv success.");
+                                                fulfill(ret);
+                                            })
+                                            .catch(function(err: any) {
+                                                Log.trace("that.parseFullWidthContainerDiv error: " + err);
+                                                reject(err);
+                                            });
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-
-        return obj;
+        });
     }
 
     /**
@@ -326,17 +627,24 @@ export default class InsightFacade implements IInsightFacade {
 
                     Promise.all(promises)
                         .then(function (ret: any) {
+                            var promisesHtm: Promise<any>[] = [];
                             var shouldWrite: boolean = true;
+                            var isJsonWrite: boolean = false;
+                            var isHtmWrite: boolean = false;
+
                             for (let k in ret) {
                                 //Log.trace(fileNames[ < any > k] + " stored.");
                                 // Check if the file is a valid JSON file
                                 let isJson: boolean = that.isValidJsonFile(ret[k]);
                                 if (isJson == false) {
+
                                     // If not, check if it is a valid htm/html file
                                     let isHtm: boolean = that.isValidHtmFile(ret[k]);
                                     if(isHtm == false) {
+
                                         // Ignore the "error" if the item being analyzed is a directory/folder
                                         if(fileNames[<any>k].slice(-1) != "/") {
+
                                             // Now make sure its not a .DS_Store file
                                             if (!fileNames[<any>k].includes(".DS_Store")) {
                                                 shouldWrite = false;
@@ -345,15 +653,17 @@ export default class InsightFacade implements IInsightFacade {
                                         }
                                     } else {
                                         //Log.trace(fileNames[<any>k] + " is a valid html file");
-                                        var obj: Object[];
+                                        isHtmWrite = true;
                                         try {
                                             Log.trace("Creating htm object for " + fileNames[<any>k] + ":");
-                                            obj = that.createHtmObject(ret[k], fileNames[<any>k]);
-                                        } catch (e) { /*//Log.trace("createHtmObject e = " + e); */ }
-                                        dataHashTable[fileNames[ < any > k]] = obj;
+                                            let p: Promise<any> = that.createHtmObject(ret[k], fileNames[<any>k], id)
+                                            promisesHtm.push(p);
+                                        } catch (e) {
+                                            Log.trace("createHtmObject e = " + e);
+                                        }
                                     }
-
                                 } else {
+                                    isJsonWrite = true;
                                     var obj: Object[];
                                     try {
                                         obj = that.createJsonObject(ret[k]);
@@ -361,8 +671,24 @@ export default class InsightFacade implements IInsightFacade {
                                     dataHashTable[fileNames[ < any > k]] = obj;
                                 }
                             }
-                            if (shouldWrite == true) that.writeToDisk(id);
-                            fulfill();
+                            Log.trace("htmWrite = " + isHtmWrite + ", jsonWrite = " + isJsonWrite);
+                            if (shouldWrite == true && isJsonWrite) {
+                                try { that.writeToDisk(id); } catch(e) { Log.trace("Error while writing to disk, error: " + e); }
+                                fulfill();
+                            } else if(shouldWrite == true && isHtmWrite) {
+                                Promise.all(promisesHtm)
+                                    .then(function(ret) {
+                                        Log.trace("done?! ... ret = " + JSON.stringify(ret));
+
+                                        Log.trace("shit to write: " + JSON.stringify(that.dataSets[id]));
+
+                                        try { that.writeToDisk(id); } catch(e) { Log.trace("Error while writing to disk, error: " + e); }
+                                    })
+                                    .catch(function(err) {
+                                        Log.trace("addToDataBase Promise.all failed, error: " + err);
+                                    });
+                            }
+
                         })
                         .catch(function (err: any) {
                             //Log.trace("Promise.all catch, err = " + err);
@@ -418,12 +744,12 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 //Log.trace("iff");
                 that.addToDatabase(id, content).then(function () {
-                        //Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
+                        Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
                         var ir: InsightResponse = { code: 204, body: {} };
-                        fulfill(ir);
+                        //fulfill(ir);
                     })
                     .catch(function (err: any) {
-                        //Log.trace("addToDatabase catch, err = " + err);
+                        Log.trace("addToDatabase catch, err = " + err);
                         var ir: InsightResponse = { code: 400, body: { "error": err } };
                         reject(ir);
                     });

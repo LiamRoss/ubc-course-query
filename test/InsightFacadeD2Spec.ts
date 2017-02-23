@@ -58,7 +58,7 @@ describe("InsightFacadeD2Spec", function () {
     // Add single rooms set
     it("addDataset with rooms base64 zip, should return code 204", function () {
         var id: string = "rooms";
-        this.timeout(10000);
+        this.timeout(100000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
                 Log.test("Value.code: " + value.code);
