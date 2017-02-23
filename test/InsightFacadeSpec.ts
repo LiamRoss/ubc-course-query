@@ -563,7 +563,7 @@ describe("InsightFacadeSpec", function () {
 
     // Test 12b
     // Specific instructors, full courses string*
-    it("full courses specific instructors - string*", function () {
+    it("full courses specific instructors - *string", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
@@ -571,7 +571,7 @@ describe("InsightFacadeSpec", function () {
                 var qr: QueryRequest = {
                     "WHERE": {
                         "IS": {
-                            "courses_instructor": "*ad"
+                            "courses_instructor": "*dad"
                         }
                     },
                     "OPTIONS": {
@@ -588,7 +588,7 @@ describe("InsightFacadeSpec", function () {
                     .then(function (value: InsightResponse) {
                         Log.test("code: " + value.code);
                         // expect(value.code).to.equal(200);
-                        
+                        // Log.test(JSON.stringify(value.body));
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
@@ -596,164 +596,28 @@ describe("InsightFacadeSpec", function () {
                                     "courses_avg": 61.36
                                 },
                                 {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 63.63
-                                },
-                                {
-                                    "courses_instructor": "bennington, chad",
-                                    "courses_avg": 64.6
-                                },
-                                {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 66.18
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 66.18
-                                },
-                                {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 66.54
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 67.3
-                                },
-                                {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 67.34
-                                },
-                                {
-                                    "courses_instructor": "alfantazi, akram;mohammadi, farzad",
-                                    "courses_avg": 67.77
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 67.89
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 69.11
-                                },
-                                {
-                                    "courses_instructor": "al-darbi, muhannad",
-                                    "courses_avg": 69.74
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 70.62
-                                },
-                                {
-                                    "courses_instructor": "mokmeli, mohammad",
-                                    "courses_avg": 70.65
-                                },
-                                {
-                                    "courses_instructor": "tufail, muhammad",
-                                    "courses_avg": 70.96
-                                },
-                                {
-                                    "courses_instructor": "bennington, chad",
-                                    "courses_avg": 72.24
-                                },
-                                {
-                                    "courses_instructor": "akbar, mohammad",
-                                    "courses_avg": 72.29
-                                },
-                                {
-                                    "courses_instructor": "el smaily, mohammad",
-                                    "courses_avg": 72.36
-                                },
-                                {
-                                    "courses_instructor": "mallick, shankhanaad",
-                                    "courses_avg": 75.02
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 75.72
-                                },
-                                {
-                                    "courses_instructor": "babaei khorzoughi, mohammad",
-                                    "courses_avg": 75.73
-                                },
-                                {
-                                    "courses_instructor": "tufail, muhammad",
-                                    "courses_avg": 75.82
-                                },
-                                {
-                                    "courses_instructor": "nemati, sajjad",
-                                    "courses_avg": 75.89
                                 },
                                 {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 76.47
                                 },
                                 {
-                                    "courses_instructor": "narimani, mohammad",
-                                    "courses_avg": 76.96
-                                },
-                                {
-                                    "courses_instructor": "alemi ardakani, mohammad",
-                                    "courses_avg": 77.07
-                                },
-                                {
-                                    "courses_instructor": "morshed, muhammad",
-                                    "courses_avg": 77.21
-                                },
-                                {
-                                    "courses_instructor": "babaei khorzoughi, mohammad",
-                                    "courses_avg": 77.48
-                                },
-                                {
-                                    "courses_instructor": "tufail, muhammad",
-                                    "courses_avg": 77.8
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 78
-                                },
-                                {
-                                    "courses_instructor": "nemati, sajjad",
-                                    "courses_avg": 79.4
-                                },
-                                {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 80.8
-                                },
-                                {
-                                    "courses_instructor": "babaei khorzoughi, mohammad",
-                                    "courses_avg": 80.95
                                 },
                                 {
                                     "courses_instructor": "chapariha, mehrdad",
                                     "courses_avg": 83.9
                                 },
                                 {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 84
-                                },
-                                {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 85
                                 },
                                 {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 85
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 85.33
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 86.6
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 88.4
-                                },
-                                {
-                                    "courses_instructor": "mallick, shankhanaad",
-                                    "courses_avg": 89
                                 },
                                 {
                                     "courses_instructor": "haber, eldad",
@@ -766,18 +630,10 @@ describe("InsightFacadeSpec", function () {
                                 {
                                     "courses_instructor": "haber, eldad",
                                     "courses_avg": 90.33
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 91
-                                },
-                                {
-                                    "courses_instructor": "walus, konrad",
-                                    "courses_avg": 93
                                 }
                             ]
                         });
-                        
+
                         // expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
@@ -794,8 +650,8 @@ describe("InsightFacadeSpec", function () {
 
 
     // Test 13b
-    // Specific instructors, full courses *string
-    it("full courses specific instructors - *string", function () {
+    // Specific instructors, full courses string
+    it("full courses specific instructors - string*", function () {
         var id: string = "courses";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)

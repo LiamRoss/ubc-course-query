@@ -1017,9 +1017,14 @@ export default class InsightFacade implements IInsightFacade {
     // helper to account for partial string queries
     SCompareToSectionHelper(sCProperty: string, sectionProperty: string): boolean {
         var trimSC: string = sCProperty.replace('*', '');
-        if (sCProperty.startsWith("*")) {
+        // if (sCProperty.startsWith("*")) {
+        //Log.trace("sCProperty: " + sCProperty);
+        //Log.trace("Testing string (should be 0)" + String(sCProperty.indexOf("*")));
+        if (sCProperty.indexOf("*") == 0) {
             // *string*
-            if (sCProperty.endsWith("*")) {
+            // if (sCProperty.endsWith("*")) {
+            //Log.trace("Testing *string (should not be -1)" + String(sCProperty.indexOf("*")));
+            if (sCProperty.indexOf("*", sCProperty.length - "*".length) !== -1) {
                 //Log.trace("Inside *string*");
                 var extraTrimSC: string = trimSC.replace('*', '');
                 //Log.trace(sectionProperty + " includes " + extraTrimSC + ": " + sectionProperty.includes(sCProperty));
@@ -1030,14 +1035,18 @@ export default class InsightFacade implements IInsightFacade {
             else {
                 //Log.trace("Inside *string");
                 //Log.trace(sectionProperty + " ends with " + trimSC + ": " + sectionProperty.endsWith(sCProperty));
-                return (sectionProperty.endsWith(trimSC));
+                // return (sectionProperty.endsWith(trimSC));
+                return (sectionProperty.indexOf(trimSC, sectionProperty.length - trimSC.length) !== -1);
             }
         } else {
             // string*
-            if (sCProperty.endsWith("*")) {
+            // if (sCProperty.endsWith("*")) {
+            //Log.trace("Testing string* (should not be -1)" + String(sCProperty.indexOf("*")));
+            if (sCProperty.indexOf("*", sCProperty.length - "*".length) !== -1) {
                 //Log.trace("Inside string*");
                 //Log.trace(sectionProperty + " starts with " + trimSC + ": " + sectionProperty.startsWith(sCProperty));
-                return (sectionProperty.startsWith(trimSC));
+                // return (sectionProperty.startsWith(trimSC));
+                return (sectionProperty.indexOf(trimSC) == 0);
             }
             // string
             else {
