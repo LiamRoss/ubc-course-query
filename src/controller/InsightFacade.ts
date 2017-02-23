@@ -779,7 +779,7 @@ export default class InsightFacade implements IInsightFacade {
                 that.addToDatabase(id, content).then(function () {
                     Log.trace("addToDatabase of " + id + " success, fulfilling with fulfill(204)");
                     var ir: InsightResponse = { code: 204, body: {} };
-                    //fulfill(ir);
+                    fulfill(ir);
                 })
                     .catch(function (err: any) {
                         Log.trace("addToDatabase catch, err = " + err);
