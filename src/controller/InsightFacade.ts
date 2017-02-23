@@ -539,7 +539,29 @@ export default class InsightFacade implements IInsightFacade {
             Promise.all(promises)
                 .then(function(ret: any) {
                     Log.trace("Success!");
-                    // TODO: Create object from rooms and building and fulfill it
+
+                    let rooms: Object[] = [];
+                    let building: any = {};
+                    for(let k in ret) {
+                        if(ret[k].constructor.name == "Array") {
+                            // This means it contains the array of room objects
+                            rooms = ret[k];
+                        } else if(ret[k].constructor.name == "Object") {
+                            // This means it is the building object
+                            building = ret[k];
+                        }
+                    }
+
+                    // Now add the rooms array to the building object
+                    building["rooms"] = rooms;
+                    Log.trace("Rooms added to building for " + fileName + "successfully!");
+
+
+                    // Now add it to the dataSets global var
+                    that.dataSets[id][fileName] = building;
+                    Log.trace("And stored in the global var, fulfilling...");
+
+                    fulfill(building);
                 })
                 .catch(function(err) {
                     Log.trace("parseFullWidthContainerDiv's Promise.all failed, error: " + err);
