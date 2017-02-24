@@ -53,6 +53,8 @@ export default class InsightFacade implements IInsightFacade {
 
     private currRooms: HashTable<Object[]> = {};
 
+    // the active dataset of the current query, enforces one
+    //  active dataset per query rule
     private activeDataset: string = "";
 
     constructor() {
@@ -558,6 +560,7 @@ export default class InsightFacade implements IInsightFacade {
 
 
                     // Now add it to the dataSets global var
+                    // TODO: only add building if it exists within the index.htm file
                     that.dataSets[id][fileName] = building;
                     Log.trace("And stored in the global var, fulfilling...");
 
