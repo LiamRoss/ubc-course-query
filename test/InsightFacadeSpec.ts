@@ -949,7 +949,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+// /*
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
@@ -1286,12 +1286,12 @@ describe("InsightFacadeSpec", function () {
                         expect.fail();
                     })
                     .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + JSON.stringify(err.body));
+                        Log.test('valid body: ' + JSON.stringify(err.body));
                         expect(err.code).to.equal(400);
                     });
             })
             .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + JSON.stringify(err.body));
+                Log.test('addDataset ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });
@@ -1393,6 +1393,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+// */
 });
 

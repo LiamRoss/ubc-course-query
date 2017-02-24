@@ -141,7 +141,7 @@ export default class InsightFacade implements IInsightFacade {
             var uuid: string = String(sessionData.id);
             // year property added in d2:
             var year: number = sessionData.year;
-            if(sessionData.Section == "overall") year = 1990;
+            if(sessionData.Section == "overall") year = 1900;
 
             obj[i] = {
                 dept,
@@ -1005,8 +1005,6 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
 
         return new Promise(function (fulfill, reject) {
-            // TODO: is this the right way to do it??
-            // TODO: instead of filter.AND, should it just be "AND"??
             //Log.trace("made it to switch in checkFilter");
             if (typeof key === "string") {
                 switch (k[0]) {
@@ -1153,8 +1151,14 @@ export default class InsightFacade implements IInsightFacade {
                     if (isNaN(value)) {
                         reject("MComparison " + value + " is not a number");
                     } else {
-                        //Log.trace("fulfill checkMComparison");
-                        fulfill();
+                        // TODO: if "Section":"overall"property is set, this should be true
+                        // TODO: change false to check the above, and uncomment the reject statement
+                        if (key === "courses_year" && false && value !== 1900) {
+                            // reject("courses_year is not 1900 despite \"Section\":\"overall\" being set");
+                        } else {
+                            //Log.trace("fulfill checkMComparison");
+                            fulfill();
+                        }
                     }
                 })
                 .catch(function (e: string) {
@@ -1180,6 +1184,14 @@ export default class InsightFacade implements IInsightFacade {
                     if (typeof value !== 'string') {
                         reject("SComparison " + value + " is not a string");
                     } else {
+                        // TODO: if "Section":"overall"property is set, this should be true
+                        // TODO: change false to check the above, and uncomment the reject statement
+                        if (key === "courses_year" && false && value !== 1900) {
+                            // reject("courses_year is not 1900 despite \"Section\":\"overall\" being set");
+                        } else {
+                            //Log.trace("fulfill checkMComparison");
+                            fulfill();
+                        }
                         //Log.trace("fulfill checkSComparison");
                         fulfill();
                     }
@@ -1225,7 +1237,6 @@ export default class InsightFacade implements IInsightFacade {
                     // check if COLUMNS is empty array
                     if (options.COLUMNS.length > 0) {
                         // check if each member of array is valid key
-                        // TODO: make sure this works... could do promise.all before finishing array?
                         var val;
                         var keyArray: Promise < any > [] = [];
                         for (val of options.COLUMNS) {
@@ -1238,7 +1249,7 @@ export default class InsightFacade implements IInsightFacade {
                                 fulfill();
                             })
                             .catch(function (e) {
-                                reject("COLUMNS checkOptions Promise.all failed, invalid key in COLUMNS: " + e);
+                                reject("invalid key in COLUMNS: " + e);
                             });
                     } else {
                         reject("COLUMNS is empty");
@@ -1315,20 +1326,23 @@ export default class InsightFacade implements IInsightFacade {
         let that = this;
 
         return new Promise(function (fulfill, reject) {
-            //Log.trace("key: " + key + " - type of key: " + typeof key);
-            if (typeof key === 'string' /* || key instanceof String*/ ) {
+            // Log.trace("key: " + key + " - type of key: " + typeof key);
+            // Log.trace("typeof key === string? " + String(typeof key === 'string'));
+            if (typeof key === 'string' && 
+            /(.+_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid|lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
+                var keyParts = key.split("_");
+                var keyID = keyParts[0];
+                // adds to array of missingIDs if it doesn't exists
+                if (!that.dataAlreadyExists(keyID)) {
+                    //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
+                    that.missingIDs.push(keyID);
+                    //Log.trace("inside validKey, no dataset");
+                }
                 // try, catch if key is not valid string
                 //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
                 try {
-                    if (/(.+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
-                        var keyParts = key.split("_");
-                        var keyID = keyParts[0];
-                        // adds to array of missingIDs if it doesn't exists
-                        if (!that.dataAlreadyExists(keyID)) {
-                            //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
-                            that.missingIDs.push(keyID);
-                            //Log.trace("inside validKey, no dataset");
-                        }
+                    if (/(courses_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid))/.test(key) ||
+                    /(rooms_(lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                         // sets activeDataset if not already set
                         if (that.activeDataset.length === 0) {
                             that.activeDataset = keyID;
@@ -1347,8 +1361,8 @@ export default class InsightFacade implements IInsightFacade {
                     reject("validKey, " + String(key) + " failed try");
                 }
             } else {
-                //Log.trace("validKey, " + String(key) + " is not a string");
-                reject("validKey, " + String(key) + " is not a string");
+                // Log.trace("validKey, " + String(key) + " is not a string");
+                reject(String(key) + " is not a string, or is invalid format");
             }
             
         });
@@ -1366,36 +1380,39 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // For each data set on disk
             for (let setId in that.dataSets) {
-                //Log.trace("Query is: " + JSON.stringify(query));
-                //Log.trace("beginning parsing through: " + setId + ".json");
-                //Log.trace("*************************************************");
+                // only use dataset specified by activeDataset
+                if (setId === that.activeDataset) {
+                    //Log.trace("Query is: " + JSON.stringify(query));
+                    //Log.trace("beginning parsing through: " + setId + ".json");
+                    //Log.trace("*************************************************");
 
-                // Read the data from the file
-                var fileData: any = fs.readFileSync(setId + ".json", "utf8");
-                let parsedData = JSON.parse(fileData);
-                //Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
+                    // Read the data from the file
+                    var fileData: any = fs.readFileSync(setId + ".json", "utf8");
+                    let parsedData = JSON.parse(fileData);
+                    //Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
 
-                // Parse each course in the dataset
-                for (let course in parsedData) {
-                    //Log.trace("Parsing course = " + course);
-                    //Log.trace(course + " has " + parsedData[course].length + " sections");
-                    // Parse the sections of each course
-                    for (let section of parsedData[course]) {
-                        //Log.trace("section = " + JSON.stringify(section));
-                        let s: Section = {
-                            dept: section["dept"],
-                            id: section["id"],
-                            avg: section["avg"],
-                            instructor: section["instructor"],
-                            title: section["title"],
-                            pass: section["pass"],
-                            fail: section["fail"],
-                            audit: section["audit"],
-                            uuid: section["uuid"]
-                        };
-                        if (that.matchesQuery(query["WHERE"], s)) {
-                            //Log.trace("adding to validSections");
-                            validSections.push(s);
+                    // Parse each course in the dataset
+                    for (let course in parsedData) {
+                        //Log.trace("Parsing course = " + course);
+                        //Log.trace(course + " has " + parsedData[course].length + " sections");
+                        // Parse the sections of each course
+                        for (let section of parsedData[course]) {
+                            //Log.trace("section = " + JSON.stringify(section));
+                            let s: Section = {
+                                dept: section["dept"],
+                                id: section["id"],
+                                avg: section["avg"],
+                                instructor: section["instructor"],
+                                title: section["title"],
+                                pass: section["pass"],
+                                fail: section["fail"],
+                                audit: section["audit"],
+                                uuid: section["uuid"]
+                            };
+                            if (that.matchesQuery(query["WHERE"], s)) {
+                                //Log.trace("adding to validSections");
+                                validSections.push(s);
+                            }
                         }
                     }
                 }
@@ -1418,7 +1435,6 @@ export default class InsightFacade implements IInsightFacade {
         var k = Object.keys(filter);
         //Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);
 
-        // TODO: NEED TO CHECK AND, OR
         switch (k[0]) {
             // recursively makes sure section matches all filters
             case "AND":
@@ -1493,7 +1509,7 @@ export default class InsightFacade implements IInsightFacade {
         var k = Object.keys(mC);
         var key = k[0];
         try {
-            if (/(.+_(avg|pass|fail|audit))/.test(key)) {
+            if (/((courses|rooms)_(avg|pass|fail|audit|year|lat|lon|seats))/.test(key)) {
                 var keyType = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return [mC[key], section[keyType]];
@@ -1512,7 +1528,7 @@ export default class InsightFacade implements IInsightFacade {
         var key = k[0];
         //Log.trace("k[0] = " + k[0] + ", type = " + (k[0]).constructor.name);
         try {
-            if (/(.+_(dept|id|instructor|title|uuid))/.test(key)) {
+            if (/((courses|rooms)_(dept|id|instructor|title|uuid|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                 var keyType: string = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return (this.SCompareToSectionHelper(sC[key], section[keyType]));
@@ -1635,19 +1651,9 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     keyToSection(key: string): string {
-        var section: string;
-        try {
-            if (/(.+_(avg|pass|fail|audit|dept|id|instructor|title|uuid))/.test(key)) {
-                var keyParts: string[] = key.split("_");
-                var keyType: string = keyParts[1];
-                section = keyType;
-            }
-        } catch (e) {
-            //Log.trace("keyToSection error: " + e);
-            //Log.trace("keyToSection " + String(key) + " is not a string");
-            section = "";
-        }
-        return section;
+        var keyParts: string[] = key.split("_");
+        var keyType: string = keyParts[1];
+        return keyType;
     }
 
 }
