@@ -1154,14 +1154,8 @@ export default class InsightFacade implements IInsightFacade {
                     if (isNaN(value)) {
                         reject("MComparison " + value + " is not a number");
                     } else {
-                        // TODO: if "Section":"overall"property is set, this should be true
-                        // TODO: change false to check the above, and uncomment the reject statement
-                        if (key === "courses_year" && false && value !== 1900) {
-                            // reject("courses_year is not 1900 despite \"Section\":\"overall\" being set");
-                        } else {
-                            //Log.trace("fulfill checkMComparison");
-                            fulfill();
-                        }
+                        //Log.trace("fulfill checkMComparison");
+                        fulfill();
                     }
                 })
                 .catch(function (e: string) {
@@ -1187,15 +1181,7 @@ export default class InsightFacade implements IInsightFacade {
                     if (typeof value !== 'string') {
                         reject("SComparison " + value + " is not a string");
                     } else {
-                        // TODO: if "Section":"overall"property is set, this should be true
-                        // TODO: change false to check the above, and uncomment the reject statement
-                        if (key === "courses_year" && false && value !== 1900) {
-                            // reject("courses_year is not 1900 despite \"Section\":\"overall\" being set");
-                        } else {
-                            //Log.trace("fulfill checkMComparison");
-                            fulfill();
-                        }
-                        //Log.trace("fulfill checkSComparison");
+                        //Log.trace("fulfill checkMComparison");
                         fulfill();
                     }
                 })
@@ -1421,7 +1407,6 @@ export default class InsightFacade implements IInsightFacade {
                 }
             }
             if (validSections.length == 0) {
-                // TODO: make sure that a no-results query is a fail
                 //Log.trace("reject: retrieveData: no results from query");
                 reject("retrieveData: no results from query");
             } else {
