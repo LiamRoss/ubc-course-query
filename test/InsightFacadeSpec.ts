@@ -960,11 +960,27 @@ describe("InsightFacadeSpec", function () {
                 var qr: QueryRequest = {
                     "WHERE": {
                         "NOT": {
-                            "NOT": {
-                                "IS": {
-                                    "courses_instructor":"testinstructor1"
+                            "OR": [{
+                                    "IS": {
+                                        "courses_instructor": ""
+                                    }
+                                },
+                                {
+                                    "IS": {
+                                        "courses_instructor": "*e*"
+                                    }
+                                },
+                                {
+                                    "IS": {
+                                        "courses_instructor": "*a*"
+                                    }
+                                },
+                                {
+                                    "IS": {
+                                        "courses_instructor": "*i*"
+                                    }
                                 }
-                            }
+                            ]
                         }
                     },
                     "OPTIONS": {
@@ -980,10 +996,822 @@ describe("InsightFacadeSpec", function () {
 
                 return insightFacade.performQuery(qr)
                     .then(function (value: InsightResponse) {
-                        Log.test("ERROR: " + value.code);
-                        // Log.test("body: " + JSON.stringify(value.body));
-                        // expect(value.code).to.equal(200);
-                        expect.fail();
+                        Log.test('code: ' + value.code);
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                    "courses_dept": "math",
+                                    "courses_avg": 59.32,
+                                    "courses_instructor": "wong, tom"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 60.17,
+                                    "courses_instructor": "luoto, kurt"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 63.14,
+                                    "courses_instructor": "luoto, kurt"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 66.05,
+                                    "courses_instructor": "wong, tom"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 66.59,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 67.46,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 68.27,
+                                    "courses_instructor": "gu, jun"
+                                },
+                                {
+                                    "courses_dept": "musc",
+                                    "courses_avg": 68.34,
+                                    "courses_instructor": "cook, scott"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 68.42,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "biol",
+                                    "courses_avg": 68.7,
+                                    "courses_instructor": "brock, hugh"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 68.73,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 68.97,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 69.08,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 69.22,
+                                    "courses_instructor": "gu, jun"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 69.29,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 69.83,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 69.92,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "phil",
+                                    "courses_avg": 70,
+                                    "courses_instructor": "woods, john"
+                                },
+                                {
+                                    "courses_dept": "cpsc",
+                                    "courses_avg": 70.29,
+                                    "courses_instructor": "vuong, son"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 70.33,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 70.58,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 70.62,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 70.64,
+                                    "courses_instructor": "luoto, kurt"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 70.93,
+                                    "courses_instructor": "homsy, bud"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 71,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 71.26,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 71.27,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 71.42,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 71.66,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 71.9,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 72.24,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 72.38,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "civl",
+                                    "courses_avg": 72.64,
+                                    "courses_instructor": "sully, john"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 72.7,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 72.72,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 72.75,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 72.8,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 72.93,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 73.04,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 73.07,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.11,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.17,
+                                    "courses_instructor": "gooch, b"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.2,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.28,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 73.31,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.34,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "biol",
+                                    "courses_avg": 73.38,
+                                    "courses_instructor": "brock, hugh"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 73.4,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.44,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 73.53,
+                                    "courses_instructor": "gu, jun"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 73.56,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 73.56,
+                                    "courses_instructor": "gu, jun"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 73.69,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.78,
+                                    "courses_instructor": "gooch, b"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 73.82,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 73.86,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 73.9,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.91,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 73.94,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 74.05,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 74.12,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 74.12,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 74.12,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 74.12,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 74.46,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 74.5,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 74.51,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 74.51,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 74.61,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 75.01,
+                                    "courses_instructor": "homsy, bud"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 75.03,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 75.06,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 75.18,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 75.25,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 75.31,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 75.37,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 75.59,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 75.68,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 75.68,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 75.71,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 75.89,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 75.92,
+                                    "courses_instructor": "munro, gordon"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 75.93,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 75.97,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 76.06,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 76.11,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 76.11,
+                                    "courses_instructor": "zhu, yushu"
+                                },
+                                {
+                                    "courses_dept": "biol",
+                                    "courses_avg": 76.15,
+                                    "courses_instructor": "brock, hugh"
+                                },
+                                {
+                                    "courses_dept": "mech",
+                                    "courses_avg": 76.24,
+                                    "courses_instructor": "homsy, bud"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 76.64,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 76.74,
+                                    "courses_instructor": "south, cluny"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 76.79,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "musc",
+                                    "courses_avg": 77.19,
+                                    "courses_instructor": "cook, scott"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 77.2,
+                                    "courses_instructor": "gu, jun"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 77.47,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 77.59,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 77.67,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 77.71,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "comm",
+                                    "courses_avg": 77.96,
+                                    "courses_instructor": "gu, jun"
+                                },
+                                {
+                                    "courses_dept": "mech",
+                                    "courses_avg": 77.97,
+                                    "courses_instructor": "homsy, bud"
+                                },
+                                {
+                                    "courses_dept": "path",
+                                    "courses_avg": 78,
+                                    "courses_instructor": "o'kusky, john"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 78.06,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 78.12,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 78.67,
+                                    "courses_instructor": "zhu, yushu"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 78.71,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 78.81,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 78.92,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "engl",
+                                    "courses_avg": 79,
+                                    "courses_instructor": "brown, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 79.05,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "path",
+                                    "courses_avg": 79.29,
+                                    "courses_instructor": "o'kusky, john"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 79.72,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "math",
+                                    "courses_avg": 80.08,
+                                    "courses_instructor": "homsy, bud"
+                                },
+                                {
+                                    "courses_dept": "path",
+                                    "courses_avg": 80.67,
+                                    "courses_instructor": "o'kusky, john"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 80.72,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 80.87,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "geog",
+                                    "courses_avg": 81.25,
+                                    "courses_instructor": "brown, loch"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 81.62,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "arch",
+                                    "courses_avg": 81.67,
+                                    "courses_instructor": "osborn, tony"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 81.72,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 81.95,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 82.38,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 82.65,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 83.06,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 83.4,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 83.44,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 83.58,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 83.63,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "cpsc",
+                                    "courses_avg": 83.78,
+                                    "courses_instructor": "vuong, son"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 83.94,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 84.3,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 84.44,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 84.57,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_avg": 84.7,
+                                    "courses_instructor": "gofton, lucy"
+                                },
+                                {
+                                    "courses_dept": "obst",
+                                    "courses_avg": 84.71,
+                                    "courses_instructor": "moon, young"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 84.78,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 85.29,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "phar",
+                                    "courses_avg": 85.29,
+                                    "courses_instructor": "wong, judy"
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_avg": 85.57,
+                                    "courses_instructor": "mccullough, lucy"
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_avg": 85.93,
+                                    "courses_instructor": "gofton, lucy"
+                                },
+                                {
+                                    "courses_dept": "hist",
+                                    "courses_avg": 86.25,
+                                    "courses_instructor": "thrush, coll"
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_avg": 86.39,
+                                    "courses_instructor": "gofton, lucy"
+                                },
+                                {
+                                    "courses_dept": "mech",
+                                    "courses_avg": 86.74,
+                                    "courses_instructor": "homsy, bud"
+                                },
+                                {
+                                    "courses_dept": "arch",
+                                    "courses_avg": 87.5,
+                                    "courses_instructor": "osborn, tony"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 87.89,
+                                    "courses_instructor": "song, kyungchul"
+                                },
+                                {
+                                    "courses_dept": "educ",
+                                    "courses_avg": 88.67,
+                                    "courses_instructor": "krug, don"
+                                },
+                                {
+                                    "courses_dept": "cnps",
+                                    "courses_avg": 88.83,
+                                    "courses_instructor": "gofton, lucy"
+                                },
+                                {
+                                    "courses_dept": "econ",
+                                    "courses_avg": 89.25,
+                                    "courses_instructor": "song, unjy"
+                                },
+                                {
+                                    "courses_dept": "edcp",
+                                    "courses_avg": 90.57,
+                                    "courses_instructor": "krug, don"
+                                },
+                                {
+                                    "courses_dept": "edcp",
+                                    "courses_avg": 90.67,
+                                    "courses_instructor": "krug, don"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 90.8,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "edcp",
+                                    "courses_avg": 91.47,
+                                    "courses_instructor": "krug, don"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 91.64,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 91.65,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "educ",
+                                    "courses_avg": 92,
+                                    "courses_instructor": "krug, don"
+                                },
+                                {
+                                    "courses_dept": "phys",
+                                    "courses_avg": 92.2,
+                                    "courses_instructor": "ng, john"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 93.68,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 94.14,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 94.44,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 94.47,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 94.69,
+                                    "courses_instructor": "zumbo, bruno"
+                                },
+                                {
+                                    "courses_dept": "epse",
+                                    "courses_avg": 95,
+                                    "courses_instructor": "zumbo, bruno"
+                                }
+                            ]
+                        })
+                        // expect.fail();
                     })
                     .catch(function (value: InsightResponse) {
                         Log.test('code: ' + value.code);

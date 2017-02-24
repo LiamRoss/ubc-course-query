@@ -1485,7 +1485,8 @@ export default class InsightFacade implements IInsightFacade {
             case "NOT":
                 //Log.trace("filter.NOT (in matchesQuery): " + JSON.stringify(filter.NOT));
                 //Log.trace("return value of NOT: " + !this.matchesQuery(filter.NOT, section));
-                return !this.matchesQuery(filter.NOT, section);
+                var b: boolean = !this.matchesQuery(filter.NOT, section);
+                return b;
             default:
                 break;
         }
