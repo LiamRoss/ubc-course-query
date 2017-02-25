@@ -56,19 +56,19 @@ describe("InsightFacadeD2Spec", function () {
 
     // Test 1
     // Add single rooms set
-    // it("addDataset with rooms base64 zip, should return code 204", function () {
-    //     var id: string = "rooms";
-    //     this.timeout(100000);
-    //     return insightFacade.addDataset(id, testBase64)
-    //         .then(function (value: InsightResponse) {
-    //             Log.test("Value.code: " + value.code);
-    //             expect(value.code).to.equal(204);
-    //         })
-    //         .catch(function (err: InsightResponse) {
-    //             Log.test('ERROR: ' + JSON.stringify(err.body));
-    //             expect.fail();
-    //         });
-    // });
+    it("addDataset with rooms base64 zip, should return code 204", function () {
+        var id: string = "rooms";
+        this.timeout(100000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                Log.test("Value.code: " + value.code);
+                expect(value.code).to.equal(204);
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + JSON.stringify(err.body));
+                expect.fail();
+            });
+    });
 
 });
 

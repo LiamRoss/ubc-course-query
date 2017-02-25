@@ -295,6 +295,7 @@ export default class InsightFacade implements IInsightFacade {
                                                 for(let c in td.childNodes) {
                                                     if(td.childNodes[c].nodeName == "a") {
                                                         var building: string = (<any>(td.childNodes[c])).value;
+                                                        Log.trace("------------>building = " + building);
                                                         this.validBuildings.push(building);
                                                     }
                                                 }
@@ -577,10 +578,17 @@ export default class InsightFacade implements IInsightFacade {
                     building["rooms"] = rooms;
                     Log.trace("Rooms added to building for " + fileName + "successfully!");
 
+                    var isBuildingValid: boolean = false;
+
+                    for(var s in that.validBuildings) {
+                        if(s == building['shortname']) {
+                            isBuildingValid = true;
+                        }
+                    }
 
                     // Now add it to the dataSets global var
                     // TODO: only add building if it exists within the index.htm file
-                    if (true) {
+                    if (isBuildingValid) {
                         that.dataSets[id][fileName] = building;
                         Log.trace("And stored in the global var, fulfilling...");
                     }
