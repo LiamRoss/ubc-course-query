@@ -57,6 +57,9 @@ export default class InsightFacade implements IInsightFacade {
     //  active dataset per query rule
     private activeDataset: string = "";
 
+    // valid buildings
+    private validBuildings: string[] = [];
+
     constructor() {
         //Log.trace('InsightFacadeImpl::init()');
     }
@@ -287,6 +290,22 @@ export default class InsightFacade implements IInsightFacade {
                                                     }
                                                 }
                                                 break;
+                                            // TODO: use this if you want full building name
+                                            case "views-field views-field-title":
+                                                for(let c in td.childNodes) {
+                                                    if(td.childNodes[c].nodeName == "a") {
+                                                        var building: string = (<any>(td.childNodes[c])).value;
+                                                        this.validBuildings.push(building);
+                                                    }
+                                                }
+                                                break;
+                                            // TODO: use this if you want code instead of full name
+                                            // case "views-field views-field-field-building-code":
+                                            //     for(let c in td.childNodes) {
+                                            //         var buildingCode: string = (<any>(td).nodeValue);
+                                            //         this.validBuildings.push(buildingCode);
+                                            //     }
+                                            //     break;
                                         }
                                     }
                                 }
@@ -561,9 +580,11 @@ export default class InsightFacade implements IInsightFacade {
 
                     // Now add it to the dataSets global var
                     // TODO: only add building if it exists within the index.htm file
-                    that.dataSets[id][fileName] = building;
-                    Log.trace("And stored in the global var, fulfilling...");
-
+                    if (true) {
+                        that.dataSets[id][fileName] = building;
+                        Log.trace("And stored in the global var, fulfilling...");
+                    }
+                    // TODO: what do we do if it fails? do we reject?
                     fulfill(building);
                 })
                 .catch(function(err) {
