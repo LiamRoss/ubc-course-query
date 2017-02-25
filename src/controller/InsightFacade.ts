@@ -291,22 +291,23 @@ export default class InsightFacade implements IInsightFacade {
                                                 }
                                                 break;
                                             // TODO: use this if you want full building name
-                                            case "views-field views-field-title":
-                                                for(let c in td.childNodes) {
-                                                    if(td.childNodes[c].nodeName == "a") {
-                                                        var building: string = (<any>(td.childNodes[c])).value;
-                                                        Log.trace("------------>building = " + building);
-                                                        this.validBuildings.push(building);
-                                                    }
-                                                }
-                                                break;
-                                            // TODO: use this if you want code instead of full name
-                                            // case "views-field views-field-field-building-code":
+                                            // case "views-field views-field-title":
                                             //     for(let c in td.childNodes) {
-                                            //         var buildingCode: string = (<any>(td).nodeValue);
-                                            //         this.validBuildings.push(buildingCode);
+                                            //         if(td.childNodes[c].nodeName == "a") {
+                                            //             var building: string = (<any>(td.childNodes[c])).value;
+                                            //             Log.trace("------------>building = " + building);
+                                            //             this.validBuildings.push(building);
+                                            //         }
                                             //     }
                                             //     break;
+                                            // TODO: use this if you want code instead of full name
+                                            case "views-field views-field-field-building-code":
+                                                for(let c in td.childNodes) {
+                                                    var buildingCode: string = (<any>(td).nodeValue);
+                                                    Log.trace("------------>buildingCode = " + buildingCode);
+                                                    this.validBuildings.push(buildingCode);
+                                                }
+                                                break;
                                         }
                                     }
                                 }
