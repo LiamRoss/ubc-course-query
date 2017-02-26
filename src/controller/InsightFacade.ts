@@ -447,13 +447,13 @@ export default class InsightFacade implements IInsightFacade {
                                      * Printing of building-info such as address, hours, href
                                      */
                                     let text = (<any>(textDiv)).value;
-                                    Log.trace("                            text found, it's data is... " + text);
-                                    if(!text.includes("Hours")) {
+                                    Log.trace("                            text found, it's data is... " + text + (text.indexOf("hours") >= 0) + (text.indexOf("Hours") >= 0));
+                                    if(text.indexOf("hours") < 0 && text.indexOf("Hours") < 0 && text.indexOf("TBD") < 0 && text.indexOf("construction") < 0) {
                                         /*
                                          * Contains the address
                                          */
                                         address = text;
-                                        //Log.trace("                                data identified as an address");
+                                        Log.trace("                                data identified as an address");
                                     }
                                     break;
                                 case "a":
@@ -482,15 +482,45 @@ export default class InsightFacade implements IInsightFacade {
         }
 
         return new Promise(function(fulfill, reject) {
-            that.getLatLon(address)
-                .then(function(body: any) {
-                    let parsedData = JSON.parse(body);
-                    Log.trace("that.getLatLon(address) success.");
-                    lat = parsedData['lat'];
-                    //Log.trace("lat set to... " + lat);
-                    lon = parsedData['lon'];
-                    //Log.trace("lon set to... " + lon);
+            if(that.isValidBuilding(shortname)) {
+                if(address.indexOf("construction") < 0 && address.indexOf("TBD") < 0) {
 
+
+                    Log.trace("valid building in getlatlon!" + shortname);
+                    that.getLatLon(address)
+                        .then(function(body: any) {
+                            let parsedData = JSON.parse(body);
+                            Log.trace("that.getLatLon(address) success.");
+                            lat = parsedData['lat'];
+                            //Log.trace("lat set to... " + lat);
+                            lon = parsedData['lon'];
+                            //Log.trace("lon set to... " + lon);
+
+                            building = {
+                                fullname,
+                                shortname,
+                                address,
+                                lat,
+                                lon,
+                            };
+
+                            fulfill(building);
+                        })
+                        .catch(function(err: any) {
+                            Log.trace("that.getLatLon(address) error: " + err + ", rejecting with it...");
+                            reject(err + ", on file: " + fileName + ", with address = " + address);
+                        });
+                } else {
+                    Log.trace("invalid building in getlatlon " + shortname);
+
+                    // Remove it from the list of valid buildings
+                    let index = that.validBuildings.indexOf(shortname);
+                    that.validBuildings.splice(index, 1);
+
+                    Log.trace("removed it from validBuildings, validBuildints = " + that.validBuildings);
+
+                    lat = 0;
+                    lon = 1;
                     building = {
                         fullname,
                         shortname,
@@ -498,13 +528,21 @@ export default class InsightFacade implements IInsightFacade {
                         lat,
                         lon,
                     };
-
                     fulfill(building);
-                })
-                .catch(function(err: any) {
-                    Log.trace("that.getLatLon(address) error: " + err + ", rejecting with it...");
-                    reject(err);
-                });
+                }
+            } else {
+                Log.trace("invalid building in getlatlon " + shortname);
+                lat = 0;
+                lon = 1;
+                building = {
+                    fullname,
+                    shortname,
+                    address,
+                    lat,
+                    lon,
+                };
+                fulfill(building);
+            }
         });
     }
 
@@ -586,33 +624,19 @@ export default class InsightFacade implements IInsightFacade {
 
                     // Now add the rooms array to the building object
                     building["rooms"] = rooms;
-                    Log.trace("Rooms added to building for " + fileName + "successfully!");
-
-                    var isBuildingValid: boolean = false;
-
-                    for(var s of that.validBuildings) {
-                        Log.trace("=============> checking building");
-                        Log.trace("validBuildings size: " + that.validBuildings.length);
-                        Log.trace("validBuildings current element: " + s);
-                        
-                        if(s == building['shortname']) {
-                            Log.trace("building "+ building['shortname'] + " is valid");
-                            isBuildingValid = true;
-                        }
-                    }
+                    //Log.trace("Rooms added to building for " + fileName + "successfully!");
 
                     // Now add it to the dataSets global var
-                    // TODO: only add building if it exists within the index.htm file
-                    if (that.isBuildingValid) {
+                    if (that.isValidBuilding(building['shortname'])) {
                         that.dataSets[id][fileName] = building;
-                        Log.trace("And stored in the global var, fulfilling...");
+                        Log.trace("And " + fileName + " stored in the global var, fulfilling...");
+                        Log.trace("Valid buildings = " + that.validBuildings)
                         fulfill(building);
-                        // TODO: what do we do if it fails? do we reject? check this
                     } else {
-                        reject("");
+                        Log.trace(fileName + " not in the index.htm file so does not need to be added");
+                        fulfill();
                     }
-                    
-                    
+
                 })
                 .catch(function(err) {
                     Log.trace("parseFullWidthContainerDiv's Promise.all failed, error: " + err);
@@ -621,9 +645,21 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
-    isBuildingValid(building: {}): boolean {
-        
+    /**
+     * Helper function
+     * Checks if the building is stored in the array of buildings found in index.htm
+     * @param shortName
+     * @returns {boolean}
+     */
+    isValidBuilding(shortName: any) {
+        let that = this;
 
+        for(var s of that.validBuildings) {
+            if(s == shortName) {
+                Log.trace("=============> building " + shortName + " is valid");
+                return true;
+            }
+        }
         return false;
     }
 
@@ -637,7 +673,6 @@ export default class InsightFacade implements IInsightFacade {
     createHtmObject(data: string, fileName: string, id: string): Promise<any> {
         let that = this;
 
-        var obj: Object[] = [];
         let document = parse5.parse(data);
 
         return new Promise(function(fulfill, reject) {
@@ -723,6 +758,13 @@ export default class InsightFacade implements IInsightFacade {
                             var isJsonWrite: boolean = false;
                             var isHtmWrite: boolean = false;
 
+                            // Parse valid buildings if there is an index html file
+                            for(let x in ret) {
+                                if(fileNames[<any>x].includes("index.htm")) {
+                                    that.createHtmObject(ret[x], fileNames[<any>x], id);
+                                }
+                            }
+
                             for (let k in ret) {
                                 //Log.trace(fileNames[ < any > k] + " stored.");
                                 // Check if the file is a valid JSON file
@@ -746,9 +788,11 @@ export default class InsightFacade implements IInsightFacade {
                                         //Log.trace(fileNames[<any>k] + " is a valid html file");
                                         isHtmWrite = true;
                                         try {
-                                            Log.trace("Creating htm object for " + fileNames[<any>k] + ":");
-                                            let p: Promise<any> = that.createHtmObject(ret[k], fileNames[<any>k], id);
-                                            promisesHtm.push(p);
+                                            if(!fileNames[<any>k.includes("index")]) {
+                                                Log.trace("Creating htm object for " + fileNames[<any>k] + ":");
+                                                let p: Promise<any> = that.createHtmObject(ret[k], fileNames[<any>k], id);
+                                                promisesHtm.push(p);
+                                            }
                                         } catch (e) {
                                             Log.trace("createHtmObject e = " + e);
                                         }
@@ -774,9 +818,11 @@ export default class InsightFacade implements IInsightFacade {
                                         Log.trace("stuff to write: " + JSON.stringify(that.dataSets[id]));
 
                                         try { that.writeToDisk(id); } catch(e) { Log.trace("Error while writing to disk, error: " + e); }
+                                        fulfill();
                                     })
                                     .catch(function(err) {
                                         Log.trace("addToDataBase Promise.all failed, error: " + err);
+                                        reject(err);
                                     });
                             }
                         })

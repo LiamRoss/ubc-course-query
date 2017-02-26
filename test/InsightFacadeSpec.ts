@@ -62,892 +62,892 @@ describe("InsightFacadeSpec", function () {
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
-    it("addDataset with test base64 zip, should return code 204", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                Log.test("Value.code: " + value.code);
-                expect(value.code).to.equal(204);
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-    // Test 2
-    // Adding same dataset twice
-    it("addDataset with test base64 zip, then addDataSet with same test base64 zip should return code 201", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                Log.test("First add value.code: " + value.code);
-                return insightFacade.addDataset(id, testBase64)
-                    .then(function (value: InsightResponse) {
-                        Log.test("Second add value.code: " + value.code);
-                        expect(value.code).to.equal(201);
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: Second add failed, ' + err.body);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: First add failed, ' + err.body);
-                expect.fail();
-            });
-    });
-
-    // Test 3
-    // Adding dataset and then removing it
-    it("addDataset with test base64 zip, then removeDataset on it should return code 204", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                Log.test("First add value.code: " + value.code);
-                return insightFacade.removeDataset(id)
-                    .then(function (value: InsightResponse) {
-                        Log.test("Removal's value.code: " + value.code);
-                        expect(value.code).to.equal(204);
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: Removal failed, ' + err.body);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: Add failed, ' + err.body);
-                expect.fail();
-            });
-    });
-
-    // Test 4
-    // Removing 'courses' which hasn't been added yet
-    it("removeDataset at 'courses' before adding it should return error 400", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.removeDataset(id)
-            .then(function (value: InsightResponse) {
-                expect.fail();
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('Remove failed, ' + JSON.stringify(err.body));
-                expect(err.code).to.equal(404);
-            });
-    });
-
-    // Test 5
-    // Testing test base64 zip 2 (which has no proper files)
-    it("addDataset with bad base64 zip, should return error code", function () {
-        var id: string = "courses_bad";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64_2)
-            .then(function (value: InsightResponse) {
-                expect.fail();
-            })
-            .catch(function (err: InsightResponse) {
-                // Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
-                expect(err.code).to.equal(400);
-            });
-    });
-
-    // PERFORM QUERY TESTS
-
-    // Test 6
-    // A simple query (from d1 page)
-    it("performQuery with a simple query", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest =
-                    {
-                        "WHERE":{
-                            "GT":{
-                                "courses_avg":97
-                            }
-                        },
-                        "OPTIONS":{
-                            "COLUMNS":[
-                                "courses_dept",
-                                "courses_avg"
-                            ],
-                            "ORDER":"courses_avg",
-                            "FORM":"TABLE"
-                        }
-                    };
-
-                return insightFacade.performQuery(qr)
-                    .then(function(value: InsightResponse) {
-                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
-                        // expect(value.code).to.equal(200);
-                        
-                        expect(value.body).to.deep.equal(
-                            { render: 'TABLE',
-                                result:
-                                    [ { courses_dept: 'epse', courses_avg: 97.09 },
-                                        { courses_dept: 'math', courses_avg: 97.09 },
-                                        { courses_dept: 'math', courses_avg: 97.09 },
-                                        { courses_dept: 'epse', courses_avg: 97.09 },
-                                        { courses_dept: 'math', courses_avg: 97.25 },
-                                        { courses_dept: 'math', courses_avg: 97.25 },
-                                        { courses_dept: 'epse', courses_avg: 97.29 },
-                                        { courses_dept: 'epse', courses_avg: 97.29 },
-                                        { courses_dept: 'nurs', courses_avg: 97.33 },
-                                        { courses_dept: 'nurs', courses_avg: 97.33 },
-                                        { courses_dept: 'epse', courses_avg: 97.41 },
-                                        { courses_dept: 'epse', courses_avg: 97.41 },
-                                        { courses_dept: 'cnps', courses_avg: 97.47 },
-                                        { courses_dept: 'cnps', courses_avg: 97.47 },
-                                        { courses_dept: 'math', courses_avg: 97.48 },
-                                        { courses_dept: 'math', courses_avg: 97.48 },
-                                        { courses_dept: 'educ', courses_avg: 97.5 },
-                                        { courses_dept: 'nurs', courses_avg: 97.53 },
-                                        { courses_dept: 'nurs', courses_avg: 97.53 },
-                                        { courses_dept: 'epse', courses_avg: 97.67 },
-                                        { courses_dept: 'epse', courses_avg: 97.69 },
-                                        { courses_dept: 'epse', courses_avg: 97.78 },
-                                        { courses_dept: 'crwr', courses_avg: 98 },
-                                        { courses_dept: 'crwr', courses_avg: 98 },
-                                        { courses_dept: 'epse', courses_avg: 98.08 },
-                                        { courses_dept: 'nurs', courses_avg: 98.21 },
-                                        { courses_dept: 'nurs', courses_avg: 98.21 },
-                                        { courses_dept: 'epse', courses_avg: 98.36 },
-                                        { courses_dept: 'epse', courses_avg: 98.45 },
-                                        { courses_dept: 'epse', courses_avg: 98.45 },
-                                        { courses_dept: 'nurs', courses_avg: 98.5 },
-                                        { courses_dept: 'nurs', courses_avg: 98.5 },
-                                        { courses_dept: 'epse', courses_avg: 98.58 },
-                                        { courses_dept: 'nurs', courses_avg: 98.58 },
-                                        { courses_dept: 'nurs', courses_avg: 98.58 },
-                                        { courses_dept: 'epse', courses_avg: 98.58 },
-                                        { courses_dept: 'epse', courses_avg: 98.7 },
-                                        { courses_dept: 'nurs', courses_avg: 98.71 },
-                                        { courses_dept: 'nurs', courses_avg: 98.71 },
-                                        { courses_dept: 'eece', courses_avg: 98.75 },
-                                        { courses_dept: 'eece', courses_avg: 98.75 },
-                                        { courses_dept: 'epse', courses_avg: 98.76 },
-                                        { courses_dept: 'epse', courses_avg: 98.76 },
-                                        { courses_dept: 'epse', courses_avg: 98.8 },
-                                        { courses_dept: 'spph', courses_avg: 98.98 },
-                                        { courses_dept: 'spph', courses_avg: 98.98 },
-                                        { courses_dept: 'cnps', courses_avg: 99.19 },
-                                        { courses_dept: 'math', courses_avg: 99.78 },
-                                        { courses_dept: 'math', courses_avg: 99.78 } ] }
-                        );
-                        
-                    })
-                    .catch(function(err: InsightResponse) {
-                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
-                        expect.fail();
-                    })
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 7
-    // A overlapping NOT query w/ no results
-    it("performQuery with overlapping NOT", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "NOT": {
-                            "OR": [{
-                                    "GT": {
-                                        "courses_avg":85
-                                    }
-                                },
-                                {
-                                    "LT": {
-                                        "courses_avg":90
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("Value.code: " + value.code);
-                        // expect(value.code).to.equal(204);
-                        expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + JSON.stringify(err.body));
-                        expect(err.code).to.equal(400);
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + JSON.stringify(err.body));
-                expect.fail();
-            });
-    });
-
-
-    // Test 8
-    // A complex query (from d1 page)
-    it("performQuery with a complex query", function () {
-        var id: string = "courses";
-        this.timeout(100000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest =
-                    {
-                        "WHERE":{
-                            "OR":[
-                                {
-                                    "AND":[
-                                        {
-                                            "GT":{
-                                                "courses_avg":90
-                                            }
-                                        },
-                                        {
-                                            "IS":{
-                                                "courses_dept":"adhe"
-                                            }
-                                        }
-                                    ]
-                                },
-                                {
-                                    "EQ":{
-                                        "courses_avg":95
-                                    }
-                                }
-                            ]
-                        },
-                        "OPTIONS":{
-                            "COLUMNS":[
-                                "courses_dept",
-                                "courses_id",
-                                "courses_avg"
-                            ],
-                            "ORDER":"courses_avg",
-                            "FORM":"TABLE"
-                        }
-                    };
-                return insightFacade.performQuery(qr)
-                    .then(function(value: InsightResponse) {
-                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
-                        // expect(value.code).to.equal(200);
-                        
-                        expect(value.body).to.deep.equal(
-                            { render: 'TABLE',
-                                result:
-                                    [ { courses_dept: 'adhe', courses_id: '329', courses_avg: 90.02 },
-                                        { courses_dept: 'adhe', courses_id: '412', courses_avg: 90.16 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.17 },
-                                        { courses_dept: 'adhe', courses_id: '412', courses_avg: 90.18 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.5 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.72 },
-                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 90.82 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.85 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.29 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.33 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.33 },
-                                        { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.48 },
-                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 92.54 },
-                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 93.33 },
-                                        { courses_dept: 'rhsc', courses_id: '501', courses_avg: 95 },
-                                        { courses_dept: 'bmeg', courses_id: '597', courses_avg: 95 },
-                                        { courses_dept: 'bmeg', courses_id: '597', courses_avg: 95 },
-                                        { courses_dept: 'cnps', courses_id: '535', courses_avg: 95 },
-                                        { courses_dept: 'cnps', courses_id: '535', courses_avg: 95 },
-                                        { courses_dept: 'cpsc', courses_id: '589', courses_avg: 95 },
-                                        { courses_dept: 'cpsc', courses_id: '589', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'sowk', courses_id: '570', courses_avg: 95 },
-                                        { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
-                                        { courses_dept: 'edcp', courses_id: '473', courses_avg: 95 },
-                                        { courses_dept: 'edcp', courses_id: '473', courses_avg: 95 },
-                                        { courses_dept: 'epse', courses_id: '606', courses_avg: 95 },
-                                        { courses_dept: 'epse', courses_id: '682', courses_avg: 95 },
-                                        { courses_dept: 'epse', courses_id: '682', courses_avg: 95 },
-                                        { courses_dept: 'kin', courses_id: '499', courses_avg: 95 },
-                                        { courses_dept: 'kin', courses_id: '500', courses_avg: 95 },
-                                        { courses_dept: 'kin', courses_id: '500', courses_avg: 95 },
-                                        { courses_dept: 'math', courses_id: '532', courses_avg: 95 },
-                                        { courses_dept: 'math', courses_id: '532', courses_avg: 95 },
-                                        { courses_dept: 'mtrl', courses_id: '564', courses_avg: 95 },
-                                        { courses_dept: 'mtrl', courses_id: '564', courses_avg: 95 },
-                                        { courses_dept: 'mtrl', courses_id: '599', courses_avg: 95 },
-                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
-                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
-                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
-                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
-                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
-                                        { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
-                                        { courses_dept: 'nurs', courses_id: '424', courses_avg: 95 },
-                                        { courses_dept: 'nurs', courses_id: '424', courses_avg: 95 },
-                                        { courses_dept: 'obst', courses_id: '549', courses_avg: 95 },
-                                        { courses_dept: 'psyc', courses_id: '501', courses_avg: 95 },
-                                        { courses_dept: 'psyc', courses_id: '501', courses_avg: 95 },
-                                        { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
-                                        { courses_dept: 'adhe', courses_id: '329', courses_avg: 96.11 } ] }
-                        );
-                        
-                    })
-                    .catch(function(err: InsightResponse) {
-                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
-                        expect.fail();
-                    })
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 9
-    // An AND query w/ no results
-    it("performQuery with contradictory AND", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "AND": [{
-                                "GT": {
-                                    "courses_avg":95
-                                }
-                            },
-                            {
-                                "LT": {
-                                    "courses_avg":90
-                                }
-                            }
-                        ]
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_dept",
-                            "courses_avg"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("Value.code: " + value.code);
-                        // expect(value.code).to.equal(204);
-                        expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + JSON.stringify(err.body));
-                        expect(err.code).to.equal(400);
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + JSON.stringify(err.body));
-                expect.fail();
-            });
-    });
-
-
-    // Test 10a
-    // 424 testing
-    it("performQuery with non-existing datasets", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: any = {
-                    "WHERE": {
-                        "IS": {
-                            "test1_instructor": "a*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "test2_instructor",
-                            "courses_avg"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("ERROR: " + value.code);
-                        // expect(value.code).to.equal(204);
-                        expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('err.code: ' + err.code);
-                        Log.test('err.body: ' + JSON.stringify(err.body));
-                        expect(err.body).to.deep.equal({
-                            "missing": ["test1", "test2"]
-                        });
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 10b
-    // 424 testing
-    it("performQuery with non-existing datasets and incorrect types", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: any = {
-                    "WHERE": {
-                        "IS": {
-                            "test1_instructor": 4
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "test2_instructor",
-                            "courses_avg"
-                        ],
-                        "ORDER": "test3_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("ERROR: " + value.code);
-                        // expect(value.code).to.equal(204);
-                        expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('err.code: ' + err.code);
-                        Log.test('err.body: ' + JSON.stringify(err.body));
-                        expect(err.body).to.deep.equal({
-                            "missing": ["test1", "test2", "test3"]
-                        });
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 12b
-    // Specific instructors, full courses string*
-    it("full courses specific instructors - *string", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor": "*dad"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_instructor",
-                            "courses_avg"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        // expect(value.code).to.equal(200);
-                        // Log.test(JSON.stringify(value.body));
-                        expect(value.body).to.deep.equal({
-                            "render": "TABLE",
-                            "result": [{
-                                    "courses_instructor": "khatirinejad, mahdad",
-                                    "courses_avg": 61.36
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 67.34
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 76.47
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 80.8
-                                },
-                                {
-                                    "courses_instructor": "chapariha, mehrdad",
-                                    "courses_avg": 83.9
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 85
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 85
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 89.17
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 89.5
-                                },
-                                {
-                                    "courses_instructor": "haber, eldad",
-                                    "courses_avg": 90.33
-                                }
-                            ]
-                        });
-
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 13b
-    // Specific instructors, full courses string
-    it("full courses specific instructors - string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor": "ac*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_instructor",
-                            "courses_avg"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        // expect(value.code).to.equal(200);
-                        
-                        expect(value.body).to.deep.equal({
-                            "render": "TABLE",
-                            "result": [{
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 65.17
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 66.83
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 68.54
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 68.79
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 69.24
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 69.25
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 69.26
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 69.53
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 69.65
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 70.5
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 70.66
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 70.7
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 70.87
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.04
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.05
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.33
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 71.5
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.59
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.72
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.75
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 71.81
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 72
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 72
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 72.18
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 72.23
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 73
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 73
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 73.13
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 73.37
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 73.45
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 74.29
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 75.43
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 75.63
-                                },
-                                {
-                                    "courses_instructor": "acton, donald",
-                                    "courses_avg": 76.31
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 76.42
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 76.73
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 77.57
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 78.09
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 79.85
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 80.5
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 81.53
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 82
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 82.4
-                                },
-                                {
-                                    "courses_instructor": "acheson, alison",
-                                    "courses_avg": 83.25
-                                },
-                                {
-                                    "courses_instructor": "acheson, alison",
-                                    "courses_avg": 83.27
-                                },
-                                {
-                                    "courses_instructor": "ackerman, paige adrienne",
-                                    "courses_avg": 84.69
-                                },
-                                {
-                                    "courses_instructor": "accili, eric;allan, douglas;kieffer, tim;kurata, harley;luciani, dan;mason, barry",
-                                    "courses_avg": 87.75
-                                },
-                                {
-                                    "courses_instructor": "accili, eric;clee, susanne michelle;horne, andrew;kindler, pawel;kwok, yin nam kenny;osborne, salma;tanentzapf, guy",
-                                    "courses_avg": 88.14
-                                },
-                                {
-                                    "courses_instructor": "acheson, alison",
-                                    "courses_avg": 95
-                                }
-                            ]
-                        });
-                        
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
-
-
-    // Test 14b
-    // Specific instructors, partial strings *string*
-    it("specific instructors (full courses) - *string*", function () {
-        var id: string = "courses";
-        this.timeout(10000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
-                    "WHERE": {
-                        "IS": {
-                            "courses_instructor": "*abba*"
-                        }
-                    },
-                    "OPTIONS": {
-                        "COLUMNS": [
-                            "courses_instructor",
-                            "courses_avg"
-                        ],
-                        "ORDER": "courses_avg",
-                        "FORM": "TABLE"
-                    }
-                };
-
-                return insightFacade.performQuery(qr)
-                    .then(function (value: InsightResponse) {
-                        Log.test("code: " + value.code);
-                        expect(value.body).to.deep.equal({
-                            "render": "TABLE",
-                            "result": [{
-                                    "courses_instructor": "abbaspour, hesam",
-                                    "courses_avg": 57.32
-                                },
-                                {
-                                    "courses_instructor": "abbaspour, hesam",
-                                    "courses_avg": 60.58
-                                },
-                                {
-                                    "courses_instructor": "momeni, abbas",
-                                    "courses_avg": 69.88
-                                }
-                            ]
-                        });
-                        // expect.fail();
-                    })
-                    .catch(function (err: InsightResponse) {
-                        Log.test('ERROR: ' + err.code);
-                        // expect(err.code).to.equal(424);
-                        expect.fail();
-                    });
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
-                expect.fail();
-            });
-    });
+    // it("addDataset with test base64 zip, should return code 204", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             Log.test("Value.code: " + value.code);
+    //             expect(value.code).to.equal(204);
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    // // Test 2
+    // // Adding same dataset twice
+    // it("addDataset with test base64 zip, then addDataSet with same test base64 zip should return code 201", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             Log.test("First add value.code: " + value.code);
+    //             return insightFacade.addDataset(id, testBase64)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("Second add value.code: " + value.code);
+    //                     expect(value.code).to.equal(201);
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: Second add failed, ' + err.body);
+    //                     expect.fail();
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: First add failed, ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    // // Test 3
+    // // Adding dataset and then removing it
+    // it("addDataset with test base64 zip, then removeDataset on it should return code 204", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             Log.test("First add value.code: " + value.code);
+    //             return insightFacade.removeDataset(id)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("Removal's value.code: " + value.code);
+    //                     expect(value.code).to.equal(204);
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: Removal failed, ' + err.body);
+    //                     expect.fail();
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: Add failed, ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    // // Test 4
+    // // Removing 'courses' which hasn't been added yet
+    // it("removeDataset at 'courses' before adding it should return error 400", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.removeDataset(id)
+    //         .then(function (value: InsightResponse) {
+    //             expect.fail();
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('Remove failed, ' + JSON.stringify(err.body));
+    //             expect(err.code).to.equal(404);
+    //         });
+    // });
+    //
+    // // Test 5
+    // // Testing test base64 zip 2 (which has no proper files)
+    // it("addDataset with bad base64 zip, should return error code", function () {
+    //     var id: string = "courses_bad";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64_2)
+    //         .then(function (value: InsightResponse) {
+    //             expect.fail();
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             // Log.trace("err.code = " + err.code + ", err.body = " + JSON.stringify(err.body));
+    //             expect(err.code).to.equal(400);
+    //         });
+    // });
+    //
+    // // PERFORM QUERY TESTS
+    //
+    // // Test 6
+    // // A simple query (from d1 page)
+    // it("performQuery with a simple query", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest =
+    //                 {
+    //                     "WHERE":{
+    //                         "GT":{
+    //                             "courses_avg":97
+    //                         }
+    //                     },
+    //                     "OPTIONS":{
+    //                         "COLUMNS":[
+    //                             "courses_dept",
+    //                             "courses_avg"
+    //                         ],
+    //                         "ORDER":"courses_avg",
+    //                         "FORM":"TABLE"
+    //                     }
+    //                 };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function(value: InsightResponse) {
+    //                     // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+    //                     // expect(value.code).to.equal(200);
+    //
+    //                     expect(value.body).to.deep.equal(
+    //                         { render: 'TABLE',
+    //                             result:
+    //                                 [ { courses_dept: 'epse', courses_avg: 97.09 },
+    //                                     { courses_dept: 'math', courses_avg: 97.09 },
+    //                                     { courses_dept: 'math', courses_avg: 97.09 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.09 },
+    //                                     { courses_dept: 'math', courses_avg: 97.25 },
+    //                                     { courses_dept: 'math', courses_avg: 97.25 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.29 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.29 },
+    //                                     { courses_dept: 'nurs', courses_avg: 97.33 },
+    //                                     { courses_dept: 'nurs', courses_avg: 97.33 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.41 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.41 },
+    //                                     { courses_dept: 'cnps', courses_avg: 97.47 },
+    //                                     { courses_dept: 'cnps', courses_avg: 97.47 },
+    //                                     { courses_dept: 'math', courses_avg: 97.48 },
+    //                                     { courses_dept: 'math', courses_avg: 97.48 },
+    //                                     { courses_dept: 'educ', courses_avg: 97.5 },
+    //                                     { courses_dept: 'nurs', courses_avg: 97.53 },
+    //                                     { courses_dept: 'nurs', courses_avg: 97.53 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.67 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.69 },
+    //                                     { courses_dept: 'epse', courses_avg: 97.78 },
+    //                                     { courses_dept: 'crwr', courses_avg: 98 },
+    //                                     { courses_dept: 'crwr', courses_avg: 98 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.08 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.21 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.21 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.36 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.45 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.45 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.5 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.5 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.58 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.58 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.58 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.58 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.7 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.71 },
+    //                                     { courses_dept: 'nurs', courses_avg: 98.71 },
+    //                                     { courses_dept: 'eece', courses_avg: 98.75 },
+    //                                     { courses_dept: 'eece', courses_avg: 98.75 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.76 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.76 },
+    //                                     { courses_dept: 'epse', courses_avg: 98.8 },
+    //                                     { courses_dept: 'spph', courses_avg: 98.98 },
+    //                                     { courses_dept: 'spph', courses_avg: 98.98 },
+    //                                     { courses_dept: 'cnps', courses_avg: 99.19 },
+    //                                     { courses_dept: 'math', courses_avg: 99.78 },
+    //                                     { courses_dept: 'math', courses_avg: 99.78 } ] }
+    //                     );
+    //
+    //                 })
+    //                 .catch(function(err: InsightResponse) {
+    //                     Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+    //                     expect.fail();
+    //                 })
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 7
+    // // A overlapping NOT query w/ no results
+    // it("performQuery with overlapping NOT", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest = {
+    //                 "WHERE": {
+    //                     "NOT": {
+    //                         "OR": [{
+    //                                 "GT": {
+    //                                     "courses_avg":85
+    //                                 }
+    //                             },
+    //                             {
+    //                                 "LT": {
+    //                                     "courses_avg":90
+    //                                 }
+    //                             }
+    //                         ]
+    //                     }
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "courses_dept",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "courses_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("Value.code: " + value.code);
+    //                     // expect(value.code).to.equal(204);
+    //                     expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: ' + JSON.stringify(err.body));
+    //                     expect(err.code).to.equal(400);
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + JSON.stringify(err.body));
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 8
+    // // A complex query (from d1 page)
+    // it("performQuery with a complex query", function () {
+    //     var id: string = "courses";
+    //     this.timeout(100000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest =
+    //                 {
+    //                     "WHERE":{
+    //                         "OR":[
+    //                             {
+    //                                 "AND":[
+    //                                     {
+    //                                         "GT":{
+    //                                             "courses_avg":90
+    //                                         }
+    //                                     },
+    //                                     {
+    //                                         "IS":{
+    //                                             "courses_dept":"adhe"
+    //                                         }
+    //                                     }
+    //                                 ]
+    //                             },
+    //                             {
+    //                                 "EQ":{
+    //                                     "courses_avg":95
+    //                                 }
+    //                             }
+    //                         ]
+    //                     },
+    //                     "OPTIONS":{
+    //                         "COLUMNS":[
+    //                             "courses_dept",
+    //                             "courses_id",
+    //                             "courses_avg"
+    //                         ],
+    //                         "ORDER":"courses_avg",
+    //                         "FORM":"TABLE"
+    //                     }
+    //                 };
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function(value: InsightResponse) {
+    //                     // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+    //                     // expect(value.code).to.equal(200);
+    //
+    //                     expect(value.body).to.deep.equal(
+    //                         { render: 'TABLE',
+    //                             result:
+    //                                 [ { courses_dept: 'adhe', courses_id: '329', courses_avg: 90.02 },
+    //                                     { courses_dept: 'adhe', courses_id: '412', courses_avg: 90.16 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.17 },
+    //                                     { courses_dept: 'adhe', courses_id: '412', courses_avg: 90.18 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.5 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.72 },
+    //                                     { courses_dept: 'adhe', courses_id: '329', courses_avg: 90.82 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 90.85 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.29 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.33 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.33 },
+    //                                     { courses_dept: 'adhe', courses_id: '330', courses_avg: 91.48 },
+    //                                     { courses_dept: 'adhe', courses_id: '329', courses_avg: 92.54 },
+    //                                     { courses_dept: 'adhe', courses_id: '329', courses_avg: 93.33 },
+    //                                     { courses_dept: 'rhsc', courses_id: '501', courses_avg: 95 },
+    //                                     { courses_dept: 'bmeg', courses_id: '597', courses_avg: 95 },
+    //                                     { courses_dept: 'bmeg', courses_id: '597', courses_avg: 95 },
+    //                                     { courses_dept: 'cnps', courses_id: '535', courses_avg: 95 },
+    //                                     { courses_dept: 'cnps', courses_id: '535', courses_avg: 95 },
+    //                                     { courses_dept: 'cpsc', courses_id: '589', courses_avg: 95 },
+    //                                     { courses_dept: 'cpsc', courses_id: '589', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'crwr', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'sowk', courses_id: '570', courses_avg: 95 },
+    //                                     { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
+    //                                     { courses_dept: 'edcp', courses_id: '473', courses_avg: 95 },
+    //                                     { courses_dept: 'edcp', courses_id: '473', courses_avg: 95 },
+    //                                     { courses_dept: 'epse', courses_id: '606', courses_avg: 95 },
+    //                                     { courses_dept: 'epse', courses_id: '682', courses_avg: 95 },
+    //                                     { courses_dept: 'epse', courses_id: '682', courses_avg: 95 },
+    //                                     { courses_dept: 'kin', courses_id: '499', courses_avg: 95 },
+    //                                     { courses_dept: 'kin', courses_id: '500', courses_avg: 95 },
+    //                                     { courses_dept: 'kin', courses_id: '500', courses_avg: 95 },
+    //                                     { courses_dept: 'math', courses_id: '532', courses_avg: 95 },
+    //                                     { courses_dept: 'math', courses_id: '532', courses_avg: 95 },
+    //                                     { courses_dept: 'mtrl', courses_id: '564', courses_avg: 95 },
+    //                                     { courses_dept: 'mtrl', courses_id: '564', courses_avg: 95 },
+    //                                     { courses_dept: 'mtrl', courses_id: '599', courses_avg: 95 },
+    //                                     { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+    //                                     { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+    //                                     { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+    //                                     { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+    //                                     { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+    //                                     { courses_dept: 'musc', courses_id: '553', courses_avg: 95 },
+    //                                     { courses_dept: 'nurs', courses_id: '424', courses_avg: 95 },
+    //                                     { courses_dept: 'nurs', courses_id: '424', courses_avg: 95 },
+    //                                     { courses_dept: 'obst', courses_id: '549', courses_avg: 95 },
+    //                                     { courses_dept: 'psyc', courses_id: '501', courses_avg: 95 },
+    //                                     { courses_dept: 'psyc', courses_id: '501', courses_avg: 95 },
+    //                                     { courses_dept: 'econ', courses_id: '516', courses_avg: 95 },
+    //                                     { courses_dept: 'adhe', courses_id: '329', courses_avg: 96.11 } ] }
+    //                     );
+    //
+    //                 })
+    //                 .catch(function(err: InsightResponse) {
+    //                     Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+    //                     expect.fail();
+    //                 })
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 9
+    // // An AND query w/ no results
+    // it("performQuery with contradictory AND", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest = {
+    //                 "WHERE": {
+    //                     "AND": [{
+    //                             "GT": {
+    //                                 "courses_avg":95
+    //                             }
+    //                         },
+    //                         {
+    //                             "LT": {
+    //                                 "courses_avg":90
+    //                             }
+    //                         }
+    //                     ]
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "courses_dept",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "courses_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("Value.code: " + value.code);
+    //                     // expect(value.code).to.equal(204);
+    //                     expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: ' + JSON.stringify(err.body));
+    //                     expect(err.code).to.equal(400);
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + JSON.stringify(err.body));
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 10a
+    // // 424 testing
+    // it("performQuery with non-existing datasets", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: any = {
+    //                 "WHERE": {
+    //                     "IS": {
+    //                         "test1_instructor": "a*"
+    //                     }
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "test2_instructor",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "courses_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("ERROR: " + value.code);
+    //                     // expect(value.code).to.equal(204);
+    //                     expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('err.code: ' + err.code);
+    //                     Log.test('err.body: ' + JSON.stringify(err.body));
+    //                     expect(err.body).to.deep.equal({
+    //                         "missing": ["test1", "test2"]
+    //                     });
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 10b
+    // // 424 testing
+    // it("performQuery with non-existing datasets and incorrect types", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: any = {
+    //                 "WHERE": {
+    //                     "IS": {
+    //                         "test1_instructor": 4
+    //                     }
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "test2_instructor",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "test3_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("ERROR: " + value.code);
+    //                     // expect(value.code).to.equal(204);
+    //                     expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('err.code: ' + err.code);
+    //                     Log.test('err.body: ' + JSON.stringify(err.body));
+    //                     expect(err.body).to.deep.equal({
+    //                         "missing": ["test1", "test2", "test3"]
+    //                     });
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 12b
+    // // Specific instructors, full courses string*
+    // it("full courses specific instructors - *string", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest = {
+    //                 "WHERE": {
+    //                     "IS": {
+    //                         "courses_instructor": "*dad"
+    //                     }
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "courses_instructor",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "courses_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("code: " + value.code);
+    //                     // expect(value.code).to.equal(200);
+    //                     // Log.test(JSON.stringify(value.body));
+    //                     expect(value.body).to.deep.equal({
+    //                         "render": "TABLE",
+    //                         "result": [{
+    //                                 "courses_instructor": "khatirinejad, mahdad",
+    //                                 "courses_avg": 61.36
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 67.34
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 76.47
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 80.8
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "chapariha, mehrdad",
+    //                                 "courses_avg": 83.9
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 85
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 85
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 89.17
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 89.5
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "haber, eldad",
+    //                                 "courses_avg": 90.33
+    //                             }
+    //                         ]
+    //                     });
+    //
+    //                     // expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: ' + err.code);
+    //                     // expect(err.code).to.equal(424);
+    //                     expect.fail();
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 13b
+    // // Specific instructors, full courses string
+    // it("full courses specific instructors - string*", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest = {
+    //                 "WHERE": {
+    //                     "IS": {
+    //                         "courses_instructor": "ac*"
+    //                     }
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "courses_instructor",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "courses_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("code: " + value.code);
+    //                     // expect(value.code).to.equal(200);
+    //
+    //                     expect(value.body).to.deep.equal({
+    //                         "render": "TABLE",
+    //                         "result": [{
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 65.17
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 66.83
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 68.54
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 68.79
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 69.24
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 69.25
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 69.26
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 69.53
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 69.65
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 70.5
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 70.66
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 70.7
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 70.87
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.04
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.05
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.33
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 71.5
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.59
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.72
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.75
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 71.81
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 72
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 72
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 72.18
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 72.23
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 73
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 73
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 73.13
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 73.37
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 73.45
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 74.29
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 75.43
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 75.63
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acton, donald",
+    //                                 "courses_avg": 76.31
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 76.42
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 76.73
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 77.57
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 78.09
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 79.85
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 80.5
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 81.53
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 82
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 82.4
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acheson, alison",
+    //                                 "courses_avg": 83.25
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acheson, alison",
+    //                                 "courses_avg": 83.27
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "ackerman, paige adrienne",
+    //                                 "courses_avg": 84.69
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "accili, eric;allan, douglas;kieffer, tim;kurata, harley;luciani, dan;mason, barry",
+    //                                 "courses_avg": 87.75
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "accili, eric;clee, susanne michelle;horne, andrew;kindler, pawel;kwok, yin nam kenny;osborne, salma;tanentzapf, guy",
+    //                                 "courses_avg": 88.14
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "acheson, alison",
+    //                                 "courses_avg": 95
+    //                             }
+    //                         ]
+    //                     });
+    //
+    //                     // expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: ' + err.code);
+    //                     // expect(err.code).to.equal(424);
+    //                     expect.fail();
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
+    //
+    //
+    // // Test 14b
+    // // Specific instructors, partial strings *string*
+    // it("specific instructors (full courses) - *string*", function () {
+    //     var id: string = "courses";
+    //     this.timeout(10000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             var qr: QueryRequest = {
+    //                 "WHERE": {
+    //                     "IS": {
+    //                         "courses_instructor": "*abba*"
+    //                     }
+    //                 },
+    //                 "OPTIONS": {
+    //                     "COLUMNS": [
+    //                         "courses_instructor",
+    //                         "courses_avg"
+    //                     ],
+    //                     "ORDER": "courses_avg",
+    //                     "FORM": "TABLE"
+    //                 }
+    //             };
+    //
+    //             return insightFacade.performQuery(qr)
+    //                 .then(function (value: InsightResponse) {
+    //                     Log.test("code: " + value.code);
+    //                     expect(value.body).to.deep.equal({
+    //                         "render": "TABLE",
+    //                         "result": [{
+    //                                 "courses_instructor": "abbaspour, hesam",
+    //                                 "courses_avg": 57.32
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "abbaspour, hesam",
+    //                                 "courses_avg": 60.58
+    //                             },
+    //                             {
+    //                                 "courses_instructor": "momeni, abbas",
+    //                                 "courses_avg": 69.88
+    //                             }
+    //                         ]
+    //                     });
+    //                     // expect.fail();
+    //                 })
+    //                 .catch(function (err: InsightResponse) {
+    //                     Log.test('ERROR: ' + err.code);
+    //                     // expect(err.code).to.equal(424);
+    //                     expect.fail();
+    //                 });
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + err.body);
+    //             expect.fail();
+    //         });
+    // });
 
 /*
     // Test 15
