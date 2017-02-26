@@ -70,5 +70,60 @@ describe("InsightFacadeD2Spec", function () {
             });
     });
 
+
+    // Test 2
+    // A simple query (from d2 page)
+    it("performQuery with a simple query A", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "IS": {
+                            "rooms_name": "DMP_*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "rooms_name"
+                        ],
+                        "ORDER": "rooms_name",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
+
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                "rooms_name": "DMP_101"
+                            }, {
+                                "rooms_name": "DMP_110"
+                            }, {
+                                "rooms_name": "DMP_201"
+                            }, {
+                                "rooms_name": "DMP_301"
+                            }, {
+                                "rooms_name": "DMP_310"
+                            }]
+                        });
+
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
 });
 
