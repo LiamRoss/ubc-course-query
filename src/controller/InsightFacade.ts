@@ -1425,7 +1425,10 @@ export default class InsightFacade implements IInsightFacade {
                 // adds to array of missingIDs if it doesn't exists
                 if (!that.dataAlreadyExists(keyID)) {
                     Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
-                    that.missingIDs.push(keyID);
+                    if (that.missingIDs.indexOf(keyID) === -1) {
+                        that.missingIDs.push(keyID);
+                    }
+                    // that.missingIDs.push(keyID);
                     Log.trace("inside validKey, no dataset");
                 }
                 // try, catch if key is not valid string
