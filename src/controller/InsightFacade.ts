@@ -590,8 +590,11 @@ export default class InsightFacade implements IInsightFacade {
 
                     var isBuildingValid: boolean = false;
 
-                    for(var s in that.validBuildings) {
+                    for(var s of that.validBuildings) {
                         Log.trace("=============> checking building");
+                        Log.trace("validBuildings size: " + that.validBuildings.length);
+                        Log.trace("validBuildings current element: " + s);
+                        
                         if(s == building['shortname']) {
                             Log.trace("building "+ building['shortname'] + " is valid");
                             isBuildingValid = true;
@@ -603,9 +606,13 @@ export default class InsightFacade implements IInsightFacade {
                     if (that.isBuildingValid) {
                         that.dataSets[id][fileName] = building;
                         Log.trace("And stored in the global var, fulfilling...");
+                        fulfill(building);
+                        // TODO: what do we do if it fails? do we reject? check this
+                    } else {
+                        reject("");
                     }
-                    // TODO: what do we do if it fails? do we reject?
-                    fulfill(building);
+                    
+                    
                 })
                 .catch(function(err) {
                     Log.trace("parseFullWidthContainerDiv's Promise.all failed, error: " + err);
