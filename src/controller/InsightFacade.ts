@@ -302,10 +302,19 @@ export default class InsightFacade implements IInsightFacade {
                                             //     break;
                                             // TODO: use this if you want code instead of full name
                                             case "views-field views-field-field-building-code":
+                                                // for(let c in td.childNodes) {
+                                                //     Log.trace("node: " + JSON.stringify(c));
+                                                //     Log.trace(String(<any>(td).nodeValue));
+                                                //     var buildingCode: string = String(<any>(td).value);
+                                                //     Log.trace("------------>buildingCode = " + buildingCode);
+                                                //     this.validBuildings.push(buildingCode);
+                                                // }
                                                 for(let c in td.childNodes) {
-                                                    var buildingCode: string = (<any>(td).nodeValue);
-                                                    Log.trace("------------>buildingCode = " + buildingCode);
-                                                    this.validBuildings.push(buildingCode);
+                                                    if(td.childNodes[c].nodeName == "#text") {
+                                                        var buildingCode: string = ((<any>(td.childNodes[c])).value).trim();
+                                                        Log.trace("------------>buildingCode = " + buildingCode);
+                                                        this.validBuildings.push(buildingCode);
+                                                    }
                                                 }
                                                 break;
                                         }
@@ -582,14 +591,16 @@ export default class InsightFacade implements IInsightFacade {
                     var isBuildingValid: boolean = false;
 
                     for(var s in that.validBuildings) {
+                        Log.trace("=============> checking building");
                         if(s == building['shortname']) {
+                            Log.trace("building "+ building['shortname'] + " is valid");
                             isBuildingValid = true;
                         }
                     }
 
                     // Now add it to the dataSets global var
                     // TODO: only add building if it exists within the index.htm file
-                    if (isBuildingValid) {
+                    if (that.isBuildingValid) {
                         that.dataSets[id][fileName] = building;
                         Log.trace("And stored in the global var, fulfilling...");
                     }
@@ -601,6 +612,12 @@ export default class InsightFacade implements IInsightFacade {
                     reject(err)
                 });
         });
+    }
+
+    isBuildingValid(building: {}): boolean {
+        
+
+        return false;
     }
 
     /**
