@@ -74,7 +74,7 @@ describe("InsightFacadeD2Spec", function () {
     // Test 2
     // A simple query (from d2 page)
     it("performQuery with a simple query A", function () {
-        var id: string = "courses";
+        var id: string = "rooms";
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
