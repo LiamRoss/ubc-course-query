@@ -1511,7 +1511,8 @@ export default class InsightFacade implements IInsightFacade {
                                     pass: section["pass"],
                                     fail: section["fail"],
                                     audit: section["audit"],
-                                    uuid: section["uuid"]
+                                    uuid: section["uuid"],
+                                    year: section["year"]
                                 };
                                 if (that.matchesQuery(query["WHERE"], s)) {
                                     //Log.trace("adding to validSections");

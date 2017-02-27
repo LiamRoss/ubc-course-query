@@ -68,6 +68,7 @@ export interface Section {
     fail?: number;
     audit?: number;
     uuid?: string;
+    year?: string;
 }
 
 // interface structure for Section
