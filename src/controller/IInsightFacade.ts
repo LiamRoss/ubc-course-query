@@ -70,6 +70,22 @@ export interface Section {
     uuid?: string;
 }
 
+// interface structure for Section
+export interface Room {
+    fullname: string;
+    shortname: string;
+    number: string;
+    name: string;
+    address: string;
+    lat: number;
+    lon: number;
+    seats: number;
+    type: string;
+    furniture: string;
+    href: string;
+
+}
+
 // interface for returned JSON
 export interface ReturnJSON {
     render: string; // must be 'TABLE'

@@ -10,6 +10,7 @@ import {
     SComparison,
     Options,
     Section,
+    Room,
     ReturnJSON,
     Key
 } from "./IInsightFacade";
@@ -629,8 +630,8 @@ export default class InsightFacade implements IInsightFacade {
 
                     // Now add it to the dataSets global var
                     if (that.isValidBuilding(building['shortname'])) {
-                        // Log.trace("=============> id for dataset: " + id);
-                        // Log.trace("=============> fileName for dataset: " + fileName);
+                        // //Log.trace("=============> id for dataset: " + id);
+                        // //Log.trace("=============> fileName for dataset: " + fileName);
                         that.dataSets[id][fileName] = building;
                         //Log.trace("And " + fileName + " stored in the global var, fulfilling...");
                         //Log.trace("Valid buildings = " + that.validBuildings)
@@ -967,11 +968,12 @@ export default class InsightFacade implements IInsightFacade {
             // check if query is valid
             that.validQuery(query).then(function () {
                     that.retrieveData(query)
-                        .then(function (validSections: Section[]) {
+                        .then(function (validSections: any[]) {
                             that.formatJsonResponse(query.OPTIONS, validSections)
                                 .then(function (response: ReturnJSON) {
                                     ir.code = 200;
                                     ir.body = response;
+                                    Log.trace("ReturnJSON: " + JSON.stringify(response));
                                     //Log.trace("formatJsonResponse -> performQuery fulfill");
                                     fulfill(ir);
                                 })
@@ -1474,7 +1476,7 @@ export default class InsightFacade implements IInsightFacade {
     retrieveData(query: QueryRequest): Promise < any > {
         //Log.trace("Inside retrieveData");
         let that = this;
-        var validSections: Section[] = [];
+        var validSections: any[] = [];
 
         return new Promise(function (fulfill, reject) {
             // For each data set on disk
@@ -1490,29 +1492,74 @@ export default class InsightFacade implements IInsightFacade {
                     let parsedData = JSON.parse(fileData);
                     //Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
 
-                    // Parse each course in the dataset
-                    for (let course in parsedData) {
-                        //Log.trace("Parsing course = " + course);
-                        //Log.trace(course + " has " + parsedData[course].length + " sections");
-                        // Parse the sections of each course
-                        for (let section of parsedData[course]) {
-                            //Log.trace("section = " + JSON.stringify(section));
-                            let s: Section = {
-                                dept: section["dept"],
-                                id: section["id"],
-                                avg: section["avg"],
-                                instructor: section["instructor"],
-                                title: section["title"],
-                                pass: section["pass"],
-                                fail: section["fail"],
-                                audit: section["audit"],
-                                uuid: section["uuid"]
-                            };
-                            if (that.matchesQuery(query["WHERE"], s)) {
-                                //Log.trace("adding to validSections");
-                                validSections.push(s);
+                    if (setId === "courses") {
+                        // Parse each course in the dataset
+                        for (let course in parsedData) {
+                            //Log.trace("Parsing course = " + course);
+                            //Log.trace(course + " has " + parsedData[course].length + " sections");
+                            // Parse the sections of each course
+                            for (let section of parsedData[course]) {
+                                //Log.trace("section = " + JSON.stringify(section));
+                                let s: Section = {
+                                    dept: section["dept"],
+                                    id: section["id"],
+                                    avg: section["avg"],
+                                    instructor: section["instructor"],
+                                    title: section["title"],
+                                    pass: section["pass"],
+                                    fail: section["fail"],
+                                    audit: section["audit"],
+                                    uuid: section["uuid"]
+                                };
+                                if (that.matchesQuery(query["WHERE"], s)) {
+                                    //Log.trace("adding to validSections");
+                                    validSections.push(s);
+                                }
                             }
                         }
+                    } else if (setId === "rooms") {
+                        // Parse each building in the dataset
+                        for (let building in parsedData) {
+                            //Log.trace("Parsing building = " + building);
+                            // Parse the rooms of each building
+                            //Log.trace("=======> parsed lat: " + r.lat);
+                            var rooms = parsedData[building]["rooms"];
+                            if (rooms.length === 0) {
+
+                            } else {
+                                for (let room of rooms) {
+                                    let r: Room = {
+                                        fullname: parsedData[building]["fullname"],
+                                        shortname: parsedData[building]["shortname"],
+                                        number: "",
+                                        name: "",
+                                        address: parsedData[building]["address"],
+                                        lat: parsedData[building]["lat"],
+                                        lon: parsedData[building]["lon"],
+                                        seats: 0,
+                                        type: "",
+                                        furniture: "",
+                                        href: ""
+                                    };
+                                    //Log.trace("=======> room: " + JSON.stringify(room));
+                                    r.number = room["number"];
+                                    r.name = room["name"];
+                                    r.seats = room["seats"];
+                                    r.type = room["type"];
+                                    r.furniture = room["furniture"];
+                                    r.href = room["href"];
+                                    Log.trace("=======> parsed name: " + r.name);
+
+                                    if (that.matchesQuery(query["WHERE"], r)) {
+                                        Log.trace("adding to validSections: " + r.name);
+                                        validSections.push(r);
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        //Log.trace("reject: retrieveData: invalid setId");
+                        reject("retrieveData: invalid setId");
                     }
                 }
             }
@@ -1685,7 +1732,7 @@ export default class InsightFacade implements IInsightFacade {
     //   - retrieveData
     //      |
     //       - formatJsonResponse
-    formatJsonResponse(options: Options, validSections: any): Promise < any > {
+    formatJsonResponse(options: Options, validSections: any[]): Promise < any > {
         //Log.trace("Inside formatJsonResponse");
         let that = this;
         var returnJSON: ReturnJSON;
@@ -1697,7 +1744,8 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("validSections sorted");
 
             for (let section of validSections) {
-                //Log.trace("Creating columns for " + section.dept + section.id);
+                // Log.trace("Creating columns for " + section.dept + section.id);
+                Log.trace("Creating columns for " + section.name);
                 let obj: Object = {};
                 var key: HashTable < string > ;
                 for (let column of options.COLUMNS) {
