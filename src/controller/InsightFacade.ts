@@ -973,7 +973,7 @@ export default class InsightFacade implements IInsightFacade {
                                 .then(function (response: ReturnJSON) {
                                     ir.code = 200;
                                     ir.body = response;
-                                    Log.trace("ReturnJSON: " + JSON.stringify(response));
+                                    //Log.trace("ReturnJSON: " + JSON.stringify(response));
                                     //Log.trace("formatJsonResponse -> performQuery fulfill");
                                     fulfill(ir);
                                 })
@@ -1391,6 +1391,8 @@ export default class InsightFacade implements IInsightFacade {
             } else {
                 if (Object.keys(options).length != 2) {
                     reject("too many properties in OPTIONS");
+                } else {
+                    fulfill();
                 }
             }
         });
@@ -1522,7 +1524,6 @@ export default class InsightFacade implements IInsightFacade {
                         for (let building in parsedData) {
                             //Log.trace("Parsing building = " + building);
                             // Parse the rooms of each building
-                            //Log.trace("=======> parsed lat: " + r.lat);
                             var rooms = parsedData[building]["rooms"];
                             if (rooms.length === 0) {
 
@@ -1548,10 +1549,10 @@ export default class InsightFacade implements IInsightFacade {
                                     r.type = room["type"];
                                     r.furniture = room["furniture"];
                                     r.href = room["href"];
-                                    Log.trace("=======> parsed name: " + r.name);
+                                    //Log.trace("=======> parsed name: " + r.name);
 
                                     if (that.matchesQuery(query["WHERE"], r)) {
-                                        Log.trace("adding to validSections: " + r.name);
+                                        //Log.trace("adding to validSections: " + r.name);
                                         validSections.push(r);
                                     }
                                 }
@@ -1740,12 +1741,15 @@ export default class InsightFacade implements IInsightFacade {
 
         return new Promise(function (fulfill, reject) {
             // sorts validSections by ORDER key
-            validSections.sort(that.sortHelper(options.ORDER));
+            if (options.hasOwnProperty('ORDER')) {
+                validSections.sort(that.sortHelper(options.ORDER));
+            }
+            // validSections.sort(that.sortHelper(options.ORDER));
             //Log.trace("validSections sorted");
 
             for (let section of validSections) {
-                // Log.trace("Creating columns for " + section.dept + section.id);
-                Log.trace("Creating columns for " + section.name);
+                // //Log.trace("Creating columns for " + section.dept + section.id);
+                //Log.trace("Creating columns for " + section.name);
                 let obj: Object = {};
                 var key: HashTable < string > ;
                 for (let column of options.COLUMNS) {

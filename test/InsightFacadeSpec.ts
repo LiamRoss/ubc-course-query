@@ -58,7 +58,7 @@ describe("InsightFacadeSpec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-/*
+
     // TODO: test each helper function in InsightFacade.ts
     // Test 1
     // Add single dataset
@@ -948,7 +948,7 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+
 /*
     // Test 15
     // Looks for courses with NOT instructor
