@@ -68,7 +68,7 @@ export interface Section {
     fail?: number;
     audit?: number;
     uuid?: string;
-    year?: string;
+    year?: number;
 }
 
 // interface structure for Section
@@ -93,7 +93,7 @@ export interface ReturnJSON {
     result: Object[];
 }
 
-// all Keys
+// all Keys for courses
 export interface Key {
     courses_dept?:          string; //The department that offered the course.
     courses_id?:            string; //The course number (will be treated as a string (e.g., 499b)).

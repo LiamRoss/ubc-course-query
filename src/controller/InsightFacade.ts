@@ -292,25 +292,8 @@ export default class InsightFacade implements IInsightFacade {
                                                     }
                                                 }
                                                 break;
-                                            // TODO: use this if you want full building name
-                                            // case "views-field views-field-title":
-                                            //     for(let c in td.childNodes) {
-                                            //         if(td.childNodes[c].nodeName == "a") {
-                                            //             var building: string = (<any>(td.childNodes[c])).value;
-                                            //             //Log.trace("------------>building = " + building);
-                                            //             this.validBuildings.push(building);
-                                            //         }
-                                            //     }
-                                            //     break;
-                                            // TODO: use this if you want code instead of full name
+                                            // parser for index.htm file, oushes each to list of validBuildings
                                             case "views-field views-field-field-building-code":
-                                                // for(let c in td.childNodes) {
-                                                //     //Log.trace("node: " + JSON.stringify(c));
-                                                //     //Log.trace(String(<any>(td).nodeValue));
-                                                //     var buildingCode: string = String(<any>(td).value);
-                                                //     //Log.trace("------------>buildingCode = " + buildingCode);
-                                                //     this.validBuildings.push(buildingCode);
-                                                // }
                                                 for(let c in td.childNodes) {
                                                     if(td.childNodes[c].nodeName == "#text") {
                                                         var buildingCode: string = ((<any>(td.childNodes[c])).value).trim();
@@ -1494,6 +1477,7 @@ export default class InsightFacade implements IInsightFacade {
                     let parsedData = JSON.parse(fileData);
                     //Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
 
+                    // ID = COURSES
                     if (setId === "courses") {
                         // Parse each course in the dataset
                         for (let course in parsedData) {
@@ -1520,6 +1504,8 @@ export default class InsightFacade implements IInsightFacade {
                                 }
                             }
                         }
+
+                    // ID = ROOMS
                     } else if (setId === "rooms") {
                         // Parse each building in the dataset
                         for (let building in parsedData) {
@@ -1533,23 +1519,17 @@ export default class InsightFacade implements IInsightFacade {
                                     let r: Room = {
                                         fullname: parsedData[building]["fullname"],
                                         shortname: parsedData[building]["shortname"],
-                                        number: "",
-                                        name: "",
+                                        number: room["number"],
+                                        name: room["name"],
                                         address: parsedData[building]["address"],
                                         lat: parsedData[building]["lat"],
                                         lon: parsedData[building]["lon"],
-                                        seats: 0,
-                                        type: "",
-                                        furniture: "",
-                                        href: ""
+                                        seats: room["seats"],
+                                        type: room["type"],
+                                        furniture: room["furniture"],
+                                        href: room["href"]
                                     };
                                     //Log.trace("=======> room: " + JSON.stringify(room));
-                                    r.number = room["number"];
-                                    r.name = room["name"];
-                                    r.seats = room["seats"];
-                                    r.type = room["type"];
-                                    r.furniture = room["furniture"];
-                                    r.href = room["href"];
                                     //Log.trace("=======> parsed name: " + r.name);
 
                                     if (that.matchesQuery(query["WHERE"], r)) {
@@ -1791,6 +1771,7 @@ export default class InsightFacade implements IInsightFacade {
         });
     }
 
+    // TODO: order by string also
     sortHelper(courseKey: string): any {
         var key: string;
         key = this.keyToSection(courseKey);
