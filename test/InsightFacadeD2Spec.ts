@@ -321,4 +321,76 @@ describe("InsightFacadeD2Spec", function () {
             });
     });
 
+
+    // Test 4
+    // A simple query (from d3 page)
+    it("performQuery with a simple D3 Query", function () {
+        var id: string = "rooms";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "AND": [{
+                            "IS": {
+                                "rooms_furniture": "*Tables*"
+                            }
+                        }, {
+                            "GT": {
+                                "rooms_seats": 300
+                            }
+                        }]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "rooms_shortname",
+                            "maxSeats"
+                        ],
+                        "ORDER": {
+                            "dir": "DOWN",
+                            "keys": ["maxSeats"]
+                        },
+                        "FORM": "TABLE"
+                    },
+                    "TRANSFORMATIONS": {
+                        "GROUP": ["rooms_shortname"],
+                        "APPLY": [{
+                            "maxSeats": {
+                                "MAX": "rooms_seats"
+                            }
+                        }]
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
+
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                "rooms_shortname": "OSBO",
+                                "maxSeats": 442
+                            }, {
+                                "rooms_shortname": "HEBB",
+                                "maxSeats": 375
+                            }, {
+                                "rooms_shortname": "LSC",
+                                "maxSeats": 350
+                            }]
+                        });
+
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
 });
