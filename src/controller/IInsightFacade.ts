@@ -80,7 +80,7 @@ export interface Sort {
 // TRANSFORMATIONS
 export interface Transformations {
     GROUP: string[];     // must be key[], one or more
-    APPLY: ApplyKey[];     // must be key
+    APPLY: ApplyKey[];     // must be key, can be empty
 }
 export interface ApplyKey {
     [key: string]: ApplyToken; // key must NOT contain "_" char

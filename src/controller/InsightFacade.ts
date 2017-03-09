@@ -1061,15 +1061,22 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise( (fulfill, reject) => {
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
-                // check WHERE internals
-                // TODO: IMPORTANT!!!! empty WHERE is valid, same as "all true"
-                this.checkFilter(query.WHERE).then(() => {
+                // check if WHERE is empty
+                // FIXME: IMPORTANT!!!! empty WHERE is valid, same as "all true"
+                if (Object.keys(query.WHERE).length === 0 && query.WHERE.constructor === Object) {
+                    Log.trace("query.WHERE is empty and is an object, fulfills");
+                    fulfill();
+                } 
+                // else check WHERE internals
+                else {
+                    this.checkFilter(query.WHERE).then(() => {
                         //Log.trace("validWhere fulfills");
                         fulfill();
                     })
                     .catch((s: string) => {
                         reject(s);
                     })
+                }
             } else {
                 reject("no WHERE property");
             }
@@ -1543,7 +1550,7 @@ export default class InsightFacade implements IInsightFacade {
                                     uuid: section["uuid"],
                                     year: section["year"]
                                 };
-                                // TODO: empty WHERE retrieves all rows, is true for all sections
+                                // FIXME: empty WHERE retrieves all rows, is true for all sections
                                 if (that.matchesQuery(query["WHERE"], s)) {
                                     //Log.trace("adding to validSections");
                                     validSections.push(s);
@@ -1577,7 +1584,7 @@ export default class InsightFacade implements IInsightFacade {
                                     };
                                     //Log.trace("=======> room: " + JSON.stringify(room));
                                     //Log.trace("=======> parsed name: " + r.name);
-                                    // TODO: empty WHERE retrieves all rows, is true for all rooms
+                                    // FIXME: empty WHERE retrieves all rows, is true for all rooms
                                     if (that.matchesQuery(query["WHERE"], r)) {
                                         //Log.trace("adding to validSections: " + r.name);
                                         validSections.push(r);
@@ -1603,7 +1610,11 @@ export default class InsightFacade implements IInsightFacade {
 
     matchesQuery(filter: Filter, section: Section | Room): boolean {
         //Log.trace("inside matchesQuery");
-        let that = this;
+        //Log.trace("filter in matchesQuery: " + JSON.stringify(filter));
+        if (Object.keys(filter).length === 0 && filter.constructor === Object) {
+            Log.trace("filter is empty and is an object, returns true in matchesQuery");
+            return true;
+        }
         var compValues: number[];
         var k = Object.keys(filter);
         //Log.trace("k[0] = " + k[0] + ", typeof(k[0]) = " + (k[0]).constructor.name);

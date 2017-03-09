@@ -321,6 +321,41 @@ describe("InsightFacadeD2Spec", function () {
             });
     });
 
+    // Test 3B
+    // A simple query (from d2 page) with ORDER
+    it("performQuery with no WHERE", function () {
+        var id: string = "rooms";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {},
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "rooms_address", "rooms_name"
+                        ],
+                        "ORDER": "rooms_name",
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        expect(value.code).to.equal(200);
+
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
 
     // Test 4
     // A simple query (from d3 page)
@@ -391,6 +426,71 @@ describe("InsightFacadeD2Spec", function () {
                 Log.test('ERROR: ' + err.body);
                 expect.fail();
             });
+    });
+
+
+    // Test 5
+    // A simple query B (from d3 page)
+    it("performQuery with a simple D3 Query (no WHERE)", function () {
+    var id: string = "rooms";
+    this.timeout(10000);
+    return insightFacade.addDataset(id, testBase64)
+        .then(function (value: InsightResponse) {
+            var qr: any = {
+                "WHERE": {},
+                "OPTIONS": {
+                    "COLUMNS": [
+                        "rooms_furniture"
+                    ],
+                    "ORDER": "rooms_furniture",
+                    "FORM": "TABLE"
+                },
+                "TRANSFORMATIONS": {
+                    "GROUP": ["rooms_furniture"],
+                    "APPLY": []
+                }
+            };
+
+            return insightFacade.performQuery(qr)
+                .then(function (value: InsightResponse) {
+                    // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                    // expect(value.code).to.equal(200);
+
+                    expect(value.body).to.deep.equal({
+                        "render": "TABLE",
+                        "result": [{
+                            "rooms_furniture": "Classroom-Fixed Tables/Fixed Chairs"
+                        }, {
+                            "rooms_furniture": "Classroom-Fixed Tables/Movable Chairs"
+                        }, {
+                            "rooms_furniture": "Classroom-Fixed Tables/Moveable Chairs"
+                        }, {
+                            "rooms_furniture": "Classroom-Fixed Tablets"
+                        }, {
+                            "rooms_furniture": "Classroom-Hybrid Furniture"
+                        }, {
+                            "rooms_furniture": "Classroom-Learn Lab"
+                        }, {
+                            "rooms_furniture": "Classroom-Movable Tables & Chairs"
+                        }, {
+                            "rooms_furniture": "Classroom-Movable Tablets"
+                        }, {
+                            "rooms_furniture": "Classroom-Moveable Tables & Chairs"
+                        }, {
+                            "rooms_furniture": "Classroom-Moveable Tablets"
+                        }]
+                    });
+
+                })
+                .catch(function (err: InsightResponse) {
+                    Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                    expect.fail();
+                })
+        })
+        .catch(function (err: InsightResponse) {
+            Log.test('ERROR: ' + err.body);
+            expect.fail();
+        });
     });
 
 });
