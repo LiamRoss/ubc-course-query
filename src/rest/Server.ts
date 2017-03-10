@@ -7,6 +7,9 @@ import restify = require('restify');
 
 import Log from "../Util";
 import {InsightResponse} from "../controller/IInsightFacade";
+import InsightFacade from "../controller/InsightFacade";
+var fs = require('fs');
+
 
 /**
  * This configures the REST endpoints for the server.
@@ -19,6 +22,16 @@ export default class Server {
     constructor(port: number) {
         Log.info("Server::<init>( " + port + " )");
         this.port = port;
+    }
+
+    /**
+     * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
+     * @param file
+     * @returns {string}
+     */
+    public static base64_encode(file: any) {
+        var bitmap = fs.readFileSync(file);
+        return new Buffer(bitmap).toString('base64');
     }
 
     /**
@@ -54,6 +67,8 @@ export default class Server {
                     name: 'insightUBC'
                 });
 
+                that.rest.use(restify.bodyParser({mapParams: true, mapFiles: true}));
+
                 that.rest.get('/', function (req: restify.Request, res: restify.Response, next: restify.Next) {
                     res.send(200);
                     return next();
@@ -64,6 +79,19 @@ export default class Server {
                 that.rest.get('/echo/:msg', Server.echo);
 
                 // Other endpoints will go here
+                // When the url includes the string it calls the specified method
+
+                // GET
+                that.rest.get("/", Server.GET);
+
+                // PUT
+                that.rest.put("dataset/:id", Server.PUT);
+
+                // POST
+                that.rest.post("/query", Server.POST);
+
+                // DELETE
+                that.rest.del("/dataset/:id", Server.DELETE);
 
                 that.rest.listen(that.port, function () {
                     Log.info('Server::start() - restify listening: ' + that.rest.url);
@@ -80,6 +108,90 @@ export default class Server {
                 reject(err);
             }
         });
+    }
+
+    /**
+     * TODO
+     * Gets the query interface
+     * @constructor
+     */
+    public static GET(req: restify.Request, res: restify.Response, next: restify.Next) {
+        let insightFacade: InsightFacade = new InsightFacade();
+
+    }
+
+    /**
+     * TODO
+     * Adds a dataset to the server
+     * @constructor
+     */
+    public static PUT(req: restify.Request, res: restify.Response, next: restify.Next) {
+        let id = req.params.id;
+        let content = req.body;
+        let insightFacade: InsightFacade = new InsightFacade();
+
+        Log.trace("Server::PUT(..) - id: " + id);
+
+        let b64_content = null;
+        try { b64_content = this.base64_encode(req.body); } catch(e) { Log.trace("e"); }
+
+        insightFacade.addDataset(id, b64_content)
+            .then(function(ret: any) {
+                Log.trace("Server::PUT(..) successful");
+                res.json(ret.code, ret.body);
+                return next;
+            })
+            .catch(function(err: any) {
+                Log.trace("Server::PUT(..) error: " + JSON.stringify(err));
+                res.json(err.code, err.body);
+                return next;
+            });
+
+    }
+
+    /**
+     * TODO
+     * Performs a query on the server
+     * @constructor
+     */
+    public static POST(req: restify.Request, res: restify.Response, next: restify.Next) {
+        Log.trace("Server::POST(..) starting...");
+        let query = req.body;
+        let insightFacade: InsightFacade = new InsightFacade();
+
+        insightFacade.performQuery(query)
+            .then(function(ret: any) {
+                Log.trace("Server::POST(..) successful");
+                res.json(ret.code, ret.body);
+                return next;
+            })
+            .catch(function(err: any) {
+                Log.trace("Server::POST(..) error: " + JSON.stringify(err));
+                return next;
+            });
+    }
+
+    /**
+     * TODO
+     * Removes a dataset from the server
+     * @constructor
+     */
+    public static DELETE(req: restify.Request, res: restify.Response, next: restify.Next) {
+        let id = req.params.id;
+        let insightFacade: InsightFacade = new InsightFacade();
+        Log.trace("Server::DELETE(..) - id: " + id);
+
+
+        insightFacade.removeDataset(id)
+            .then(function(ret: any) {
+                Log.trace("Server::DELETE(..) successful");
+                res.json(ret.code, ret.body);
+                return next;
+            })
+            .catch(function(err: any) {
+                Log.trace("Server::DELETE(..) error: " + JSON.stringify(err));
+                return next;
+            });
     }
 
     // The next two methods handle the echo service.
