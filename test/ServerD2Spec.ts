@@ -1,8 +1,7 @@
-// /**
-//  * Created by Alice on 22/01/17.
-//  */
+/**
+ * Created by Alice on 22/01/17.
+ */
 
-<<<<<<< HEAD
 import Server from "../src/rest/Server";
 import {
     expect
@@ -15,43 +14,28 @@ import {
 import InsightFacade from "../src/controller/InsightFacade";
 import {Response} from "restify";
 var fs = require('fs');
-=======
-// import Server from "../src/rest/Server";
-// import {
-//     expect
-// } from 'chai';
-// import Log from "../src/Util";
-// import {
-//     InsightResponse,
-//     QueryRequest
-// } from "../src/controller/IInsightFacade";
-// import InsightFacade from "../src/controller/InsightFacade";
-// var fs = require('fs');
->>>>>>> 807217d83e48c6a21507acafa1a4f68cc4a6f0bf
 
-// // Global vars
-// var testBase64: string = null;
-// var insightFacade: InsightFacade = null;
+// Global vars
+var testBase64: string = null;
 
-// /**
-//  * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
-//  * @param file
-//  * @returns {string}
-//  */
-// function base64_encode(file: any) {
-//     var bitmap = fs.readFileSync(file);
-//     return new Buffer(bitmap).toString('base64');
-// }
+/**
+ * Reference: http://stackoverflow.com/questions/28834835/readfile-in-base64-nodejs
+ * @param file
+ * @returns {string}
+ */
+function base64_encode(file: any) {
+    var bitmap = fs.readFileSync(file);
+    return new Buffer(bitmap).toString('base64');
+}
 
-// describe("ServerD3Spec", function () {
+let server: any = null;
+let port = 4321;
+let chaiHttp = require('chai-http');
+let chai = require('chai');
+chai.use(chaiHttp);
 
-//     let server: any = null;
-//     let port = 4321;
-//     let chaiHttp = require('chai-http');
-//     let chai = require('chai');
-//     chai.use(chaiHttp);
+describe("ServerD3Spec", function () {
 
-<<<<<<< HEAD
     before(function () {
         //Log.test('Before: ' + (<any>this).test.parent.title);
         Log.trace("Starting server");
@@ -59,17 +43,11 @@ var fs = require('fs');
         server = new Server(port);
         server.start();
     });
-=======
-//     before(function () {
-//         //Log.test('Before: ' + (<any>this).test.parent.title);
-//     });
->>>>>>> 807217d83e48c6a21507acafa1a4f68cc4a6f0bf
 
-//     beforeEach(function () {
-//         // Initialize zip file
-//         try { testBase64 = base64_encode("test/courses.zip"); } catch (e) { Log.trace("e = " + e); }
+    beforeEach(function () {
+        // Initialize zip file
+        try { testBase64 = base64_encode("test/courses.zip"); } catch (e) { Log.trace("e = " + e); }
 
-<<<<<<< HEAD
         Log.test('BeforeTest: ' + ( < any > this).currentTest.title);
     });
 
@@ -82,32 +60,15 @@ var fs = require('fs');
     afterEach(function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
     });
-=======
-//         //port = 4321;
-//         //server = new Server(port);
 
-//         Log.test('BeforeTest: ' + ( < any > this).currentTest.title);
-//     });
+    // Test 1
+    // Add single course set
+    it("Simple server PUT with courses.zip", function () {
+        this.timeout(100000);
 
-//     after(function () {
-//         //Log.test('After: ' + (<any>this).test.parent.title);
-//     });
+        let path: string = "/dataset/courses";
+        let url: string = "http://localhost:" + port;
 
-//     afterEach(function () {
-//         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
-//         server = null;
-//     });
->>>>>>> 807217d83e48c6a21507acafa1a4f68cc4a6f0bf
-
-//     // Test 1
-//     // Add single course set
-//     it("Simple server PUT with courses.zip", function () {
-//         this.timeout(100000);
-
-//         let path: string = "/dataset/courses";
-//         let url: string = "http://localhost:" + port;
-
-<<<<<<< HEAD
         Log.trace("Making put request...");
         return chai.request(url)
             .put(path)
@@ -202,17 +163,3 @@ var fs = require('fs');
             });
     });
 });
-=======
-//         Log.trace("Making put request...");
-//         return chai.request(url)
-//             .put(path)
-//             .attach("body", fs.readFileSync("test/courses.zip"), "courses.zip")
-//             .then(function (res: any) {
-//                 Log.trace("Test passed, res = " + JSON.stringify(res));
-//             })
-//             .catch(function (err: any) {
-//                 Log.trace("Error! " + err);
-//             });
-//     });
-// });
->>>>>>> 807217d83e48c6a21507acafa1a4f68cc4a6f0bf
