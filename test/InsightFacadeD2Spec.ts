@@ -62,7 +62,7 @@ describe("InsightFacadeD2Spec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-/*
+
     // Test 1
     // Add single rooms set
     it("addDataset with rooms base64 zip, should return code 204", function () {
@@ -643,5 +643,5 @@ describe("InsightFacadeD2Spec", function () {
                 expect.fail();
             });
     });
-*/
+
 });
