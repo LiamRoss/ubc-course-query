@@ -1562,16 +1562,16 @@ export default class InsightFacade implements IInsightFacade {
                             reject("GROUP not an array");
                         }
                     } else {
-                        //Log.trace("TRANSFORMATION doesn't have one of GROUP or APPLY");
-                        reject("TRANSFORMATION doesn't have one of GROUP or APPLY");
+                        //Log.trace("TRANSFORMATIONS doesn't have one of GROUP or APPLY");
+                        reject("TRANSFORMATIONS doesn't have one of GROUP or APPLY");
                     }
                 } else {
-                    //Log.trace("TRANSFORMATION does not have two keys");
-                    reject("TRANSFORMATION does not have two keys");
+                    //Log.trace("TRANSFORMATIONS does not have two keys");
+                    reject("TRANSFORMATIONS does not have two keys");
                 }
             } else {
-                //Log.trace("TRANSFORMATION is not Object");
-                reject("TRANSFORMATION is not Object");
+                //Log.trace("TRANSFORMATIONS is not Object");
+                reject("TRANSFORMATIONS is not Object");
             }
         })
     }
@@ -2018,9 +2018,9 @@ export default class InsightFacade implements IInsightFacade {
         var returnJSON: ReturnJSON;
         var result: Object[] = [];
         let validSections: any[];
+        // if TRANSFORMATIONS exists 
         if (query.hasOwnProperty("TRANSFORMATIONS")) {
             //Log.trace("query has property TRANSFORMATIONS");
-            // TODO: implement this
             validSections = this.dataTransformer(query, incomingSections);
             //Log.trace("validSections (groups): " + JSON.stringify(validSections));
         } else {
@@ -2028,7 +2028,7 @@ export default class InsightFacade implements IInsightFacade {
         }
 
         return new Promise((fulfill, reject) => {
-            // reforms validSections if TRANSFORMATION exists
+            // reforms validSections if TRANSFORMATIONS exists
             // sorts validSections by ORDER key
             if (options.hasOwnProperty('ORDER')) {
                 validSections.sort(this.sortHelper(options.ORDER, query));
@@ -2131,7 +2131,6 @@ export default class InsightFacade implements IInsightFacade {
             // groups is empty, add section to a group
             else {
                 //Log.trace("groups is empty, pushing new mergeSectionGroup");
-                // TODO: create new group
                 groups.push(this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS));
             }
 
@@ -2241,16 +2240,7 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("key: " + key);
 
             return (a: any, b: any) => {
-                //Log.trace("typeof a[key] " + a[key] + " is " + typeof a[key]);
-                if (typeof a[key] === 'string') {
-                    var aKey = a[key].toUpperCase();
-                    //Log.trace("aKey: " + aKey);
-                    var bKey = b[key].toUpperCase();
-                    //Log.trace("bKey: " + bKey);
-                    var returnSort: number = (aKey < bKey) ? -1 : (aKey > bKey) ? 1 : 0;
-                } else {
-                    var returnSort: number = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
-                }
+                var returnSort: number = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
                 return returnSort;
             }
         }
@@ -2276,32 +2266,12 @@ export default class InsightFacade implements IInsightFacade {
                         }
                         //Log.trace("key: " + key);
                         // if not equal return sort number, else increment
-                        // TODO: case for string (upper case)
-
-                        //Log.trace("typeof a[key] " + a[key] + " is " + typeof a[key]);
-                        if (typeof a[key] === 'string') {
-                            var aKey = a[key].toUpperCase();
-                            //Log.trace("aKey: " + aKey);
-                            var bKey = b[key].toUpperCase();
-                            //Log.trace("bKey: " + bKey);
-                            if(aKey !== bKey) {
-                                //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + [key]   + " are different");
-                                var returnSort = (aKey < bKey) ? -1 : (aKey > bKey) ? 1 : 0;
-                                return returnSort;
-                            }
-                        } else {
-                            if(a[key] !== b[key]) {
-                                //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + [key]   + " are different");
-                                var returnSort = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
-                                return returnSort;
-                            }
-                        }
-                        
-                        
+                        if(a[key] !== b[key]) {
+                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + [key]   + " are different");
+                            var returnSort = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
+                            return returnSort;
+                        }  
                     }
-                    //Log.trace("equal all the way through");
-                    // if equal all the way through, just sort by first (should do nothing)
-                    // var returnSort = (a[keys[0]] < b[keys[0]]) ? -1 : (a[keys[0]] > b[keys[0]]) ? 1 : 0;
                     return returnSort;
                 }
             }
@@ -2321,30 +2291,12 @@ export default class InsightFacade implements IInsightFacade {
                         }
                         //Log.trace("key: " + key);
                         // if not equal return sort number, else increment
-                        // TODO: case for string (upper case)
-
-                        //Log.trace("typeof a[key] " + a[key] + " is " + typeof a[key]);
-                        if (typeof a[key] === 'string') {
-                            var aKey = a[key].toUpperCase();
-                            //Log.trace("aKey: " + aKey);
-                            var bKey = b[key].toUpperCase();
-                            //Log.trace("bKey: " + bKey);
-                            if(aKey !== bKey) {
-                                //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + b[key]   + " are different");
-                                var returnSort = (aKey > bKey) ? -1 : (aKey < bKey) ? 1 : 0;
-                                return returnSort;
-                            }
-                        } else {
-                            if(a[key] !== b[key]) {
-                                //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + b[key]   + " are different");
-                                var returnSort = (a[key] > b[key]) ? -1 : (a[key] < b[key]) ? 1 : 0;
-                                return returnSort;
-                            }
+                        if(a[key] !== b[key]) {
+                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + b[key]   + " are different");
+                            var returnSort = (a[key] > b[key]) ? -1 : (a[key] < b[key]) ? 1 : 0;
+                            return returnSort;
                         }
                     }
-                    //Log.trace("equal all the way through");
-                    // if equal all the way through, just sort by first (should do nothing)
-                    // var returnSort = (a[keys[0]] > b[keys[0]]) ? -1 : (a[keys[0]] < b[keys[0]]) ? 1 : 0;
                     return returnSort;
                 }
             }
