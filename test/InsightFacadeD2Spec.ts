@@ -453,7 +453,7 @@ describe("InsightFacadeD2Spec", function () {
 
             return insightFacade.performQuery(qr)
                 .then(function (value: InsightResponse) {
-                    // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                    Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
                     // expect(value.code).to.equal(200);
 
                     expect(value.body).to.deep.equal({
