@@ -121,32 +121,34 @@ export default class Server {
     }
 
     /**
-     * TODO
      * Adds a dataset to the server
      * @constructor
      */
     public static PUT(req: restify.Request, res: restify.Response, next: restify.Next) {
-        let id = req.params.id;
-        let content = req.body;
-        let insightFacade: InsightFacade = new InsightFacade();
-
-        Log.trace("Server::PUT(..) - id: " + id);
-
         let b64_content = null;
-        try { b64_content = this.base64_encode(req.body); } catch(e) { Log.trace("e"); }
+
+        let id = req.params.id;
+        let files = req.files;
+        let insightFacade: InsightFacade = new InsightFacade();
+        let filePath: string = files['body']['path'];
+
+        Log.trace("Server::PUT(..) - id: " + id + ", content: " + JSON.stringify(req.files));
+        Log.trace("Server::PUT(..) - filePath: " + filePath);
+
+        try { b64_content = Server.base64_encode(filePath); } catch(e) { Log.trace("Base64 encode failed, e = " + e); }
 
         insightFacade.addDataset(id, b64_content)
-            .then(function(ret: any) {
-                Log.trace("Server::PUT(..) successful");
+            .then(function(ret: InsightResponse) {
+                Log.trace("Server::PUT(..) successful, ret code: " + ret.code + ", ret body: " + JSON.stringify(ret.body));
                 res.json(ret.code, ret.body);
-                return next;
+                Log.trace(JSON.stringify(res));
+                return next();
             })
-            .catch(function(err: any) {
+            .catch(function(err: InsightResponse) {
                 Log.trace("Server::PUT(..) error: " + JSON.stringify(err));
                 res.json(err.code, err.body);
-                return next;
+                return next();
             });
-
     }
 
     /**
@@ -163,11 +165,12 @@ export default class Server {
             .then(function(ret: any) {
                 Log.trace("Server::POST(..) successful");
                 res.json(ret.code, ret.body);
-                return next;
+                return next();
             })
             .catch(function(err: any) {
                 Log.trace("Server::POST(..) error: " + JSON.stringify(err));
-                return next;
+                res.json(err.code, err.body);
+                return next();
             });
     }
 
@@ -190,6 +193,7 @@ export default class Server {
             })
             .catch(function(err: any) {
                 Log.trace("Server::DELETE(..) error: " + JSON.stringify(err));
+                res.json(err.code, err.body);
                 return next;
             });
     }
