@@ -16,7 +16,8 @@ import {
     Key,
     Section,
     Room,
-    IInsightFacade
+    IInsightFacade,
+    Group
 } from "./IInsightFacade";
 
 import Log from "../Util";
@@ -955,8 +956,8 @@ export default class InsightFacade implements IInsightFacade {
             // check if query is valid
             that.validQuery(query).then(function () {
                     that.retrieveData(query)
-                        .then(function (validSections: any[]) {
-                            that.formatJsonResponse(query.OPTIONS, validSections)
+                        .then(function (validSections: Section[] | Room[]) {
+                            that.formatJsonResponse(query, validSections)
                                 .then(function (response: ReturnJSON) {
                                     ir.code = 200;
                                     ir.body = response;
@@ -1105,6 +1106,7 @@ export default class InsightFacade implements IInsightFacade {
     }
     // validQuery helper #4
     validTransformations(query: QueryRequest): Promise < any > {
+        // FIXME: implement validTransformations
         //Log.trace("Inside validTransformations");
         return new Promise((fulfill, reject) => {
             //-------------------------------------
@@ -1275,6 +1277,7 @@ export default class InsightFacade implements IInsightFacade {
 
         return new Promise(function (fulfill, reject) {
             that.validKey(key)
+                // TODO: check if key name is one that deals with numbers
                 .then(function () {
                     // checks each MComparison to make sure it's a number
                     if (isNaN(value)) {
@@ -1302,6 +1305,7 @@ export default class InsightFacade implements IInsightFacade {
 
         return new Promise(function (fulfill, reject) {
             that.validKey(key)
+                // TODO: check if key name is one that deals with strings
                 .then(function () {
                     // checks each SComparison to make sure it's a string
                     if (typeof value !== 'string') {
@@ -1509,18 +1513,125 @@ export default class InsightFacade implements IInsightFacade {
     }
 
     // helper: checks if transformations are valid, rejects with string of all errors
-    checkTransformations(tranformations: Transformations): Promise < any > {
+    checkTransformations(transformations: Transformations): Promise < any > {
+        //Log.trace("inside checkTransformations");
         return new Promise((fulfill, reject) => {
-
+            // FIXME: implement checkTransformations
+            if (transformations.constructor === Object) {
+                // check if sort has two keys
+                if (Object.keys(transformations).length === 2) {
+                    // check if sort has "GROUP" and "APPLY"
+                    if (Object.keys(transformations).indexOf("GROUP") !== -1 &&
+                    Object.keys(transformations).indexOf("APPLY") !== -1) {
+                        // check if GROUP is array
+                        if (Array.isArray(transformations.GROUP)) {
+                            // check to make sure each GROUP key is validKey name
+                            let promisesGroup: Promise<any>[] = [];
+                            let key: string;
+                            for(key of transformations.GROUP) {
+                                let pG: Promise<any> = this.validKey(key);
+                                promisesGroup.push(pG);
+                            }
+                            Promise.all(promisesGroup).then(() => {
+                                // check if APPLY is Array
+                                if (Array.isArray(transformations.APPLY)) {
+                                    // check to make sure each member of apply array is valid ApplyKey
+                                    let promisesApply: Promise<any>[] = [];
+                                    let applyKey: ApplyKey;
+                                    for(applyKey of transformations.APPLY) {
+                                        let pA: Promise<any> = this.validApplyKey(applyKey);
+                                        promisesApply.push(pA);
+                                    }
+                                    Promise.all(promisesApply).then(() => {
+                                        //Log.trace("fulfilled checkTransformations");
+                                        fulfill();
+                                    }).catch((err: string) => {
+                                        //Log.trace("error in promise.all in checkTransformations: " + err);
+                                        reject(err);
+                                    })
+                                } else {
+                                    //Log.trace("APPLY not an array");
+                                    reject("APPLY not an array");
+                                }
+                            }).catch((err: string) => {
+                                //Log.trace(err);
+                                reject(err);
+                            })
+                        } else {
+                            //Log.trace("GROUP not an array");
+                            reject("GROUP not an array");
+                        }
+                    } else {
+                        //Log.trace("TRANSFORMATIONS doesn't have one of GROUP or APPLY");
+                        reject("TRANSFORMATIONS doesn't have one of GROUP or APPLY");
+                    }
+                } else {
+                    //Log.trace("TRANSFORMATIONS does not have two keys");
+                    reject("TRANSFORMATIONS does not have two keys");
+                }
+            } else {
+                //Log.trace("TRANSFORMATIONS is not Object");
+                reject("TRANSFORMATIONS is not Object");
+            }
+        })
+    }
+    // helper to checkTransformations
+    validApplyKey(applyKey: ApplyKey): Promise < any > {
+        //Log.trace("inside validApplyKey");
+        return new Promise((fulfill, reject) => {
+            // FIXME: implement validApplyKey
+            // check if applyKey is Object
+            if(applyKey.constructor === Object) {
+                let key: string = Object.keys(applyKey)[0];
+                //Log.trace("key in apply key: " + key);
+                //Log.trace("typeof key: " + typeof key);
+                // check if key in applyKey is string
+                if (typeof key === 'string') {
+                    // check if key contains underscore, if so is invalid
+                    if (key.indexOf("_") !== -1) {
+                        //Log.trace("applyKey " + JSON.stringify(applyKey) + " key contains underscore");
+                        reject("applyKey " + JSON.stringify(applyKey) + " key contains underscore");
+                    } 
+                    // else is valid
+                    else {
+                        if (applyKey[key].constructor === Object) {
+                            let applyToken: ApplyToken = applyKey[key];
+                            let at: string = Object.keys(applyToken)[0];
+                            //Log.trace("at in applyToken keys: " + at);
+                            //Log.trace("typeof at: " + typeof at);
+                            if (["MAX", "MIN", "AVG", "COUNT", "SUM"].indexOf(at) !== -1) {
+                                this.validKey(applyToken[at]).then(() => {
+                                    // TODO: check if type of key matches numerical value for ApplyToken
+                                    //Log.trace("validApplyKey fulfills");
+                                    fulfill();
+                                }).catch(() => {
+                                    //Log.trace("key of ApplyToken " + JSON.stringify(applyToken) + " is invalid");
+                                    reject("key of ApplyToken " + JSON.stringify(applyToken) + " is invalid");
+                                })
+                            } else {
+                                //Log.trace(JSON.stringify(applyToken) + " ApplyToken key is not valid");
+                                reject(JSON.stringify(applyToken) + " ApplyToken key is not valid");
+                            }
+                        } else {
+                            //Log.trace("applyKey " + JSON.stringify(applyKey) + " ApplyToken is not an Object");
+                            reject("applyKey " + JSON.stringify(applyKey) + " ApplyToken is not an Object");
+                        }
+                    }
+                } else {
+                    //Log.trace("applyKey " + JSON.stringify(applyKey) + " key is not string");
+                    reject("applyKey " + JSON.stringify(applyKey) + " key is not string");
+                }
+            } else {
+                //Log.trace("applyKey " + JSON.stringify(applyKey) + " is not an object");
+                reject("applyKey " + JSON.stringify(applyKey) + " is not an object");
+            }
         })
     }
     
     // helper: validates keys with regex, fulfills if true, rejects otherwise
     validKey(key: string): Promise < any > {
         //Log.trace("Inside validKey");
-        let that = this;
-
-        return new Promise(function (fulfill, reject) {
+        return new Promise((fulfill, reject) => {
             //Log.trace("key: " + key + " - type of key: " + typeof key);
             //Log.trace("typeof key === string? " + String(typeof key === 'string'));
             if (typeof key === 'string' && 
@@ -1528,12 +1639,11 @@ export default class InsightFacade implements IInsightFacade {
                 var keyParts = key.split("_");
                 var keyID = keyParts[0];
                 // adds to array of missingIDs if it doesn't exists
-                if (!that.dataAlreadyExists(keyID)) {
+                if (!this.dataAlreadyExists(keyID)) {
                     //Log.trace("validKey: pushing keyID into missingIDs, keyID = " + keyID);
-                    if (that.missingIDs.indexOf(keyID) === -1) {
-                        that.missingIDs.push(keyID);
+                    if (this.missingIDs.indexOf(keyID) === -1) {
+                        this.missingIDs.push(keyID);
                     }
-                    // that.missingIDs.push(keyID);
                     //Log.trace("inside validKey, no dataset");
                 }
                 // try, catch if key is not valid string
@@ -1542,9 +1652,9 @@ export default class InsightFacade implements IInsightFacade {
                     if (/(courses_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid))/.test(key) ||
                     /(rooms_(lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                         // sets activeDataset if not already set
-                        if (that.activeDataset.length === 0) {
-                            that.activeDataset = keyID;
-                        } else if (that.activeDataset !== keyID) {
+                        if (this.activeDataset.length === 0) {
+                            this.activeDataset = keyID;
+                        } else if (this.activeDataset !== keyID) {
                             reject("unmatching IDs for key values");
                         }
                         //Log.trace("Fancy regex passed");
@@ -1902,51 +2012,59 @@ export default class InsightFacade implements IInsightFacade {
     //   - retrieveData
     //      |
     //       - formatJsonResponse
-    formatJsonResponse(options: Options, validSections: Section[]): Promise < any > {
+    formatJsonResponse(query: QueryRequest, incomingSections: any[]): Promise < any > {
         //Log.trace("Inside formatJsonResponse");
-        let that = this;
+        let options = query.OPTIONS;
         var returnJSON: ReturnJSON;
         var result: Object[] = [];
+        let validSections: any[];
+        // if TRANSFORMATIONS exists 
+        if (query.hasOwnProperty("TRANSFORMATIONS")) {
+            //Log.trace("query has property TRANSFORMATIONS");
+            validSections = this.dataTransformer(query, incomingSections);
+            //Log.trace("validSections (groups): " + JSON.stringify(validSections));
+        } else {
+            validSections = incomingSections;
+        }
 
-        return new Promise(function (fulfill, reject) {
+        return new Promise((fulfill, reject) => {
+            // reforms validSections if TRANSFORMATIONS exists
             // sorts validSections by ORDER key
             if (options.hasOwnProperty('ORDER')) {
-                validSections.sort(that.sortHelper(options.ORDER));
+                validSections.sort(this.sortHelper(options.ORDER, query));
+                //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
             }
-            // validSections.sort(that.sortHelper(options.ORDER));
-            //Log.trace("validSections sorted");
-
-            let section: Section;
+            //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
+            let section: Section | Room | Group;
+            //Log.trace("validSection length: " + validSections.length);
             for (section of validSections) {
+                //Log.trace("section: " + JSON.stringify(section));
                 let obj: Object = {};
                 var key: HashTable < string > ;
-                // TODO: case where column is ApplyKey
+                // FIXME: case where column is ApplyKey
                 for (let column of options.COLUMNS) {
-                    var sectionKey: any = that.keyToSection(column);
+                    //Log.trace("column: " + column);
+                    // if query has property TRANSFORMATIONS, don't trim key
+                    var sectionKey: string;
+                    if (query.hasOwnProperty("TRANSFORMATIONS")) {
+                        sectionKey = column;
+                    } else {
+                        sectionKey = this.keyToSection(column);
+                    }
+                    //Log.trace("sectionKey: " + sectionKey);
                     try {
                         var val = section[sectionKey];
+                        //Log.trace("val: " + val);
                     } catch (e) {
                         //Log.trace("e = " + e);
                     }
-
-                    //Log.trace(" ");
-                    //Log.trace("    Adding " + column + " column");
-                    //Log.trace("    sectionKey = " + sectionKey);
-                    //Log.trace("    val = " + val);
-                    try {
-                        key[String(column)] = val;
-                    } catch (e) {
-                        //Log.trace("ee = " + e);
-                    }
-
                     try {
                         ( < any > obj)[(String(column))] = val;
                     } catch (e) {
-                        //Log.trace("eee = " + e);
+                        //Log.trace("ee = " + e);
                     }
                 }
                 result.push(obj);
-                //Log.trace("    All columns created for " + section.dept);
             }
             returnJSON = {
                 render: "TABLE",
@@ -1958,28 +2076,241 @@ export default class InsightFacade implements IInsightFacade {
             fulfill(returnJSON);
         });
     }
+    // data transformer
+    dataTransformer(query: QueryRequest, validSections: any[]): Group[] {
+        //Log.trace("inside dataTransformer");
+        // FIXME: implement dataTransformer
+        let groups: Group[] = [];
+        // for each valid section
+        for (let section of validSections) {
+            //Log.trace("section: " + JSON.stringify(section));
+            // check against each group in groups
+            if (groups.length !== 0) {
+                //Log.trace("groups is not empty");
+                var foundMatchingGroup: boolean = false;
+                for (let group of groups) {
+                    //Log.trace("group: " + JSON.stringify(group));
+                    // for each key of GROUP
+                    var sectionMatches: boolean = true;
+                    for (let key of query.TRANSFORMATIONS.GROUP) {
+                        //Log.trace("key: " + key);
+                        if (group.hasOwnProperty(key)) {
+                            // if section doesn't match groups value, section doesn't match
+                            //Log.trace("section[this.keyToSection(key)]: " + section[this.keyToSection(key)]);
+                            //Log.trace("group[key]: " + group[key]);
+                            if (section[this.keyToSection(key)] !== group[key]) {
+                                //Log.trace("section doesn't match group property");
+                                sectionMatches = false;
+                                break;
+                            } else {
+                                //Log.trace("section matches group property");
+                            }
+                        } else {
+                            //Log.trace("group " + JSON.stringify(group) + " does not have property " + key);
+                            //Log.trace("SHOULD NEVER EVER EVER EVER GET HERE!!!");
+                            sectionMatches = false;
+                        }
+                    }
+                    if (sectionMatches) {
+                        //Log.trace("section matches group, merging into group");
+                        // merge into group
+                        foundMatchingGroup = true;
+                        var groupIndex = groups.indexOf(group);
+                        if (groupIndex !== -1) {
+                            groups[groupIndex] = this.mergeSectionGroup(section, group, query.TRANSFORMATIONS);
+                        } else {
+                            //Log.trace("group not found in groups, SHOULD NEVER GET HERE!!!!!");
+                        }
+                        break;
+                    }
+                }
+                if (!foundMatchingGroup) {
+                    groups.push(this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS));
+                }
+            } 
+            // groups is empty, add section to a group
+            else {
+                //Log.trace("groups is empty, pushing new mergeSectionGroup");
+                groups.push(this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS));
+            }
 
-    sortHelper(courseKey: string | Sort): any {
+        }
+        //Log.trace("dataTransformer returns");
+        return groups;
+    }
+    // dataTransformer helper, merges section to group, or create new group if passed group is {}
+    mergeSectionGroup(section: Section | Room, group: any, transformations: Transformations): Group {
+        //Log.trace("inside mergeSectionGroup");
+        // if group is empty
+        let returnGroup: Group;
+
+        if (Object.keys(group).length === 0 && group.constructor === Object) {
+            //Log.trace("group is empty object, creating new group");
+            returnGroup = {
+                sum: 0,
+                count: 0
+            };
+            // for each GROUP
+            for (let groupKey of transformations.GROUP) {
+                //Log.trace("groupKey: " + groupKey);
+                let sectionGroupKey = this.keyToSection(groupKey);
+                //Log.trace("group[" + groupKey + "] = " + section[sectionGroupKey]);
+                returnGroup[groupKey] = section[sectionGroupKey];
+            }
+        } 
+        // else group exists
+        else {
+            //Log.trace("group is not empty object, already exists");
+            returnGroup = group;
+        }
+        // for each applyKey
+        for (let applyKey of transformations.APPLY) {
+            //Log.trace("APPLY, applyKey = " + JSON.stringify(applyKey));
+            // key gets ApplyKey key
+            let key: string = Object.keys(applyKey)[0];
+            //Log.trace("key: " + key);
+            // applyToken gets ApplyKey ApplyToken
+            let applyToken: string = Object.keys(applyKey[key])[0];
+            //Log.trace("applyToken: " + applyToken);
+            // sectionKey gets ApplyToken value
+            let sectionKey: string = this.keyToSection(applyKey[key][applyToken]);
+            //Log.trace("sectionKey: " + sectionKey);
+            returnGroup.sum = returnGroup.sum + section[sectionKey];
+            returnGroup.count = returnGroup.count + 1;
+            switch (applyToken) {
+                case "MAX":
+                    //Log.trace("case: MAX");
+                    if (returnGroup.hasOwnProperty(key)){
+                        //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
+                        if(section[sectionKey] > returnGroup[key]) {
+                            returnGroup[key] = section[sectionKey];
+                        }
+                    } else {
+                        //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
+                        returnGroup[key] = section[sectionKey];
+                    }
+                    break;
+                case "MIN":
+                    //Log.trace("case: MIN");
+                    if (returnGroup.hasOwnProperty(key)){
+                        //Log.trace("section[sectionKey] " + section[sectionKey] + " < " + "returnGroup[key] " + returnGroup[key]);
+                        if(section[sectionKey] < returnGroup[key]) {
+                            returnGroup[key] = section[sectionKey];
+                        }
+                    } else {
+                        //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
+                        returnGroup[key] = section[sectionKey];
+                    }
+                    break;
+                case "AVG":
+                    //Log.trace("case: AVG");
+                    returnGroup[key] = returnGroup.sum / returnGroup.count;
+                    break;
+                case "COUNT":
+                    //Log.trace("case: COUNT");
+                    returnGroup[key] = returnGroup.count;
+                    break;
+                case "SUM":
+                    //Log.trace("case: SUM");
+                    returnGroup[key] = returnGroup.sum;
+                    break;
+                default:
+                    //Log.trace("defaulted in mergeSectionGroup, SHOULD NEVER GET HERE");
+                    break;
+            }
+        }
+
+        //Log.trace("mergeSectionGroup returns");
+        return returnGroup;
+    }
+
+    sortHelper(courseKey: string | Sort, query: QueryRequest): any {
+        //Log.trace("inside sortHelper");
         var key: string;
         // if courseKey is string
         if (typeof courseKey == 'string') {
-            key = this.keyToSection(courseKey);
+            //Log.trace("courseKey " + courseKey + " is string");
+            
+            // stop trimming if things are in groups
+            if(query.hasOwnProperty("TRANSFORMATIONS")) {
+                key = courseKey;
+            } else {
+                key = this.keyToSection(courseKey);
+            }
+            //Log.trace("key: " + key);
 
-            return function (a: any, b: any) {
-                var returnSort = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
+            return (a: any, b: any) => {
+                var returnSort: number = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
                 return returnSort;
             }
         }
         // else is Sort
         else {
-            // TODO: implement the else case of sortHelper (SORT)
+            //Log.trace("courseKey is Sort");
+            // FIXME: implement the else case of sortHelper (SORT)
+            // case if equal, sort by next, else sort by first
+            let dir: "UP" | "DOWN"  = courseKey.dir;
+            // "normal" way to sort, values go UP as you go down the table
+            if(dir === "UP") {
+                //Log.trace("dir is UP");
+                return (a: any, b: any) => {
+                    let keys: string[] = courseKey.keys;
+                    // for each key in keys, checks if they're equal, and if so moves to next key
+                    for (var i = 0; i < keys.length; i++) {
+            
+                        // stop trimming if things are in groups
+                        if(query.hasOwnProperty("TRANSFORMATIONS")) {
+                            key = keys[i];
+                        } else {
+                            key = this.keyToSection(keys[i]);
+                        }
+                        //Log.trace("key: " + key);
+                        // if not equal return sort number, else increment
+                        if(a[key] !== b[key]) {
+                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + [key]   + " are different");
+                            var returnSort = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
+                            return returnSort;
+                        }  
+                    }
+                    return returnSort;
+                }
+            }
+            // "alternative" way to sort, values go DOWN as you go down the table
+            else {
+                //Log.trace("dir is DOWN, hopefully");
+                return (a: any, b: any) => {
+                    let keys: string[] = courseKey.keys;
+                    // for each key in keys, checks if they're equal, and if so moves to next key
+                    for (var i = 0; i < keys.length; i++) {
+            
+                        // stop trimming if things are in groups
+                        if(query.hasOwnProperty("TRANSFORMATIONS")) {
+                            key = keys[i];
+                        } else {
+                            key = this.keyToSection(keys[i]);
+                        }
+                        //Log.trace("key: " + key);
+                        // if not equal return sort number, else increment
+                        if(a[key] !== b[key]) {
+                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + b[key]   + " are different");
+                            var returnSort = (a[key] > b[key]) ? -1 : (a[key] < b[key]) ? 1 : 0;
+                            return returnSort;
+                        }
+                    }
+                    return returnSort;
+                }
+            }
         }
     }
 
     // takes string (name of Key), turns into section by trimming
     keyToSection(key: string): string {
-        var keyParts: string[] = key.split("_");
-        var keyType: string = keyParts[1];
+        if(key.indexOf("_") !== -1) {
+            var keyParts: string[] = key.split("_");
+            var keyType: string = keyParts[1];
+        } else {
+            keyType = key;
+        }
         return keyType;
     }
 

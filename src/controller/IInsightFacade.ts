@@ -81,16 +81,18 @@ export interface Sort {
 export interface Transformations {
     GROUP: string[];     // must be key[], one or more
     APPLY: ApplyKey[];     // must be key, can be empty
+    [key: string]: any;
 }
 export interface ApplyKey {
     [key: string]: ApplyToken; // key must NOT contain "_" char
 }
 export interface ApplyToken {
-    MAX?: number;
-    MIN?: number;
-    AVG?: number;
-    COUNT?: number | string;
-    SUM?: number;
+    MAX?: string;   // numbers only
+    MIN?: string;   // numbers only
+    AVG?: string;   // numbers only
+    COUNT?: string; // numbers and string fields
+    SUM?: string;   // numbers only
+    [key: string]: string;
 }
 
 
@@ -148,6 +150,12 @@ export interface Room {
     type: string;
     furniture: string;
     href: string;
+    [key: string]: any;
+}
+// interface for Group
+export interface Group {
+    sum: number;
+    count: number;
     [key: string]: any;
 }
 
