@@ -452,7 +452,7 @@ export default class InsightFacade implements IInsightFacade {
                                      * Not actually used for now...
                                      */
                                     let url = that.getDivAttrsValue(textDiv);
-                                //Log.trace("                            href found, it's data is... " + url);
+                                    //Log.trace("                            href found, it's data is... " + url);
                             }
                         }
                     }
@@ -580,7 +580,7 @@ export default class InsightFacade implements IInsightFacade {
         // Initialize it
         that.foundDivs[fileName] = [];
         that.checkChilds(div, fileName);
-        //Log.trace("Checking " +  that.foundDivs[fileName]);
+        //Log.trace("Checking " + that.foundDivs[fileName]);
 
         /*
          * Parse the found divs
@@ -758,7 +758,7 @@ export default class InsightFacade implements IInsightFacade {
                             }
 
                             for (let k in ret) {
-                                //Log.trace(fileNames[ < any > k] + " stored.");
+                                //Log.trace(fileNames[<any>k] + " stored.");
                                 // Check if the file is a valid JSON file
                                 let isJson: boolean = that.isValidJsonFile(ret[k]);
                                 if (isJson == false) {
@@ -801,7 +801,7 @@ export default class InsightFacade implements IInsightFacade {
                             //Log.trace("htmWrite = " + isHtmWrite + ", jsonWrite = " + isJsonWrite);
                             if (shouldWrite == true && isJsonWrite) {
                                 try { that.writeToDisk(id); } catch (e) {
-                                    //Log.trace("Error while writing to disk, error: " + e); 
+                                    //Log.trace("Error while writing to disk, error: " + e);
                                 }
                                 fulfill();
                             } else if (shouldWrite == true && isHtmWrite) {
@@ -812,7 +812,7 @@ export default class InsightFacade implements IInsightFacade {
                                         //Log.trace("stuff to write: " + JSON.stringify(that.dataSets[id]));
 
                                         try { that.writeToDisk(id); } catch (e) {
-                                            //Log.trace("Error while writing to disk, error: " + e); 
+                                            //Log.trace("Error while writing to disk, error: " + e);
                                         }
                                         fulfill();
                                     })
@@ -1752,97 +1752,95 @@ export default class InsightFacade implements IInsightFacade {
     //   - retrieveData
     retrieveData(query: QueryRequest): Promise<any> {
         //Log.trace("Inside retrieveData");
-        let that = this;
         var validSections: any[] = [];
 
-        return new Promise(function (fulfill, reject) {
-            // For each data set on disk
-            for (let setId in that.dataSets) {
-                // only use dataset specified by activeDataset
-                if (setId === that.activeDataset) {
-                    //Log.trace("Query is: " + JSON.stringify(query));
-                    //Log.trace("beginning parsing through: " + setId + ".json");
-                    //Log.trace("*************************************************");
+        return new Promise((fulfill, reject) => {
+            //Log.trace("Query is: " + JSON.stringify(query));
+            let setId: string = this.activeDataset;
+            //Log.trace("beginning parsing through: " + setId + ".json");
+            //Log.trace("*************************************************");
 
-                    // Read the data from the file
-                    var fileData: any = fs.readFileSync(setId + ".json", "utf8");
-                    let parsedData = JSON.parse(fileData);
-                    //Log.trace("typeOf(fileData) = " + fileData.constructor.name + ", typeOf(parsedData) = " + parsedData.constructor.name);
-
-                    // ID = COURSES
-                    if (setId === "courses") {
-                        // Parse each course in the dataset
-                        for (let course in parsedData) {
-                            //Log.trace("Parsing course = " + course);
-                            //Log.trace(course + " has " + parsedData[course].length + " sections");
-                            // Parse the sections of each course
-                            for (let section of parsedData[course]) {
-                                //Log.trace("section = " + JSON.stringify(section));
-                                let s: Section = {
-                                    dept: section["dept"],
-                                    id: section["id"],
-                                    avg: section["avg"],
-                                    instructor: section["instructor"],
-                                    title: section["title"],
-                                    pass: section["pass"],
-                                    fail: section["fail"],
-                                    audit: section["audit"],
-                                    uuid: section["uuid"],
-                                    year: section["year"]
-                                };
-                                // FIXME: empty WHERE retrieves all rows, is true for all sections
-                                if (that.matchesQuery(query["WHERE"], s)) {
-                                    //Log.trace("adding to validSections");
-                                    validSections.push(s);
-                                }
-                            }
+            //Log.trace("setId: " + setId + ", going into courses or rooms");
+            // ID = COURSES
+            if (setId === "courses") {
+                //Log.trace("setId = courses");
+                // Read the data from the file
+                var fileData: any = fs.readFileSync("courses.json", "utf8");
+                let parsedData = JSON.parse(fileData);
+                // Parse each course in the dataset
+                for (let course in parsedData) {
+                    //Log.trace("Parsing course = " + course);
+                    //Log.trace(course + " has " + parsedData[course].length + " sections");
+                    // Parse the sections of each course
+                    for (let section of parsedData[course]) {
+                        //Log.trace("section = " + JSON.stringify(section));
+                        let s: Section = {
+                            dept: section["dept"],
+                            id: section["id"],
+                            avg: section["avg"],
+                            instructor: section["instructor"],
+                            title: section["title"],
+                            pass: section["pass"],
+                            fail: section["fail"],
+                            audit: section["audit"],
+                            uuid: section["uuid"],
+                            year: section["year"]
+                        };
+                        // FIXME: empty WHERE retrieves all rows, is true for all sections
+                        if (this.matchesQuery(query["WHERE"], s)) {
+                            //Log.trace("adding to validSections");
+                            validSections.push(s);
                         }
-
-                        // ID = ROOMS
-                    } else if (setId === "rooms") {
-                        // Parse each building in the dataset
-                        for (let building in parsedData) {
-                            //Log.trace("Parsing building = " + building);
-                            // Parse the rooms of each building
-                            var rooms = parsedData[building]["rooms"];
-                            if (rooms.length === 0) {
-
-                            } else {
-                                for (let room of rooms) {
-                                    let r: Room = {
-                                        fullname: parsedData[building]["fullname"],
-                                        shortname: parsedData[building]["shortname"],
-                                        number: room["number"],
-                                        name: room["name"],
-                                        address: parsedData[building]["address"],
-                                        lat: parsedData[building]["lat"],
-                                        lon: parsedData[building]["lon"],
-                                        seats: room["seats"],
-                                        type: room["type"],
-                                        furniture: room["furniture"],
-                                        href: room["href"]
-                                    };
-                                    //Log.trace("=======> room: " + JSON.stringify(room));
-                                    //Log.trace("=======> parsed name: " + r.name);
-                                    // FIXME: empty WHERE retrieves all rows, is true for all rooms
-                                    if (that.matchesQuery(query["WHERE"], r)) {
-                                        //Log.trace("adding to validSections: " + r.name);
-                                        validSections.push(r);
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        //Log.trace("reject: retrieveData: invalid setId");
-                        reject("retrieveData: invalid setId");
                     }
                 }
+
+                // ID = ROOMS
+            } else if (setId === "rooms") {
+                //Log.trace("setId = rooms");
+                // Read the data from the file
+                var fileData: any = fs.readFileSync("rooms.json", "utf8");
+                let parsedData = JSON.parse(fileData);
+                // Parse each building in the dataset
+                for (let building in parsedData) {
+                    //Log.trace("Parsing building = " + building);
+                    // Parse the rooms of each building
+                    var rooms = parsedData[building]["rooms"];
+                    if (rooms.length === 0) {
+                        //Log.trace("Building has no rooms");
+                    } else {
+                        for (let room of rooms) {
+                            let r: Room = {
+                                fullname: parsedData[building]["fullname"],
+                                shortname: parsedData[building]["shortname"],
+                                number: room["number"],
+                                name: room["name"],
+                                address: parsedData[building]["address"],
+                                lat: parsedData[building]["lat"],
+                                lon: parsedData[building]["lon"],
+                                seats: room["seats"],
+                                type: room["type"],
+                                furniture: room["furniture"],
+                                href: room["href"]
+                            };
+                            //Log.trace("=======> room: " + JSON.stringify(room));
+                            //Log.trace("=======> parsed name: " + r.name);
+                            // FIXME: empty WHERE retrieves all rows, is true for all rooms
+                            if (this.matchesQuery(query["WHERE"], r)) {
+                                //Log.trace("adding to validSections: " + r.name);
+                                validSections.push(r);
+                            }
+                        }
+                    }
+                }
+            } else {
+                //Log.trace("reject: retrieveData: invalid setId");
+                reject("retrieveData: invalid setId");
             }
             if (validSections.length == 0) {
-                //Log.trace("reject: retrieveData: no results from query");
+                ////Log.trace("reject: retrieveData: no results from query");
                 reject("retrieveData: no results from query");
             } else {
-                //Log.trace("retrieveData fulfilling");
+                ////Log.trace("retrieveData fulfilling");
                 fulfill(validSections);
             }
         });
@@ -2201,7 +2199,7 @@ export default class InsightFacade implements IInsightFacade {
                     //Log.trace("case: MAX");
                     // check if is numbers
                     if (isNaN(section[sectionKey])) {
-                        return("MAX key must be a number");
+                        return ("MAX key must be a number");
                     }
                     if (returnGroup.hasOwnProperty(key)) {
                         //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
@@ -2217,7 +2215,7 @@ export default class InsightFacade implements IInsightFacade {
                     //Log.trace("case: MIN");
                     // check if is numbers
                     if (isNaN(section[sectionKey])) {
-                        return("MIN key must be a number");
+                        return ("MIN key must be a number");
                     }
                     if (returnGroup.hasOwnProperty(key)) {
                         //Log.trace("section[sectionKey] " + section[sectionKey] + " < " + "returnGroup[key] " + returnGroup[key]);
@@ -2233,7 +2231,7 @@ export default class InsightFacade implements IInsightFacade {
                     //Log.trace("case: AVG");
                     // check if is numbers
                     if (isNaN(section[sectionKey])) {
-                        return("AVG key must be a number");
+                        return ("AVG key must be a number");
                     }
                     returnGroup[key] = returnGroup.sum / returnGroup.count;
                     break;
@@ -2245,7 +2243,7 @@ export default class InsightFacade implements IInsightFacade {
                     //Log.trace("case: SUM");
                     // check if is numbers
                     if (isNaN(section[sectionKey])) {
-                        return("SUM key must be a number");
+                        return ("SUM key must be a number");
                     }
                     returnGroup[key] = returnGroup.sum;
                     break;
@@ -2302,7 +2300,7 @@ export default class InsightFacade implements IInsightFacade {
                         //Log.trace("key: " + key);
                         // if not equal return sort number, else increment
                         if (a[key] !== b[key]) {
-                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + [key]   + " are different");
+                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + [key] + " are different");
                             var returnSort = (a[key] < b[key]) ? -1 : (a[key] > b[key]) ? 1 : 0;
                             return returnSort;
                         }
@@ -2327,7 +2325,7 @@ export default class InsightFacade implements IInsightFacade {
                         //Log.trace("key: " + key);
                         // if not equal return sort number, else increment
                         if (a[key] !== b[key]) {
-                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + b[key]   + " are different");
+                            //Log.trace("a " + key + " " + a[key] + " and " + "b " + key + " " + b[key] + " are different");
                             var returnSort = (a[key] > b[key]) ? -1 : (a[key] < b[key]) ? 1 : 0;
                             return returnSort;
                         }
