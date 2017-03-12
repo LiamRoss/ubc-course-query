@@ -949,7 +949,7 @@ describe("InsightFacadeSpec", function () {
             });
     });
 
-/*
+// /*
     // Test 15
     // Looks for courses with NOT instructor
     it("performQuery with NOT specific instructor", function () {
@@ -2132,7 +2132,7 @@ describe("InsightFacadeSpec", function () {
         this.timeout(10000);
         return insightFacade.addDataset(id, testBase64)
             .then(function (value: InsightResponse) {
-                var qr: QueryRequest = {
+                var qr: any = {
                     "WHERE": {
                         "AND": [{
                                 "GT": {
@@ -2221,6 +2221,6 @@ describe("InsightFacadeSpec", function () {
                 expect.fail();
             });
     });
-*/
+// */
 });
 

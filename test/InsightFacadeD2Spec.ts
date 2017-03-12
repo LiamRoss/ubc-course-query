@@ -62,7 +62,7 @@ describe("InsightFacadeD2Spec", function () {
         //Log.test('AfterTest: ' + (<any>this).currentTest.title);
         insightFacade = null;
     });
-
+/*
     // Test 1
     // Add single rooms set
     it("addDataset with rooms base64 zip, should return code 204", function () {
@@ -356,7 +356,7 @@ describe("InsightFacadeD2Spec", function () {
             });
     });
 
-
+*/
     // Test 4
     // A simple query (from d3 page)
     it("performQuery with a simple D3 Query", function () {
@@ -423,7 +423,7 @@ describe("InsightFacadeD2Spec", function () {
                     })
             })
             .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + err.body);
+                Log.test('ERROR: ' + JSON.stringify(err.body));
                 expect.fail();
             });
     });
@@ -488,9 +488,160 @@ describe("InsightFacadeD2Spec", function () {
                 })
         })
         .catch(function (err: InsightResponse) {
-            Log.test('ERROR: ' + err.body);
+            Log.test('ERROR: ' + JSON.stringify(err.body));
             expect.fail();
         });
+    });
+
+    // Test 6
+    // D2 Query with D3 Sort
+    it("D2 Query with D3 Sort", function () {
+        var id: string = "rooms";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "IS": {
+                            "rooms_address": "*Agrono*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "rooms_address", "rooms_name"
+                        ],
+                        "ORDER": {
+                            "dir": "UP",
+                            "keys": ["rooms_name"]
+                        },
+                        "FORM": "TABLE"
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        // Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
+
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                    "rooms_name": "DMP_101"
+                                },
+                                {
+                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                    "rooms_name": "DMP_110"
+                                },
+                                {
+                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                    "rooms_name": "DMP_201"
+                                },
+                                {
+                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                    "rooms_name": "DMP_301"
+                                },
+                                {
+                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                    "rooms_name": "DMP_310"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_1001"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3002"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3004"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3016"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3018"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3052"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3058"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3062"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3068"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3072"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_3074"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4002"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4004"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4016"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4018"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4052"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4058"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4062"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4068"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4072"
+                                },
+                                {
+                                    "rooms_address": "6363 Agronomy Road",
+                                    "rooms_name": "ORCH_4074"
+                                }
+                            ]
+                        });
+
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
     });
 
 });
