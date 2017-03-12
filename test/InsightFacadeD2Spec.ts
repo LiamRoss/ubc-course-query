@@ -356,7 +356,7 @@ describe("InsightFacadeD2Spec", function () {
             });
     });
 
-*/
+
     // Test 4
     // A simple query (from d3 page)
     it("performQuery with a simple D3 Query", function () {
@@ -643,5 +643,5 @@ describe("InsightFacadeD2Spec", function () {
                 expect.fail();
             });
     });
-
+*/
 });
