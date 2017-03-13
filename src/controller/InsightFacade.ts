@@ -2088,9 +2088,9 @@ export default class InsightFacade implements IInsightFacade {
 
         });
     }
-    // TODO: fix after here
+
     // data transformer
-    dataTransformer(query: QueryRequest, validSections: any[]): Promise< Group[] > {
+    dataTransformer(query: QueryRequest, validSections: any[]): Promise<Group[]> {
         //Log.trace("inside dataTransformer");
         return new Promise((fulfill, reject) => {
             try {
@@ -2177,116 +2177,124 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
+    // TODO: fix after here
     // dataTransformer helper, merges section to group, or create new group if passed group is {}
     // returns a string error message if there is an error
     mergeSectionGroup(section: Section | Room, group: any, transformations: Transformations): Group | string {
-        return "test";
-        // try {
-        //     //Log.trace("inside mergeSectionGroup");
+        try {
+            //Log.trace("inside mergeSectionGroup");
+            let returnGroup: Group;
 
-        //     // if group is empty
-        //     let returnGroup: Group;
-
-        //     if (group.constructor === Object && Object.keys(group).length === 0) {
-        //         //Log.trace("group is empty object, creating new group");
-        //         returnGroup = {
-        //             sum: 0,
-        //             count: 0
-        //         };
-        //         // for each GROUP
-        //         for (let groupKey of transformations.GROUP) {
-        //             //Log.trace("groupKey: " + groupKey);
-        //             let sectionGroupKey = this.keyToSection(groupKey);
-        //             //Log.trace("group[" + groupKey + "] = " + section[sectionGroupKey]);
-        //             returnGroup[groupKey] = section[sectionGroupKey];
-        //         }
-        //     }
-        //     // else group exists
-        //     else {
-        //         //Log.trace("group is not empty object, already exists");
-        //         returnGroup = group;
-        //     }
-        //     // for each applyKey
-        //     for (let applyKey of transformations.APPLY) {
-        //         //Log.trace("APPLY, applyKey = " + JSON.stringify(applyKey));
-        //         // key gets ApplyKey key
-        //         let k0: string[] = Object.keys(applyKey);
-        //         let key: string = k0[0];
-        //         //Log.trace("key: " + key);
-        //         // applyToken gets ApplyKey ApplyToken
-        //         let k1: ApplyToken = applyKey[key];
-        //         let k2: string[] = Object.keys(k1);
-        //         let applyToken: string = k2[0];
-        //         //Log.trace("applyToken: " + applyToken);
-        //         // sectionKey gets ApplyToken value
-        //         let sectionKey: string = this.keyToSection(k1[applyToken]);
-        //         //Log.trace("sectionKey: " + sectionKey);
-        //         returnGroup.sum = returnGroup.sum + section[sectionKey];
-        //         returnGroup.count = returnGroup.count + 1;
-        //         switch (applyToken) {
-        //             case "MAX":
-        //                 //Log.trace("case: MAX");
-        //                 // check if is numbers
-        //                 if (typeof section[sectionKey] !== 'number') {
-        //                     return ("MAX key must be a number");
-        //                 }
-        //                 if (returnGroup.hasOwnProperty(key)) {
-        //                     //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
-        //                     if (section[sectionKey] > returnGroup[key]) {
-        //                         returnGroup[key] = section[sectionKey];
-        //                     }
-        //                 } else {
-        //                     //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
-        //                     returnGroup[key] = section[sectionKey];
-        //                 }
-        //                 break;
-        //             case "MIN":
-        //                 //Log.trace("case: MIN");
-        //                 // check if is numbers
-        //                 if (typeof section[sectionKey] !== 'number') {
-        //                     return ("MIN key must be a number");
-        //                 }
-        //                 if (returnGroup.hasOwnProperty(key)) {
-        //                     //Log.trace("section[sectionKey] " + section[sectionKey] + " < " + "returnGroup[key] " + returnGroup[key]);
-        //                     if (section[sectionKey] < returnGroup[key]) {
-        //                         returnGroup[key] = section[sectionKey];
-        //                     }
-        //                 } else {
-        //                     //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
-        //                     returnGroup[key] = section[sectionKey];
-        //                 }
-        //                 break;
-        //             case "AVG":
-        //                 //Log.trace("case: AVG");
-        //                 // check if is numbers
-        //                 if (typeof section[sectionKey] !== 'number') {
-        //                     return ("AVG key must be a number");
-        //                 }
-        //                 var val = (returnGroup.sum / returnGroup.count);
-        //                 returnGroup[key] = val;
-        //                 break;
-        //             case "COUNT":
-        //                 //Log.trace("case: COUNT");
-        //                 returnGroup[key] = returnGroup.count;
-        //                 break;
-        //             case "SUM":
-        //                 //Log.trace("case: SUM");
-        //                 // check if is numbers
-        //                 if (typeof section[sectionKey] !== 'number') {
-        //                     return ("SUM key must be a number");
-        //                 }
-        //                 returnGroup[key] = returnGroup.sum;
-        //                 break;
-        //             default:
-        //                 //Log.trace("defaulted in mergeSectionGroup, SHOULD NEVER GET HERE");
-        //                 break;
-        //         }
-        //     }
-        //     //Log.trace("mergeSectionGroup returns");
-        //     return returnGroup;
-        // } catch (error) {
-        //     return ("error in mergeSectionGroup");
-        // }
+            // if group is empty initialize new group
+            if (group.constructor === Object && Object.keys(group).length === 0) {
+                //Log.trace("group is empty object, creating new group");
+                returnGroup = {
+                    sum: 0,
+                    count: 0
+                };
+                // for each GROUP
+                for (let groupKey of transformations.GROUP) {
+                    //Log.trace("groupKey: " + groupKey);
+                    let sectionGroupKey = this.keyToSection(groupKey);
+                    //Log.trace("group[" + groupKey + "] = " + section[sectionGroupKey]);
+                    returnGroup[groupKey] = section[sectionGroupKey];
+                }
+            }
+            // else group exists
+            else {
+                //Log.trace("group is not empty object, already exists");
+                returnGroup = group;
+            }
+            // for each applyKey
+            for (let applyKey of transformations.APPLY) {
+                //Log.trace("APPLY, applyKey = " + JSON.stringify(applyKey));
+                // key gets ApplyKey key
+                // ex: "maxSeats"
+                let k0: string[] = Object.keys(applyKey);
+                let key: string = k0[0];
+                //Log.trace("key: " + key);
+                // applyToken gets ApplyKey ApplyToken
+                // ex: ""
+                let k1: ApplyToken = applyKey[key];
+                let k2: string[] = Object.keys(k1);
+                let applyToken: string = k2[0];
+                //Log.trace("applyToken: " + applyToken);
+                // sectionKey gets ApplyToken value
+                let sectionKey: string = this.keyToSection(k1[applyToken]);
+                //Log.trace("sectionKey: " + sectionKey);
+                returnGroup["count"] = (returnGroup["count"] + 1);
+                switch (applyToken) {
+                    case "MAX":
+                        //Log.trace("case: MAX");
+                        // check if is numbers
+                        if (typeof section[sectionKey] !== 'number') {
+                            return ("MAX key must be a number");
+                        } else {
+                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
+                            if (returnGroup.hasOwnProperty(key)) {
+                                //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
+                                if (section[sectionKey] > returnGroup[key]) {
+                                    returnGroup[key] = section[sectionKey];
+                                }
+                            } else {
+                                //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
+                                returnGroup[key] = section[sectionKey];
+                            }
+                        }
+                        break;
+                    case "MIN":
+                        //Log.trace("case: MIN");
+                        // check if is numbers
+                        if (typeof section[sectionKey] !== 'number') {
+                            return ("MIN key must be a number");
+                        } else {
+                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
+                            if (returnGroup.hasOwnProperty(key)) {
+                                //Log.trace("section[sectionKey] " + section[sectionKey] + " < " + "returnGroup[key] " + returnGroup[key]);
+                                if (section[sectionKey] < returnGroup[key]) {
+                                    returnGroup[key] = section[sectionKey];
+                                }
+                            } else {
+                                //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
+                                returnGroup[key] = section[sectionKey];
+                            }
+                        }
+                        break;
+                    case "AVG":
+                        //Log.trace("case: AVG");
+                        // check if is numbers
+                        if (typeof section[sectionKey] !== 'number') {
+                            return ("AVG key must be a number");
+                        } else {
+                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
+                            var val = (returnGroup["sum"] / returnGroup["count"]);
+                            returnGroup[key] = val;
+                        }
+                        break;
+                    case "COUNT":
+                        //Log.trace("case: COUNT");
+                        returnGroup[key] = returnGroup["count"];
+                        break;
+                    case "SUM":
+                        //Log.trace("case: SUM");
+                        // check if is numbers
+                        if (typeof section[sectionKey] !== 'number') {
+                            return ("SUM key must be a number");
+                        } else {
+                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
+                            returnGroup[key] = returnGroup["sum"];
+                        }
+                        break;
+                    default:
+                        //Log.trace("defaulted in mergeSectionGroup, SHOULD NEVER GET HERE");
+                        return("defaulted in mergeSectionGroup");
+                }
+            }
+            //Log.trace("mergeSectionGroup returns");
+            return returnGroup;
+        } catch (error) {
+            return ("error in mergeSectionGroup");
+        }
     }
     // TODO: fix before here
     sortHelper(courseKey: string | Sort, query: QueryRequest): any {
