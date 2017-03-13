@@ -2012,52 +2012,52 @@ export default class InsightFacade implements IInsightFacade {
 
         return new Promise((fulfill, reject) => {
             this.dataTransformer(query, incomingSections).then((groups: Group[]) => {
-                // validSections = groups;
-                // // reforms validSections if TRANSFORMATIONS exists
-                // // sorts validSections by ORDER key
-                // if (options.hasOwnProperty('ORDER')) {
-                //     validSections.sort(this.sortHelper(options.ORDER, query));
-                //     //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
-                // }
-                // //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
-                // let section: Section | Room | Group;
-                // //Log.trace("validSection length: " + validSections.length);
-                // for (section of validSections) {
-                //     //Log.trace("section: " + JSON.stringify(section));
-                //     let obj: Object = {};
-                //     var key: HashTable<string>;
-                //     for (let column of options.COLUMNS) {
-                //         //Log.trace("column: " + column);
-                //         // if query has property TRANSFORMATIONS, don't trim key
-                //         var sectionKey: string;
-                //         if (query.hasOwnProperty("TRANSFORMATIONS")) {
-                //             sectionKey = column;
-                //         } else {
-                //             sectionKey = this.keyToSection(column);
-                //         }
-                //         //Log.trace("sectionKey: " + sectionKey);
-                //         try {
-                //             var val = section[sectionKey];
-                //             //Log.trace("val: " + val);
-                //         } catch (e) {
-                //             //Log.trace("e = " + e);
-                //         }
-                //         try {
-                //             (<any>obj)[(String(column))] = val;
-                //         } catch (e) {
-                //             //Log.trace("ee = " + e);
-                //         }
-                //     }
-                //     result.push(obj);
-                // }
-                // returnJSON = {
-                //     render: "TABLE",
-                //     result: (result)
-                // };
-                // //Log.trace("fulfilling formatJsonResponse...");
-                // //Log.trace("     - returnJSON render: " + returnJSON.render);
-                // //Log.trace("     - returnJSON result: " + JSON.stringify(returnJSON.result));
-                // fulfill(returnJSON);
+                validSections = groups;
+                // reforms validSections if TRANSFORMATIONS exists
+                // sorts validSections by ORDER key
+                if (options.hasOwnProperty('ORDER')) {
+                    validSections.sort(this.sortHelper(options.ORDER, query));
+                    //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
+                }
+                //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
+                let section: Section | Room | Group;
+                //Log.trace("validSection length: " + validSections.length);
+                for (section of validSections) {
+                    //Log.trace("section: " + JSON.stringify(section));
+                    let obj: Object = {};
+                    var key: HashTable<string>;
+                    for (let column of options.COLUMNS) {
+                        //Log.trace("column: " + column);
+                        // if query has property TRANSFORMATIONS, don't trim key
+                        var sectionKey: string;
+                        if (query.hasOwnProperty("TRANSFORMATIONS")) {
+                            sectionKey = column;
+                        } else {
+                            sectionKey = this.keyToSection(column);
+                        }
+                        //Log.trace("sectionKey: " + sectionKey);
+                        try {
+                            var val = section[sectionKey];
+                            //Log.trace("val: " + val);
+                        } catch (e) {
+                            //Log.trace("e = " + e);
+                        }
+                        try {
+                            (<any>obj)[(String(column))] = val;
+                        } catch (e) {
+                            //Log.trace("ee = " + e);
+                        }
+                    }
+                    result.push(obj);
+                }
+                returnJSON = {
+                    render: "TABLE",
+                    result: (result)
+                };
+                //Log.trace("fulfilling formatJsonResponse...");
+                //Log.trace("     - returnJSON render: " + returnJSON.render);
+                //Log.trace("     - returnJSON result: " + JSON.stringify(returnJSON.result));
+                fulfill(returnJSON);
             }).catch((err: string) => {
                 reject(err);
             })
