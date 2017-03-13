@@ -958,14 +958,14 @@ export default class InsightFacade implements IInsightFacade {
                 that.retrieveData(query)
                     .then(function (validSections: Section[] | Room[]) {
                         that.formatJsonResponse(query, validSections)
-                            // .then(function (response: ReturnJSON) {
-                            //     ir.code = 200;
-                            //     ir.body = response;
-                            //     //Log.trace("ReturnJSON: " + JSON.stringify(response));
-                            //     //Log.trace("formatJsonResponse -> performQuery fulfill");
-                            //     fulfill(ir);
-                            // })
-                            // // 3. catch for formatJsonResponse
+                            .then(function (response: ReturnJSON) {
+                                ir.code = 200;
+                                ir.body = response;
+                                //Log.trace("ReturnJSON: " + JSON.stringify(response));
+                                //Log.trace("formatJsonResponse -> performQuery fulfill");
+                                fulfill(ir);
+                            })
+                            // 3. catch for formatJsonResponse
                             .catch(function () {
                                 ir.code = 400;
                                 ir.body = {
@@ -1063,7 +1063,6 @@ export default class InsightFacade implements IInsightFacade {
             // checking if WHERE exists
             if (query.hasOwnProperty('WHERE')) {
                 // check if WHERE is empty
-                // FIXME: IMPORTANT!!!! empty WHERE is valid, same as "all true"
                 if (Object.keys(query.WHERE).length === 0 && query.WHERE.constructor === Object) {
                     //Log.trace("query.WHERE is empty and is an object, fulfills");
                     fulfill();
@@ -1106,7 +1105,6 @@ export default class InsightFacade implements IInsightFacade {
     }
     // validQuery helper #4
     validTransformations(query: QueryRequest): Promise<any> {
-        // FIXME: implement validTransformations
         //Log.trace("Inside validTransformations");
         return new Promise((fulfill, reject) => {
             //-------------------------------------
@@ -1357,7 +1355,6 @@ export default class InsightFacade implements IInsightFacade {
                     // check if COLUMNS is empty array
                     if (options.COLUMNS.length > 0) {
                         // check if each member of array is valid key
-                        // FIXME: can also be a string, if there is a transformations
                         var val: any;
                         var keyArray: Promise<any>[] = [];
                         // if TRANSFORMATIONS exists
@@ -1423,7 +1420,6 @@ export default class InsightFacade implements IInsightFacade {
                     }
                     // ORDER is not string, therefore has to be Sort
                     else {
-                        // FIXME: verify SORT validity
                         this.checkSort(options.ORDER).then(() => {
                             fulfill();
                         }).catch((err: string) => {
@@ -1442,7 +1438,6 @@ export default class InsightFacade implements IInsightFacade {
             }
         });
     }
-    // FIXME: implement checkSort
     // checkOrder helper
     checkSort(sort: Sort): Promise<any> {
         //Log.trace("Inside checkSort");
@@ -1516,7 +1511,6 @@ export default class InsightFacade implements IInsightFacade {
     checkTransformations(transformations: Transformations): Promise<any> {
         //Log.trace("inside checkTransformations");
         return new Promise((fulfill, reject) => {
-            // FIXME: implement checkTransformations
             if (transformations.constructor === Object) {
                 // check if sort has two keys
                 if (Object.keys(transformations).length === 2) {
@@ -1579,7 +1573,6 @@ export default class InsightFacade implements IInsightFacade {
     validApplyKey(applyKey: ApplyKey): Promise<any> {
         //Log.trace("inside validApplyKey");
         return new Promise((fulfill, reject) => {
-            // FIXME: implement validApplyKey
             // check if applyKey is Object
             if (applyKey.constructor === Object) {
                 let key: string = Object.keys(applyKey)[0];
@@ -1725,7 +1718,6 @@ export default class InsightFacade implements IInsightFacade {
                 }
             } else {
                 if (typeof key === 'string') {
-                    // FIXME: check if it is in APPLY
                     let applyKey: ApplyKey;
                     // check each ApplyKey, see if key matches any of them
                     for (applyKey of query.TRANSFORMATIONS.APPLY) {
@@ -1786,7 +1778,6 @@ export default class InsightFacade implements IInsightFacade {
                             uuid: section["uuid"],
                             year: section["year"]
                         };
-                        // FIXME: empty WHERE retrieves all rows, is true for all sections
                         if (this.matchesQuery(query["WHERE"], s)) {
                             //Log.trace("adding to validSections");
                             validSections.push(s);
@@ -1824,7 +1815,6 @@ export default class InsightFacade implements IInsightFacade {
                             };
                             //Log.trace("=======> room: " + JSON.stringify(room));
                             //Log.trace("=======> parsed name: " + r.name);
-                            // FIXME: empty WHERE retrieves all rows, is true for all rooms
                             if (this.matchesQuery(query["WHERE"], r)) {
                                 //Log.trace("adding to validSections: " + r.name);
                                 validSections.push(r);
@@ -1849,7 +1839,6 @@ export default class InsightFacade implements IInsightFacade {
     matchesQuery(filter: Filter, section: Section | Room): boolean {
         //Log.trace("inside matchesQuery");
         //Log.trace("filter in matchesQuery: " + JSON.stringify(filter));
-        // FIXME: if WHERE is an empty object, all match query
         if (Object.keys(filter).length === 0 && filter.constructor === Object) {
             //Log.trace("filter is empty and is an object, returns true in matchesQuery");
             return true;
@@ -2005,6 +1994,10 @@ export default class InsightFacade implements IInsightFacade {
         }
     }
 
+
+
+
+
     // performQuery
     //  |
     //   - retrieveData
@@ -2018,59 +2011,53 @@ export default class InsightFacade implements IInsightFacade {
         let validSections: any[];
 
         return new Promise((fulfill, reject) => {
-            // TODO: remove the following
-            reject("testing timeout");
-        });
-    }
-            /*
             this.dataTransformer(query, incomingSections).then((groups: Group[]) => {
-                validSections = groups;
-                // reforms validSections if TRANSFORMATIONS exists
-                // sorts validSections by ORDER key
-                if (options.hasOwnProperty('ORDER')) {
-                    validSections.sort(this.sortHelper(options.ORDER, query));
-                    //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
-                }
-                //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
-                let section: Section | Room | Group;
-                //Log.trace("validSection length: " + validSections.length);
-                for (section of validSections) {
-                    //Log.trace("section: " + JSON.stringify(section));
-                    let obj: Object = {};
-                    var key: HashTable<string>;
-                    // FIXME: case where column is ApplyKey
-                    for (let column of options.COLUMNS) {
-                        //Log.trace("column: " + column);
-                        // if query has property TRANSFORMATIONS, don't trim key
-                        var sectionKey: string;
-                        if (query.hasOwnProperty("TRANSFORMATIONS")) {
-                            sectionKey = column;
-                        } else {
-                            sectionKey = this.keyToSection(column);
-                        }
-                        //Log.trace("sectionKey: " + sectionKey);
-                        try {
-                            var val = section[sectionKey];
-                            //Log.trace("val: " + val);
-                        } catch (e) {
-                            //Log.trace("e = " + e);
-                        }
-                        try {
-                            (<any>obj)[(String(column))] = val;
-                        } catch (e) {
-                            //Log.trace("ee = " + e);
-                        }
-                    }
-                    result.push(obj);
-                }
-                returnJSON = {
-                    render: "TABLE",
-                    result: (result)
-                };
-                //Log.trace("fulfilling formatJsonResponse...");
-                //Log.trace("     - returnJSON render: " + returnJSON.render);
-                //Log.trace("     - returnJSON result: " + JSON.stringify(returnJSON.result));
-                fulfill(returnJSON);
+                // validSections = groups;
+                // // reforms validSections if TRANSFORMATIONS exists
+                // // sorts validSections by ORDER key
+                // if (options.hasOwnProperty('ORDER')) {
+                //     validSections.sort(this.sortHelper(options.ORDER, query));
+                //     //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
+                // }
+                // //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
+                // let section: Section | Room | Group;
+                // //Log.trace("validSection length: " + validSections.length);
+                // for (section of validSections) {
+                //     //Log.trace("section: " + JSON.stringify(section));
+                //     let obj: Object = {};
+                //     var key: HashTable<string>;
+                //     for (let column of options.COLUMNS) {
+                //         //Log.trace("column: " + column);
+                //         // if query has property TRANSFORMATIONS, don't trim key
+                //         var sectionKey: string;
+                //         if (query.hasOwnProperty("TRANSFORMATIONS")) {
+                //             sectionKey = column;
+                //         } else {
+                //             sectionKey = this.keyToSection(column);
+                //         }
+                //         //Log.trace("sectionKey: " + sectionKey);
+                //         try {
+                //             var val = section[sectionKey];
+                //             //Log.trace("val: " + val);
+                //         } catch (e) {
+                //             //Log.trace("e = " + e);
+                //         }
+                //         try {
+                //             (<any>obj)[(String(column))] = val;
+                //         } catch (e) {
+                //             //Log.trace("ee = " + e);
+                //         }
+                //     }
+                //     result.push(obj);
+                // }
+                // returnJSON = {
+                //     render: "TABLE",
+                //     result: (result)
+                // };
+                // //Log.trace("fulfilling formatJsonResponse...");
+                // //Log.trace("     - returnJSON render: " + returnJSON.render);
+                // //Log.trace("     - returnJSON result: " + JSON.stringify(returnJSON.result));
+                // fulfill(returnJSON);
             }).catch((err: string) => {
                 reject(err);
             })
@@ -2080,7 +2067,11 @@ export default class InsightFacade implements IInsightFacade {
     dataTransformer(query: QueryRequest, validSections: any[]): Promise<Group[]> {
         //Log.trace("inside dataTransformer");
         return new Promise((fulfill, reject) => {
-            // FIXME: implement dataTransformer
+            //TODO: delete this
+            reject("testing timeout");
+        });
+    }
+            /*
             let groups: Group[] = [];
             if (!query.hasOwnProperty("TRANSFORMATIONS")) {
                 fulfill(validSections);
@@ -2261,7 +2252,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("mergeSectionGroup returns");
         return returnGroup;
     }
-
+*/
     sortHelper(courseKey: string | Sort, query: QueryRequest): any {
         //Log.trace("inside sortHelper");
         var key: string;
@@ -2285,7 +2276,6 @@ export default class InsightFacade implements IInsightFacade {
         // else is Sort
         else {
             //Log.trace("courseKey is Sort");
-            // FIXME: implement the else case of sortHelper (SORT)
             // case if equal, sort by next, else sort by first
             let dir: "UP" | "DOWN" = courseKey.dir;
             // "normal" way to sort, values go UP as you go down the table
@@ -2340,7 +2330,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
-*/
+
     // takes string (name of Key), turns into section by trimming
     keyToSection(key: string): string {
         if (key.indexOf("_") !== -1) {
