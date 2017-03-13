@@ -2088,57 +2088,70 @@ export default class InsightFacade implements IInsightFacade {
     dataTransformer(query: QueryRequest, validSections: any[]): Promise<Group[]> {
         //Log.trace("inside dataTransformer");
         return new Promise((fulfill, reject) => {
-            let groups: Group[] = [];
-            if (query.hasOwnProperty("TRANSFORMATIONS")) {
-                // for each valid section
-                for (let section of validSections) {
-                    //Log.trace("section: " + JSON.stringify(section));
-                    // check against each group in groups
-                    if (groups.length !== 0) {
-                        //Log.trace("groups is not empty");
-                        var foundMatchingGroup: boolean = false;
-                        for (let group of groups) {
-                            //Log.trace("group: " + JSON.stringify(group));
-                            // for each key of GROUP
-                            var sectionMatches: boolean = true;
-                            for (let key of query.TRANSFORMATIONS.GROUP) {
-                                //Log.trace("key: " + key);
-                                if (group.hasOwnProperty(key)) {
-                                    // if section doesn't match groups value, section doesn't match
-                                    //Log.trace("section[this.keyToSection(key)]: " + section[this.keyToSection(key)]);
-                                    //Log.trace("group[key]: " + group[key]);
-                                    if (section[this.keyToSection(key)] !== group[key]) {
-                                        //Log.trace("section doesn't match group property");
-                                        sectionMatches = false;
-                                        break;
+            try {
+
+                let groups: Group[] = [];
+                if (query.hasOwnProperty("TRANSFORMATIONS")) {
+                    // for each valid section
+                    for (let section of validSections) {
+                        //Log.trace("section: " + JSON.stringify(section));
+                        // check against each group in groups
+                        if (groups.length !== 0) {
+                            //Log.trace("groups is not empty");
+                            var foundMatchingGroup: boolean = false;
+                            for (let group of groups) {
+                                //Log.trace("group: " + JSON.stringify(group));
+                                // for each key of GROUP
+                                var sectionMatches: boolean = true;
+                                for (let key of query.TRANSFORMATIONS.GROUP) {
+                                    //Log.trace("key: " + key);
+                                    if (group.hasOwnProperty(key)) {
+                                        // if section doesn't match groups value, section doesn't match
+                                        //Log.trace("section[this.keyToSection(key)]: " + section[this.keyToSection(key)]);
+                                        //Log.trace("group[key]: " + group[key]);
+                                        if (section[this.keyToSection(key)] !== group[key]) {
+                                            //Log.trace("section doesn't match group property");
+                                            sectionMatches = false;
+                                            break;
+                                        } else {
+                                            //Log.trace("section matches group property");
+                                        }
                                     } else {
-                                        //Log.trace("section matches group property");
+                                        //Log.trace("group " + JSON.stringify(group) + " does not have property " + key);
+                                        //Log.trace("SHOULD NEVER EVER EVER EVER GET HERE!!!");
+                                        sectionMatches = false;
                                     }
-                                } else {
-                                    //Log.trace("group " + JSON.stringify(group) + " does not have property " + key);
-                                    //Log.trace("SHOULD NEVER EVER EVER EVER GET HERE!!!");
-                                    sectionMatches = false;
+                                }
+                                if (sectionMatches) {
+                                    //Log.trace("section matches group, merging into group");
+                                    // merge into group
+                                    foundMatchingGroup = true;
+                                    var groupIndex = groups.indexOf(group);
+                                    if (groupIndex !== -1) {
+                                        var returnedMerge: any = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
+                                        if (returnedMerge.constructor === Object) {
+                                            groups[groupIndex] = returnedMerge;
+                                        } else {
+                                            reject(returnedMerge);
+                                        }
+                                    } else {
+                                        //Log.trace("group not found in groups, SHOULD NEVER GET HERE!!!!!");
+                                    }
+                                    break;
                                 }
                             }
-                            if (sectionMatches) {
-                                //Log.trace("section matches group, merging into group");
-                                // merge into group
-                                foundMatchingGroup = true;
-                                var groupIndex = groups.indexOf(group);
-                                if (groupIndex !== -1) {
-                                    var returnedMerge: any = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
-                                    if (returnedMerge.constructor === Object) {
-                                        groups[groupIndex] = returnedMerge;
-                                    } else {
-                                        reject(returnedMerge);
-                                    }
+                            if (!foundMatchingGroup) {
+                                var returnedMerge: any = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
+                                if (returnedMerge.constructor === Object) {
+                                    groups.push(returnedMerge);
                                 } else {
-                                    //Log.trace("group not found in groups, SHOULD NEVER GET HERE!!!!!");
+                                    reject(returnedMerge);
                                 }
-                                break;
                             }
                         }
-                        if (!foundMatchingGroup) {
+                        // groups is empty, add section to a group
+                        else {
+                            //Log.trace("groups is empty, pushing new mergeSectionGroup");
                             var returnedMerge: any = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
                             if (returnedMerge.constructor === Object) {
                                 groups.push(returnedMerge);
@@ -2146,25 +2159,17 @@ export default class InsightFacade implements IInsightFacade {
                                 reject(returnedMerge);
                             }
                         }
-                    }
-                    // groups is empty, add section to a group
-                    else {
-                        //Log.trace("groups is empty, pushing new mergeSectionGroup");
-                        var returnedMerge: any = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
-                        if (returnedMerge.constructor === Object) {
-                            groups.push(returnedMerge);
-                        } else {
-                            reject(returnedMerge);
-                        }
-                    }
 
+                    }
+                    //Log.trace("dataTransformer returns");
+                    fulfill(groups);
                 }
-                //Log.trace("dataTransformer returns");
-                fulfill(groups);
-            }
-            // else, no need to create groups, return validSections
-            else {
-                fulfill(validSections);
+                // else, no need to create groups, return validSections
+                else {
+                    fulfill(validSections);
+                }
+            } catch (error) {
+                reject("error in dataTransformer");
             }
         });
     }
@@ -2275,7 +2280,7 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("mergeSectionGroup returns");
             return returnGroup;
         } catch (error) {
-            return ("error in mergeSectionGroup: " + error);
+            return ("error in mergeSectionGroup");
         }
     }
     // TODO: fix before here
