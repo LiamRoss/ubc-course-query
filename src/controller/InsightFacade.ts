@@ -2183,14 +2183,12 @@ export default class InsightFacade implements IInsightFacade {
     mergeSectionGroup(section: Section | Room, group: any, transformations: Transformations): Group | string {
         try {
             //Log.trace("inside mergeSectionGroup");
-            let returnGroup: Group;
+            let returnGroup: any;
 
             // if group is empty initialize new group
             if (group.constructor === Object && Object.keys(group).length === 0) {
                 //Log.trace("group is empty object, creating new group");
                 returnGroup = {
-                    sum: 0,
-                    count: 0
                 };
                 // for each GROUP
                 for (let groupKey of transformations.GROUP) {
@@ -2221,8 +2219,14 @@ export default class InsightFacade implements IInsightFacade {
                 //Log.trace("applyToken: " + applyToken);
                 // sectionKey gets ApplyToken value
                 let sectionKey: string = this.keyToSection(k1[applyToken]);
+                // check if value key + "count" and key + "sum"
+                if (returnGroup.hasOwnProperty(key + "count")) {
+                    returnGroup[key + "count"] = (returnGroup[key + "count"] + 1);
+                } else {
+                    returnGroup[key + "count"] = 1;
+                }
                 //Log.trace("sectionKey: " + sectionKey);
-                returnGroup["count"] = (returnGroup["count"] + 1);
+
                 switch (applyToken) {
                     case "MAX":
                         //Log.trace("case: MAX");
@@ -2230,7 +2234,7 @@ export default class InsightFacade implements IInsightFacade {
                         if (typeof section[sectionKey] !== 'number') {
                             return ("MAX key must be a number");
                         } else {
-                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
+                            returnGroup[key + "sum"] = returnGroup[key + "sum"] + section[sectionKey];
                             if (returnGroup.hasOwnProperty(key)) {
                                 //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
                                 if (section[sectionKey] > returnGroup[key]) {
@@ -2248,7 +2252,11 @@ export default class InsightFacade implements IInsightFacade {
                         if (typeof section[sectionKey] !== 'number') {
                             return ("MIN key must be a number");
                         } else {
-                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
+                            if (returnGroup.hasOwnProperty(key + "sum")) {
+                                returnGroup[key + "sum"] = returnGroup[key + "sum"] + section[sectionKey];
+                            } else {
+                                returnGroup[key + "sum"] = section[sectionKey];
+                            }
                             if (returnGroup.hasOwnProperty(key)) {
                                 //Log.trace("section[sectionKey] " + section[sectionKey] + " < " + "returnGroup[key] " + returnGroup[key]);
                                 if (section[sectionKey] < returnGroup[key]) {
@@ -2266,14 +2274,18 @@ export default class InsightFacade implements IInsightFacade {
                         if (typeof section[sectionKey] !== 'number') {
                             return ("AVG key must be a number");
                         } else {
-                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
-                            var val = (returnGroup["sum"] / returnGroup["count"]);
+                            if (returnGroup.hasOwnProperty(key + "sum")) {
+                                returnGroup[key + "sum"] = returnGroup[key + "sum"] + section[sectionKey];
+                            } else {
+                                returnGroup[key + "sum"] = section[sectionKey];
+                            }
+                            var val = (returnGroup[key + "sum"] / returnGroup[key + "count"]);
                             returnGroup[key] = val;
                         }
                         break;
                     case "COUNT":
                         //Log.trace("case: COUNT");
-                        returnGroup[key] = returnGroup["count"];
+                        returnGroup[key] = returnGroup[key + "count"];
                         break;
                     case "SUM":
                         //Log.trace("case: SUM");
@@ -2281,13 +2293,17 @@ export default class InsightFacade implements IInsightFacade {
                         if (typeof section[sectionKey] !== 'number') {
                             return ("SUM key must be a number");
                         } else {
-                            returnGroup["sum"] = returnGroup["sum"] + section[sectionKey];
-                            returnGroup[key] = returnGroup["sum"];
+                            if (returnGroup.hasOwnProperty(key + "sum")) {
+                                returnGroup[key + "sum"] = returnGroup[key + "sum"] + section[sectionKey];
+                            } else {
+                                returnGroup[key + "sum"] = section[sectionKey];
+                            }
+                            returnGroup[key] = returnGroup[key + "sum"];
                         }
                         break;
                     default:
                         //Log.trace("defaulted in mergeSectionGroup, SHOULD NEVER GET HERE");
-                        return("defaulted in mergeSectionGroup");
+                        return ("defaulted in mergeSectionGroup");
                 }
             }
             //Log.trace("mergeSectionGroup returns");

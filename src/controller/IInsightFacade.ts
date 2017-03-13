@@ -154,8 +154,6 @@ export interface Room {
 }
 // interface for Group
 export interface Group {
-    sum: number;
-    count: number;
     [key: string]: any;
 }
 

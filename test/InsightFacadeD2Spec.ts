@@ -689,4 +689,118 @@ describe("InsightFacadeD2Spec", function () {
             });
     });
 
+    // Test 7
+    // 
+    it("rooms, WITH COUNT", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "AND": [{
+                            "IS": {
+                                "rooms_furniture": "*Tables*"
+                            }
+                        }, {
+                            "GT": {
+                                "rooms_seats": 150
+                            }
+                        }]
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "rooms_shortname",
+                            "maxSeats",
+                            "runningCount"
+                        ],
+                        "ORDER": {
+                            "dir": "DOWN",
+                            "keys": ["maxSeats"]
+                        },
+                        "FORM": "TABLE"
+                    },
+                    "TRANSFORMATIONS": {
+                        "GROUP": ["rooms_shortname"],
+                        "APPLY": [{
+                            "maxSeats": {
+                                "MAX": "rooms_seats"
+                            }
+                        },
+                        {
+                            "runningCount": {
+                                "COUNT": "rooms_seats"
+                            }
+                        }]
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        // Log.trace("success: " + value.code + ", " + JSON.stringify(value.body));
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                "rooms_shortname": "OSBO",
+                                "maxSeats": 442,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "HEBB",
+                                "maxSeats": 375,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "LSC",
+                                "maxSeats": 350,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "SRC",
+                                "maxSeats": 299,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "ANGU",
+                                "maxSeats": 260,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "PHRM",
+                                "maxSeats": 236,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "LSK",
+                                "maxSeats": 205,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "CHBE",
+                                "maxSeats": 200,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "SWNG",
+                                "maxSeats": 190,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "DMP",
+                                "maxSeats": 160,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "FRDM",
+                                "maxSeats": 160,
+                                "runningCountType": 1
+                            }, {
+                                "rooms_shortname": "IBLC",
+                                "maxSeats": 154,
+                                "runningCountType": 1
+                            }]
+                        });
+
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
 });
