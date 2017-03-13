@@ -2200,13 +2200,16 @@ export default class InsightFacade implements IInsightFacade {
             for (let applyKey of transformations.APPLY) {
                 //Log.trace("APPLY, applyKey = " + JSON.stringify(applyKey));
                 // key gets ApplyKey key
-                let key: string = Object.keys(applyKey)[0];
+                let k0: string[] = Object.keys(applyKey);
+                let key: string = k0[0];
                 //Log.trace("key: " + key);
                 // applyToken gets ApplyKey ApplyToken
-                let applyToken: string = Object.keys(applyKey[key])[0];
+                let k1: ApplyToken = applyKey[key];
+                let k2: string[] = Object.keys(k1);
+                let applyToken: string = k2[0];
                 //Log.trace("applyToken: " + applyToken);
                 // sectionKey gets ApplyToken value
-                let sectionKey: string = this.keyToSection(applyKey[key][applyToken]);
+                let sectionKey: string = this.keyToSection(k1[applyToken]);
                 //Log.trace("sectionKey: " + sectionKey);
                 returnGroup.sum = returnGroup.sum + section[sectionKey];
                 returnGroup.count = returnGroup.count + 1;
@@ -2249,7 +2252,7 @@ export default class InsightFacade implements IInsightFacade {
                         if (typeof section[sectionKey] !== 'number') {
                             return ("AVG key must be a number");
                         }
-                        var val = returnGroup.sum / returnGroup.count
+                        var val = (returnGroup.sum / returnGroup.count);
                         returnGroup[key] = val;
                         break;
                     case "COUNT":
