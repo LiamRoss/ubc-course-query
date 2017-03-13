@@ -957,23 +957,23 @@ export default class InsightFacade implements IInsightFacade {
             that.validQuery(query).then(function () {
                 that.retrieveData(query)
                     .then(function (validSections: Section[] | Room[]) {
-                        // that.formatJsonResponse(query, validSections)
-                        //     .then(function (response: ReturnJSON) {
-                        //         ir.code = 200;
-                        //         ir.body = response;
-                        //         //Log.trace("ReturnJSON: " + JSON.stringify(response));
-                        //         //Log.trace("formatJsonResponse -> performQuery fulfill");
-                        //         fulfill(ir);
-                        //     })
-                        //     // 3. catch for formatJsonResponse
-                        //     .catch(function () {
-                        //         ir.code = 400;
-                        //         ir.body = {
-                        //             "error": "failed to format JSON response"
-                        //         };
-                        //         //Log.trace("formatJsonResponse -> performQuery reject");
-                        //         reject(ir);
-                        //     })
+                        that.formatJsonResponse(query, validSections)
+                            // .then(function (response: ReturnJSON) {
+                            //     ir.code = 200;
+                            //     ir.body = response;
+                            //     //Log.trace("ReturnJSON: " + JSON.stringify(response));
+                            //     //Log.trace("formatJsonResponse -> performQuery fulfill");
+                            //     fulfill(ir);
+                            // })
+                            // // 3. catch for formatJsonResponse
+                            .catch(function () {
+                                ir.code = 400;
+                                ir.body = {
+                                    "error": "failed to format JSON response"
+                                };
+                                //Log.trace("formatJsonResponse -> performQuery reject");
+                                reject(ir);
+                            })
                     })
                     // 2. catch for retrieveData
                     .catch(function (err: string) {
@@ -1754,13 +1754,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("Inside retrieveData");
         var validSections: any[] = [];
 
-        return new Promise((fulfill, reject) => {
-            // delete the following
-            reject("testing timeout issue");
-        });
-    }
-
-            /*
+        return new Promise((fulfill, reject) => {            
             //Log.trace("Query is: " + JSON.stringify(query));
             let setId: string = this.activeDataset;
             //Log.trace("beginning parsing through: " + setId + ".json");
@@ -2024,6 +2018,11 @@ export default class InsightFacade implements IInsightFacade {
         let validSections: any[];
 
         return new Promise((fulfill, reject) => {
+            // TODO: remove the following
+            reject("testing timeout");
+        });
+    }
+            /*
             this.dataTransformer(query, incomingSections).then((groups: Group[]) => {
                 validSections = groups;
                 // reforms validSections if TRANSFORMATIONS exists
@@ -2341,7 +2340,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
-
+*/
     // takes string (name of Key), turns into section by trimming
     keyToSection(key: string): string {
         if (key.indexOf("_") !== -1) {
@@ -2352,5 +2351,5 @@ export default class InsightFacade implements IInsightFacade {
         }
         return keyType;
     }
-*/
+
 }
