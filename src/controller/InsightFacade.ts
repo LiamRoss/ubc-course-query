@@ -2015,10 +2015,11 @@ export default class InsightFacade implements IInsightFacade {
                 validSections = groups;
                 // reforms validSections if TRANSFORMATIONS exists
                 // sorts validSections by ORDER key
-                if (options.hasOwnProperty('ORDER')) {
-                    validSections.sort(this.sortHelper(options.ORDER, query));
-                    //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
-                }
+                //TODO: uncomment this after testing
+                // if (options.hasOwnProperty('ORDER')) {
+                //     validSections.sort(this.sortHelper(options.ORDER, query));
+                //     //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
+                // }
                 //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
                 let section: Section | Room | Group;
                 //Log.trace("validSection length: " + validSections.length);
@@ -2067,11 +2068,6 @@ export default class InsightFacade implements IInsightFacade {
     dataTransformer(query: QueryRequest, validSections: any[]): Promise<Group[]> {
         //Log.trace("inside dataTransformer");
         return new Promise((fulfill, reject) => {
-            //TODO: delete this
-            reject("testing timeout");
-        });
-    }
-            /*
             let groups: Group[] = [];
             if (!query.hasOwnProperty("TRANSFORMATIONS")) {
                 fulfill(validSections);
@@ -2252,7 +2248,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("mergeSectionGroup returns");
         return returnGroup;
     }
-*/
+/*
     sortHelper(courseKey: string | Sort, query: QueryRequest): any {
         //Log.trace("inside sortHelper");
         var key: string;
@@ -2330,7 +2326,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
-
+*/
     // takes string (name of Key), turns into section by trimming
     keyToSection(key: string): string {
         if (key.indexOf("_") !== -1) {
