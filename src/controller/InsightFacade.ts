@@ -75,17 +75,25 @@ export default class InsightFacade implements IInsightFacade {
      * Returns true if the data already exists on disk
      * @param id  The id to be checked
      */
+    // TODO: what if server shuts off?
     dataAlreadyExists(id: string): boolean {
         //Log.trace("Checking if this id already exists");
-        //Log.trace("checking for id: " + id)
+        //Log.trace("checking for id: " + id);
         for (let setId in this.dataSets) {
             if (setId === id) {
                 //Log.trace("match found, returning true")
                 return true;
             }
         }
-        //Log.trace("match not found, returning false");
-        return false;
+        try {
+            var fileData: any = fs.readFileSync(id + ".json", "utf8");
+            //Log.trace("match found, returning true");
+            return true;
+        } catch (error) {
+            //Log.trace("match not found, returning false");
+            return false;
+        }
+        // return false;  
     }
 
     /**
@@ -452,7 +460,7 @@ export default class InsightFacade implements IInsightFacade {
                                      * Not actually used for now...
                                      */
                                     let url = that.getDivAttrsValue(textDiv);
-                                    //Log.trace("                            href found, it's data is... " + url);
+                                //Log.trace("                            href found, it's data is... " + url);
                             }
                         }
                     }
@@ -943,10 +951,6 @@ export default class InsightFacade implements IInsightFacade {
     performQuery(query: QueryRequest): Promise<InsightResponse> {
         //Log.trace("Inside performQuery");
         let that = this;
-        var ir: InsightResponse = {
-            code: 0,
-            body: {}
-        };
         // initialize missingIDs array
         this.missingIDs = [];
         // initialize current dataset
@@ -959,17 +963,19 @@ export default class InsightFacade implements IInsightFacade {
                     .then(function (validSections: Section[] | Room[]) {
                         that.formatJsonResponse(query, validSections)
                             .then(function (response: ReturnJSON) {
-                                ir.code = 200;
-                                ir.body = response;
+                                var ir: InsightResponse = {
+                                    code: 200,
+                                    body: response
+                                };
                                 //Log.trace("ReturnJSON: " + JSON.stringify(response));
                                 //Log.trace("formatJsonResponse -> performQuery fulfill");
                                 fulfill(ir);
                             })
                             // 3. catch for formatJsonResponse
-                            .catch(function () {
-                                ir.code = 400;
-                                ir.body = {
-                                    "error": "failed to format JSON response"
+                            .catch(function (err) {
+                                var ir: InsightResponse = {
+                                    code: 400,
+                                    body: { "error": "failed to format JSON response: " + err }
                                 };
                                 //Log.trace("formatJsonResponse -> performQuery reject");
                                 reject(ir);
@@ -977,11 +983,9 @@ export default class InsightFacade implements IInsightFacade {
                     })
                     // 2. catch for retrieveData
                     .catch(function (err: string) {
-                        //Log.trace("err.length !=0");
-                        ir.code = 400;
-                        //Log.trace("ir.code = " + ir.code);
-                        ir.body = {
-                            "error": err
+                        var ir: InsightResponse = {
+                            code: 400,
+                            body: { "error": err }
                         };
                         //Log.trace("ir.body = " + JSON.stringify(ir.body));
                         reject(ir);
@@ -990,15 +994,15 @@ export default class InsightFacade implements IInsightFacade {
                 // 1. catch for validQuery
                 .catch(function (error) {
                     if (that.missingIDs.length === 0) {
-                        ir.code = 400;
-                        ir.body = {
-                            "error": error
+                        var ir: InsightResponse = {
+                            code: 400,
+                            body: { "error": error }
                         };
                         reject(ir);
                     } else {
-                        ir.code = 424;
-                        ir.body = {
-                            "missing": that.missingIDs
+                        var ir: InsightResponse = {
+                            code: 424,
+                            body: { "missing": that.missingIDs }
                         };
                         reject(ir);
                     }
@@ -1012,7 +1016,7 @@ export default class InsightFacade implements IInsightFacade {
     //   - validQuery
     validQuery(query: QueryRequest): Promise<any> {
         //Log.trace("Inside validQuery");
-        return new Promise((fulfill, reject) => {            
+        return new Promise((fulfill, reject) => {
             var promises: Promise<any>[] = [];
             //Log.trace("query = " + JSON.stringify(query));
             // checks if query only has two properties
@@ -1746,91 +1750,104 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("Inside retrieveData");
         var validSections: any[] = [];
 
-        return new Promise((fulfill, reject) => {            
+        return new Promise((fulfill, reject) => {
             //Log.trace("Query is: " + JSON.stringify(query));
-            let setId: string = this.activeDataset;
+            let setId: string;
+            try {
+                setId = this.activeDataset;
+            } catch (error) {
+                reject(error);
+            }
             //Log.trace("beginning parsing through: " + setId + ".json");
             //Log.trace("*************************************************");
 
             //Log.trace("setId: " + setId + ", going into courses or rooms");
             // ID = COURSES
             if (setId === "courses") {
-                //Log.trace("setId = courses");
-                // Read the data from the file
-                var fileData: any = fs.readFileSync("courses.json", "utf8");
-                let parsedData = JSON.parse(fileData);
-                // Parse each course in the dataset
-                for (let course in parsedData) {
-                    //Log.trace("Parsing course = " + course);
-                    //Log.trace(course + " has " + parsedData[course].length + " sections");
-                    // Parse the sections of each course
-                    for (let section of parsedData[course]) {
-                        //Log.trace("section = " + JSON.stringify(section));
-                        let s: Section = {
-                            dept: section["dept"],
-                            id: section["id"],
-                            avg: section["avg"],
-                            instructor: section["instructor"],
-                            title: section["title"],
-                            pass: section["pass"],
-                            fail: section["fail"],
-                            audit: section["audit"],
-                            uuid: section["uuid"],
-                            year: section["year"]
-                        };
-                        if (this.matchesQuery(query["WHERE"], s)) {
-                            //Log.trace("adding to validSections");
-                            validSections.push(s);
+                try {
+                    //Log.trace("setId = courses");
+                    // Read the data from the file
+                    var fileData: any = fs.readFileSync("courses.json", "utf8");
+                    let parsedData = JSON.parse(fileData);
+                    // Parse each course in the dataset
+                    for (let course in parsedData) {
+                        //Log.trace("Parsing course = " + course);
+                        //Log.trace(course + " has " + parsedData[course].length + " sections");
+                        // Parse the sections of each course
+                        for (let section of parsedData[course]) {
+                            //Log.trace("section = " + JSON.stringify(section));
+                            let s: Section = {
+                                dept: section["dept"],
+                                id: section["id"],
+                                avg: section["avg"],
+                                instructor: section["instructor"],
+                                title: section["title"],
+                                pass: section["pass"],
+                                fail: section["fail"],
+                                audit: section["audit"],
+                                uuid: section["uuid"],
+                                year: section["year"]
+                            };
+                            if (this.matchesQuery(query["WHERE"], s)) {
+                                //Log.trace("adding to validSections");
+                                validSections.push(s);
+                            }
                         }
                     }
+                } catch (error) {
+                    reject("error with courses file: " + error);
                 }
 
                 // ID = ROOMS
             } else if (setId === "rooms") {
-                //Log.trace("setId = rooms");
-                // Read the data from the file
-                var fileData: any = fs.readFileSync("rooms.json", "utf8");
-                let parsedData = JSON.parse(fileData);
-                // Parse each building in the dataset
-                for (let building in parsedData) {
-                    //Log.trace("Parsing building = " + building);
-                    // Parse the rooms of each building
-                    var rooms = parsedData[building]["rooms"];
-                    if (rooms.length === 0) {
-                        //Log.trace("Building has no rooms");
-                    } else {
-                        for (let room of rooms) {
-                            let r: Room = {
-                                fullname: parsedData[building]["fullname"],
-                                shortname: parsedData[building]["shortname"],
-                                number: room["number"],
-                                name: room["name"],
-                                address: parsedData[building]["address"],
-                                lat: parsedData[building]["lat"],
-                                lon: parsedData[building]["lon"],
-                                seats: room["seats"],
-                                type: room["type"],
-                                furniture: room["furniture"],
-                                href: room["href"]
-                            };
-                            //Log.trace("=======> room: " + JSON.stringify(room));
-                            //Log.trace("=======> parsed name: " + r.name);
-                            if (this.matchesQuery(query["WHERE"], r)) {
-                                //Log.trace("adding to validSections: " + r.name);
-                                validSections.push(r);
+                try {
+                    //Log.trace("setId = rooms");
+                    // Read the data from the file
+                    var fileData: any = fs.readFileSync("rooms.json", "utf8");
+                    let parsedData = JSON.parse(fileData);
+                    // Parse each building in the dataset
+                    for (let building in parsedData) {
+                        //Log.trace("Parsing building = " + building);
+                        // Parse the rooms of each building
+                        var rooms = parsedData[building]["rooms"];
+                        if (rooms.length === 0) {
+                            //Log.trace("Building has no rooms");
+                        } else {
+                            for (let room of rooms) {
+                                let r: Room = {
+                                    fullname: parsedData[building]["fullname"],
+                                    shortname: parsedData[building]["shortname"],
+                                    number: room["number"],
+                                    name: room["name"],
+                                    address: parsedData[building]["address"],
+                                    lat: parsedData[building]["lat"],
+                                    lon: parsedData[building]["lon"],
+                                    seats: room["seats"],
+                                    type: room["type"],
+                                    furniture: room["furniture"],
+                                    href: room["href"]
+                                };
+                                //Log.trace("=======> room: " + JSON.stringify(room));
+                                //Log.trace("=======> parsed name: " + r.name);
+                                if (this.matchesQuery(query["WHERE"], r)) {
+                                    //Log.trace("adding to validSections: " + r.name);
+                                    validSections.push(r);
+                                }
                             }
                         }
                     }
+                } catch (error) {
+                    reject("error with rooms file: " + error);
                 }
             } else {
                 //Log.trace("reject: retrieveData: invalid setId");
                 reject("retrieveData: invalid setId");
             }
             if (validSections.length == 0) {
-                ////Log.trace("reject: retrieveData: no results from query");
+                //Log.trace("reject: retrieveData: no results from query");
                 reject("retrieveData: no results from query");
             } else {
-                ////Log.trace("retrieveData fulfilling");
+                //Log.trace("retrieveData fulfilling");
                 fulfill(validSections);
             }
         });
@@ -2011,15 +2028,17 @@ export default class InsightFacade implements IInsightFacade {
         let validSections: any[];
 
         return new Promise((fulfill, reject) => {
+            if (incomingSections.length === 0) {
+                reject("no valid sections");
+            }
             this.dataTransformer(query, incomingSections).then((groups: Group[]) => {
                 validSections = groups;
                 // reforms validSections if TRANSFORMATIONS exists
                 // sorts validSections by ORDER key
-                //TODO: uncomment this after testing
-                // if (options.hasOwnProperty('ORDER')) {
-                //     validSections.sort(this.sortHelper(options.ORDER, query));
-                //     //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
-                // }
+                if (options.hasOwnProperty('ORDER')) {
+                    validSections.sort(this.sortHelper(options.ORDER, query));
+                    //Log.trace("validSections (ordered): " + JSON.stringify(validSections));
+                }
                 //Log.trace("---> validSections sorted: " + JSON.stringify(validSections));
                 let section: Section | Room | Group;
                 //Log.trace("validSection length: " + validSections.length);
@@ -2064,63 +2083,73 @@ export default class InsightFacade implements IInsightFacade {
             })
         });
     }
+    // TODO: fix after here
     // data transformer
     dataTransformer(query: QueryRequest, validSections: any[]): Promise<Group[]> {
         //Log.trace("inside dataTransformer");
         return new Promise((fulfill, reject) => {
             let groups: Group[] = [];
-            if (!query.hasOwnProperty("TRANSFORMATIONS")) {
-                fulfill(validSections);
-            }
-            // for each valid section
-            for (let section of validSections) {
-                //Log.trace("section: " + JSON.stringify(section));
-                // check against each group in groups
-                if (groups.length !== 0) {
-                    //Log.trace("groups is not empty");
-                    var foundMatchingGroup: boolean = false;
-                    for (let group of groups) {
-                        //Log.trace("group: " + JSON.stringify(group));
-                        // for each key of GROUP
-                        var sectionMatches: boolean = true;
-                        for (let key of query.TRANSFORMATIONS.GROUP) {
-                            //Log.trace("key: " + key);
-                            if (group.hasOwnProperty(key)) {
-                                // if section doesn't match groups value, section doesn't match
-                                //Log.trace("section[this.keyToSection(key)]: " + section[this.keyToSection(key)]);
-                                //Log.trace("group[key]: " + group[key]);
-                                if (section[this.keyToSection(key)] !== group[key]) {
-                                    //Log.trace("section doesn't match group property");
-                                    sectionMatches = false;
-                                    break;
+            if (query.hasOwnProperty("TRANSFORMATIONS")) {
+                // for each valid section
+                for (let section of validSections) {
+                    //Log.trace("section: " + JSON.stringify(section));
+                    // check against each group in groups
+                    if (groups.length !== 0) {
+                        //Log.trace("groups is not empty");
+                        var foundMatchingGroup: boolean = false;
+                        for (let group of groups) {
+                            //Log.trace("group: " + JSON.stringify(group));
+                            // for each key of GROUP
+                            var sectionMatches: boolean = true;
+                            for (let key of query.TRANSFORMATIONS.GROUP) {
+                                //Log.trace("key: " + key);
+                                if (group.hasOwnProperty(key)) {
+                                    // if section doesn't match groups value, section doesn't match
+                                    //Log.trace("section[this.keyToSection(key)]: " + section[this.keyToSection(key)]);
+                                    //Log.trace("group[key]: " + group[key]);
+                                    if (section[this.keyToSection(key)] !== group[key]) {
+                                        //Log.trace("section doesn't match group property");
+                                        sectionMatches = false;
+                                        break;
+                                    } else {
+                                        //Log.trace("section matches group property");
+                                    }
                                 } else {
-                                    //Log.trace("section matches group property");
+                                    //Log.trace("group " + JSON.stringify(group) + " does not have property " + key);
+                                    //Log.trace("SHOULD NEVER EVER EVER EVER GET HERE!!!");
+                                    sectionMatches = false;
                                 }
-                            } else {
-                                //Log.trace("group " + JSON.stringify(group) + " does not have property " + key);
-                                //Log.trace("SHOULD NEVER EVER EVER EVER GET HERE!!!");
-                                sectionMatches = false;
+                            }
+                            if (sectionMatches) {
+                                //Log.trace("section matches group, merging into group");
+                                // merge into group
+                                foundMatchingGroup = true;
+                                var groupIndex = groups.indexOf(group);
+                                if (groupIndex !== -1) {
+                                    var returnedMerge: Group | string = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
+                                    if (typeof returnedMerge === 'string') {
+                                        reject(returnedMerge);
+                                    } else {
+                                        groups[groupIndex] = returnedMerge;
+                                    }
+                                } else {
+                                    //Log.trace("group not found in groups, SHOULD NEVER GET HERE!!!!!");
+                                }
+                                break;
                             }
                         }
-                        if (sectionMatches) {
-                            //Log.trace("section matches group, merging into group");
-                            // merge into group
-                            foundMatchingGroup = true;
-                            var groupIndex = groups.indexOf(group);
-                            if (groupIndex !== -1) {
-                                var returnedMerge: Group | string = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
-                                if (typeof returnedMerge === 'string') {
-                                    reject(returnedMerge);
-                                } else {
-                                    groups[groupIndex] = returnedMerge;
-                                }
+                        if (!foundMatchingGroup) {
+                            var returnedMerge: Group | string = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
+                            if (typeof returnedMerge === 'string') {
+                                reject(returnedMerge);
                             } else {
-                                //Log.trace("group not found in groups, SHOULD NEVER GET HERE!!!!!");
+                                groups.push(returnedMerge);
                             }
-                            break;
                         }
                     }
-                    if (!foundMatchingGroup) {
+                    // groups is empty, add section to a group
+                    else {
+                        //Log.trace("groups is empty, pushing new mergeSectionGroup");
                         var returnedMerge: Group | string = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
                         if (typeof returnedMerge === 'string') {
                             reject(returnedMerge);
@@ -2128,21 +2157,15 @@ export default class InsightFacade implements IInsightFacade {
                             groups.push(returnedMerge);
                         }
                     }
-                }
-                // groups is empty, add section to a group
-                else {
-                    //Log.trace("groups is empty, pushing new mergeSectionGroup");
-                    var returnedMerge: Group | string = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
-                    if (typeof returnedMerge === 'string') {
-                        reject(returnedMerge);
-                    } else {
-                        groups.push(returnedMerge);
-                    }
-                }
 
+                }
+                //Log.trace("dataTransformer returns");
+                fulfill(groups);
             }
-            //Log.trace("dataTransformer returns");
-            fulfill(groups);
+            // else, no need to create groups, return validSections
+            else {
+                fulfill(validSections);
+            }
         });
     }
     // dataTransformer helper, merges section to group, or create new group if passed group is {}
@@ -2248,7 +2271,7 @@ export default class InsightFacade implements IInsightFacade {
         //Log.trace("mergeSectionGroup returns");
         return returnGroup;
     }
-/*
+    // TODO: fix before here
     sortHelper(courseKey: string | Sort, query: QueryRequest): any {
         //Log.trace("inside sortHelper");
         var key: string;
@@ -2326,7 +2349,7 @@ export default class InsightFacade implements IInsightFacade {
             }
         }
     }
-*/
+
     // takes string (name of Key), turns into section by trimming
     keyToSection(key: string): string {
         if (key.indexOf("_") !== -1) {

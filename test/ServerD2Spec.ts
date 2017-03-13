@@ -74,7 +74,7 @@ describe("ServerD3Spec", function () {
             .put(path)
             .attach("body", fs.readFileSync("test/courses.zip"), "courses.zip")
             .then(function (res: Response) {
-                Log.trace("Test passed, res = " + JSON.stringify(res));
+                // Log.trace("Test passed, res = " + JSON.stringify(res));
                 expect(res.status).to.equal(204);
             })
             .catch(function (err: any) {
@@ -107,16 +107,16 @@ describe("ServerD3Spec", function () {
             }
         };
 
-        Log.trace("Making post request...");
+        Log.test("Making post request...");
         return chai.request(url)
             .post(path)
             .send(queryJSONObect)
             .then(function (res: any) {
-                Log.trace("Test passed, res = " + JSON.stringify(res));
+                Log.test("Test passed, res = " + JSON.stringify(res));
                 // Expect response code of successful query
             })
             .catch(function (err: any) {
-                Log.trace(JSON.stringify(err));
+                Log.test(JSON.stringify(err));
                 expect.fail();
             });
     });

@@ -51,7 +51,7 @@ describe("InsightFacadeD2Spec", function () {
 
         // Initialize InsightFacade instance
         insightFacade = new InsightFacade();
-        Log.test('BeforeTest: ' + ( < any > this).currentTest.title);
+        Log.test('BeforeTest: ' + (<any>this).currentTest.title);
     });
 
     after(function () {
@@ -63,21 +63,21 @@ describe("InsightFacadeD2Spec", function () {
         insightFacade = null;
     });
 
-    // Test 1
-    // Add single rooms set
-    it("addDataset with rooms base64 zip, should return code 204", function () {
-        var id: string = "rooms";
-        this.timeout(100000);
-        return insightFacade.addDataset(id, testBase64)
-            .then(function (value: InsightResponse) {
-                Log.test("Value.code: " + value.code);
-                expect(value.code).to.equal(204);
-            })
-            .catch(function (err: InsightResponse) {
-                Log.test('ERROR: ' + JSON.stringify(err.body));
-                expect.fail();
-            });
-    });
+    // // Test 1
+    // // Add single rooms set
+    // it("addDataset with rooms base64 zip, should return code 204", function () {
+    //     var id: string = "rooms";
+    //     this.timeout(100000);
+    //     return insightFacade.addDataset(id, testBase64)
+    //         .then(function (value: InsightResponse) {
+    //             Log.test("Value.code: " + value.code);
+    //             expect(value.code).to.equal(204);
+    //         })
+    //         .catch(function (err: InsightResponse) {
+    //             Log.test('ERROR: ' + JSON.stringify(err.body));
+    //             expect.fail();
+    //         });
+    // });
 
 
     // Test 2
@@ -203,109 +203,109 @@ describe("InsightFacadeD2Spec", function () {
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_101"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_110"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_201"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_301"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_310"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_1001"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3002"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3004"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3016"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3018"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3052"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3058"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3062"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3068"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3072"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3074"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4002"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4004"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4016"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4018"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4052"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4058"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4062"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4068"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4072"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4074"
-                                }
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_101"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_110"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_201"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_301"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_310"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_1001"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3002"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3004"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3016"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3018"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3052"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3058"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3062"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3068"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3072"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3074"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4002"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4004"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4016"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4018"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4052"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4058"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4062"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4068"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4072"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4074"
+                            }
                             ]
                         });
 
@@ -432,65 +432,65 @@ describe("InsightFacadeD2Spec", function () {
     // Test 5
     // A simple query B (from d3 page)
     it("performQuery with a simple D3 Query (no WHERE)", function () {
-    var id: string = "rooms";
-    this.timeout(10000);
-    return insightFacade.addDataset(id, testBase64)
-        .then(function (value: InsightResponse) {
-            var qr: any = {
-                "WHERE": {},
-                "OPTIONS": {
-                    "COLUMNS": [
-                        "rooms_furniture"
-                    ],
-                    "ORDER": "rooms_furniture",
-                    "FORM": "TABLE"
-                },
-                "TRANSFORMATIONS": {
-                    "GROUP": ["rooms_furniture"],
-                    "APPLY": []
-                }
-            };
+        var id: string = "rooms";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {},
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "rooms_furniture"
+                        ],
+                        "ORDER": "rooms_furniture",
+                        "FORM": "TABLE"
+                    },
+                    "TRANSFORMATIONS": {
+                        "GROUP": ["rooms_furniture"],
+                        "APPLY": []
+                    }
+                };
 
-            return insightFacade.performQuery(qr)
-                .then(function (value: InsightResponse) {
-                    Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
-                    // expect(value.code).to.equal(200);
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.trace("Test done: " + value.code + ", " + JSON.stringify(value.body));
+                        // expect(value.code).to.equal(200);
 
-                    expect(value.body).to.deep.equal({
-                        "render": "TABLE",
-                        "result": [{
-                            "rooms_furniture": "Classroom-Fixed Tables/Fixed Chairs"
-                        }, {
-                            "rooms_furniture": "Classroom-Fixed Tables/Movable Chairs"
-                        }, {
-                            "rooms_furniture": "Classroom-Fixed Tables/Moveable Chairs"
-                        }, {
-                            "rooms_furniture": "Classroom-Fixed Tablets"
-                        }, {
-                            "rooms_furniture": "Classroom-Hybrid Furniture"
-                        }, {
-                            "rooms_furniture": "Classroom-Learn Lab"
-                        }, {
-                            "rooms_furniture": "Classroom-Movable Tables & Chairs"
-                        }, {
-                            "rooms_furniture": "Classroom-Movable Tablets"
-                        }, {
-                            "rooms_furniture": "Classroom-Moveable Tables & Chairs"
-                        }, {
-                            "rooms_furniture": "Classroom-Moveable Tablets"
-                        }]
-                    });
+                        expect(value.body).to.deep.equal({
+                            "render": "TABLE",
+                            "result": [{
+                                "rooms_furniture": "Classroom-Fixed Tables/Fixed Chairs"
+                            }, {
+                                "rooms_furniture": "Classroom-Fixed Tables/Movable Chairs"
+                            }, {
+                                "rooms_furniture": "Classroom-Fixed Tables/Moveable Chairs"
+                            }, {
+                                "rooms_furniture": "Classroom-Fixed Tablets"
+                            }, {
+                                "rooms_furniture": "Classroom-Hybrid Furniture"
+                            }, {
+                                "rooms_furniture": "Classroom-Learn Lab"
+                            }, {
+                                "rooms_furniture": "Classroom-Movable Tables & Chairs"
+                            }, {
+                                "rooms_furniture": "Classroom-Movable Tablets"
+                            }, {
+                                "rooms_furniture": "Classroom-Moveable Tables & Chairs"
+                            }, {
+                                "rooms_furniture": "Classroom-Moveable Tablets"
+                            }]
+                        });
 
-                })
-                .catch(function (err: InsightResponse) {
-                    Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
-                    expect.fail();
-                })
-        })
-        .catch(function (err: InsightResponse) {
-            Log.test('ERROR: ' + JSON.stringify(err.body));
-            expect.fail();
-        });
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + JSON.stringify(err.body));
+                expect.fail();
+            });
     });
 
     // Test 6
@@ -526,109 +526,109 @@ describe("InsightFacadeD2Spec", function () {
                         expect(value.body).to.deep.equal({
                             "render": "TABLE",
                             "result": [{
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_101"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_110"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_201"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_301"
-                                },
-                                {
-                                    "rooms_address": "6245 Agronomy Road V6T 1Z4",
-                                    "rooms_name": "DMP_310"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_1001"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3002"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3004"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3016"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3018"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3052"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3058"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3062"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3068"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3072"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_3074"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4002"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4004"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4016"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4018"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4052"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4058"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4062"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4068"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4072"
-                                },
-                                {
-                                    "rooms_address": "6363 Agronomy Road",
-                                    "rooms_name": "ORCH_4074"
-                                }
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_101"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_110"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_201"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_301"
+                            },
+                            {
+                                "rooms_address": "6245 Agronomy Road V6T 1Z4",
+                                "rooms_name": "DMP_310"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_1001"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3002"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3004"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3016"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3018"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3052"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3058"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3062"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3068"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3072"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_3074"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4002"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4004"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4016"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4018"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4052"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4058"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4062"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4068"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4072"
+                            },
+                            {
+                                "rooms_address": "6363 Agronomy Road",
+                                "rooms_name": "ORCH_4074"
+                            }
                             ]
                         });
 
@@ -636,6 +636,51 @@ describe("InsightFacadeD2Spec", function () {
                     .catch(function (err: InsightResponse) {
                         Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
                         expect.fail();
+                    })
+            })
+            .catch(function (err: InsightResponse) {
+                Log.test('ERROR: ' + err.body);
+                expect.fail();
+            });
+    });
+
+    // Test 7
+    // 
+    it("rooms, but file is named courses (error)", function () {
+        var id: string = "courses";
+        this.timeout(10000);
+        return insightFacade.addDataset(id, testBase64)
+            .then(function (value: InsightResponse) {
+                var qr: any = {
+                    "WHERE": {
+                        "IS": {
+                            "courses_instructor": "*aci*"
+                        }
+                    },
+                    "OPTIONS": {
+                        "COLUMNS": [
+                            "courses_instructor",
+                            "courses_dept"
+                        ],
+                        "ORDER": "courses_instructor",
+                        "FORM": "TABLE"
+                    },
+                    "TRANSFORMATIONS": {
+                        "GROUP": ["courses_instructor",
+                            "courses_dept"],
+                        "APPLY": []
+                    }
+                };
+
+                return insightFacade.performQuery(qr)
+                    .then(function (value: InsightResponse) {
+                        Log.trace("SHOULD NOT GET HERE: " + value.code + ", " + JSON.stringify(value.body));
+                        expect.fail();
+
+                    })
+                    .catch(function (err: InsightResponse) {
+                        Log.trace("Test failed: " + err.code + ", " + JSON.stringify(err.body));
+                        expect(err.code).to.equal(400);
                     })
             })
             .catch(function (err: InsightResponse) {
