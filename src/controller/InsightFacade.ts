@@ -2088,6 +2088,7 @@ export default class InsightFacade implements IInsightFacade {
     dataTransformer(query: QueryRequest, validSections: any[]): Promise<Group[]> {
         //Log.trace("inside dataTransformer");
         return new Promise((fulfill, reject) => {
+            reject();
             let groups: Group[] = [];
             if (query.hasOwnProperty("TRANSFORMATIONS")) {
                 // for each valid section
