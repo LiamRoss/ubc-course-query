@@ -955,37 +955,37 @@ export default class InsightFacade implements IInsightFacade {
         return new Promise(function (fulfill, reject) {
             // check if query is valid
             that.validQuery(query).then(function () {
-                // that.retrieveData(query)
-                //     .then(function (validSections: Section[] | Room[]) {
-                //         that.formatJsonResponse(query, validSections)
-                //             .then(function (response: ReturnJSON) {
-                //                 ir.code = 200;
-                //                 ir.body = response;
-                //                 //Log.trace("ReturnJSON: " + JSON.stringify(response));
-                //                 //Log.trace("formatJsonResponse -> performQuery fulfill");
-                //                 fulfill(ir);
-                //             })
-                //             // 3. catch for formatJsonResponse
-                //             .catch(function () {
-                //                 ir.code = 400;
-                //                 ir.body = {
-                //                     "error": "failed to format JSON response"
-                //                 };
-                //                 //Log.trace("formatJsonResponse -> performQuery reject");
-                //                 reject(ir);
-                //             })
-                //     })
-                //     // 2. catch for retrieveData
-                //     .catch(function (err: string) {
-                //         //Log.trace("err.length !=0");
-                //         ir.code = 400;
-                //         //Log.trace("ir.code = " + ir.code);
-                //         ir.body = {
-                //             "error": err
-                //         };
-                //         //Log.trace("ir.body = " + JSON.stringify(ir.body));
-                //         reject(ir);
-                //     })
+                that.retrieveData(query)
+                    .then(function (validSections: Section[] | Room[]) {
+                        // that.formatJsonResponse(query, validSections)
+                        //     .then(function (response: ReturnJSON) {
+                        //         ir.code = 200;
+                        //         ir.body = response;
+                        //         //Log.trace("ReturnJSON: " + JSON.stringify(response));
+                        //         //Log.trace("formatJsonResponse -> performQuery fulfill");
+                        //         fulfill(ir);
+                        //     })
+                        //     // 3. catch for formatJsonResponse
+                        //     .catch(function () {
+                        //         ir.code = 400;
+                        //         ir.body = {
+                        //             "error": "failed to format JSON response"
+                        //         };
+                        //         //Log.trace("formatJsonResponse -> performQuery reject");
+                        //         reject(ir);
+                        //     })
+                    })
+                    // 2. catch for retrieveData
+                    .catch(function (err: string) {
+                        //Log.trace("err.length !=0");
+                        ir.code = 400;
+                        //Log.trace("ir.code = " + ir.code);
+                        ir.body = {
+                            "error": err
+                        };
+                        //Log.trace("ir.body = " + JSON.stringify(ir.body));
+                        reject(ir);
+                    })
             })
                 // 1. catch for validQuery
                 .catch(function (error) {
@@ -1012,12 +1012,7 @@ export default class InsightFacade implements IInsightFacade {
     //   - validQuery
     validQuery(query: QueryRequest): Promise<any> {
         //Log.trace("Inside validQuery");
-        return new Promise((fulfill, reject) => {
-            // remove the following until next comment...
-            reject("testing timeout issues, remove this later");
-        });
-    }
-            /*
+        return new Promise((fulfill, reject) => {            
             var promises: Promise<any>[] = [];
             //Log.trace("query = " + JSON.stringify(query));
             // checks if query only has two properties
@@ -1760,6 +1755,12 @@ export default class InsightFacade implements IInsightFacade {
         var validSections: any[] = [];
 
         return new Promise((fulfill, reject) => {
+            // delete the following
+            reject("testing timeout issue");
+        });
+    }
+
+            /*
             //Log.trace("Query is: " + JSON.stringify(query));
             let setId: string = this.activeDataset;
             //Log.trace("beginning parsing through: " + setId + ".json");
