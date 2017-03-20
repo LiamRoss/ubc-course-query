@@ -440,14 +440,19 @@ describe("InsightFacadeD2Spec", function () {
                     "WHERE": {},
                     "OPTIONS": {
                         "COLUMNS": [
-                            "rooms_furniture"
+                            "rooms_furniture",
+                            "maxSeats"
                         ],
                         "ORDER": "rooms_furniture",
                         "FORM": "TABLE"
                     },
                     "TRANSFORMATIONS": {
                         "GROUP": ["rooms_furniture"],
-                        "APPLY": []
+                        "APPLY": [{
+                            "maxSeats": {
+                                "MAX": "rooms_seats"
+                            }
+                        }]
                     }
                 };
 
