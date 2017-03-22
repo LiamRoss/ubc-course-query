@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insight Facade Team 46</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style type="text/css">
+        .heading {
+           font-family: sans-serif;
+        }
+        #violet {
+            color:violet;
+        }
+        div {
+            text-align: center;
+            height: 300px;
+            width: 600px;
+        }
+        textarea {
+            height: 300px;
+            width: 600px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 id="violet" class="heading">Insight Facade Team 46</h1>
+
+    <input type="file" name="fileUpload" id="fileUpload" />
+    <button id="btnUpload">Upload</button>
+
+    <div>
+        <textarea id="txtQuery"></textarea><br />
+        <button id="btnSubmit">Submit</button>
+        <table id="tblResults"></table>
+    </div>
+
+    <script>
+        $("#btnUpload").click(function() {
+            var fileToLoad = document.getElementById("fileUpload").files[0];
+            var fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(fileToLoad);
+
+            fileReader.onload = function(evt) {
+                var id = fileToLoad.name.split(".")[0];
+                var content = evt.target.result;
+                var formData = new FormData();
+                formData.append('body', new Blob([content]));
+
+                $.ajax({
+                    url: 'http://localhost:4321/dataset/' + id,
+                    type: 'put',
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                }).done(function(data) {
+                    console.log(fileToLoad.name + " was successfully uploaded.");
+                }).fail(function(data) {
+                   console.log('ERROR - Failed to upload ' + fileToLoad.name + ".");
+                });
+            }
+        });
+
+        $('btnSubmit').click(function() {
+            var query = $("txtQuery").val();
+            console.log("query", query);
+
+            $.ajax({
+                url: 'http://localhost:4321/query',
+                type: 'post',
+                data: JSON.stringify(query),
+                contentType: 'application/json',
+                dataType: 'json'
+            }).done(function(data) {
+                console.log("Response: ", data);
+                generateTable(data.message.result);
+
+            }).fail(function() {
+                console.error("ERROR - Failed to submit query.");
+            })
+
+
+            function generateTable(data) {
+                var tbl_body = document.createElement("tbody");
+                var odd_even = false;
+                console.log("DATA", data);
+                $.each(data, function() {
+                    var tbl_row = tbl_body.insertRow();
+                    tbl_row.className = odd_even ? "odd" : "even";
+                    $.each(this, function(k, v) {
+                        var cell = tbl_row.insertCell();
+                        cell.appendChild(document.createTextNode(v.toString()));
+                    })
+                    odd_even = !odd_even
+                })
+                document.getElementById("tblResults").appendChild(tbl_body);
+            }
+        })
+    </script>
+</body>
+</html>
