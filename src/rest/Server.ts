@@ -153,7 +153,6 @@ export default class Server {
     }
 
     /**
-     * TODO
      * Performs a query on the server
      * @constructor
      */
