@@ -1,0 +1,18 @@
+.heading {
+    font-family: sans-serif;
+}
+
+#violet {
+    color: violet;
+}
+
+div {
+    text-align: center;
+    height: 300px;
+    width: 600px;
+}
+
+textarea {
+    height: 300px;
+    width: 600px;
+}
