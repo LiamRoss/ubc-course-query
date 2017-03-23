@@ -15,8 +15,7 @@
     <!--<base href="src/rest/view/">-->
 
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
     <!-- NAVBAR CSS -->
     <!-- TODO: implement once made -->
@@ -26,8 +25,7 @@
     <!--<link href="../cpsc310project_team46/blob/master/src/rest/css/style.css" rel="stylesheet">-->
 
     <!-- BOOTSTRAP STYLE SHEET -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-        crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <style type="text/css">
         /*WRAPPER*/
@@ -174,7 +172,7 @@
                 dataType: 'json'
             }).done(function (data) {
                 console.log("Response: ", data);
-                generateTable(data.message.result);
+                generateTable(data.result);
 
             }).fail(function () {
                 console.error("ERROR - Failed to submit query.");
@@ -198,8 +196,7 @@
         })
     </script>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <!-- File Upload Script -->
     <!--<script src="scripts/fileUpload.js"></script>-->
