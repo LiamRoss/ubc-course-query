@@ -85,7 +85,7 @@ export default class Server {
                 that.rest.get("/", Server.GET);
 
                 // PUT
-                that.rest.put("dataset/:id", Server.PUT);
+                that.rest.put("/dataset/:id", Server.PUT);
 
                 // POST
                 that.rest.post("/query", Server.POST);
@@ -128,11 +128,12 @@ export default class Server {
         let b64_content = null;
 
         let id = req.params.id;
+
         let files = req.files;
         let insightFacade: InsightFacade = new InsightFacade();
         let filePath: string = files['body']['path'];
 
-        Log.trace("Server::PUT(..) - id: " + id + ", content: " + JSON.stringify(req.files));
+        Log.trace("Server::PUT(..) - id: " + id);
         Log.trace("Server::PUT(..) - filePath: " + filePath);
 
         try { b64_content = Server.base64_encode(filePath); } catch(e) { Log.trace("Base64 encode failed, e = " + e); }
@@ -159,6 +160,8 @@ export default class Server {
     public static POST(req: restify.Request, res: restify.Response, next: restify.Next) {
         Log.trace("Server::POST(..) starting...");
         let query = req.body;
+        Log.trace("Server::POST(..) req.data: " + req.params);
+
         let insightFacade: InsightFacade = new InsightFacade();
 
         insightFacade.performQuery(query)
