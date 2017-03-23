@@ -30,34 +30,32 @@
         crossorigin="anonymous">
 
     <style type="text/css">
-        #nav-heading {
-            font-family: sans-serif;
-        }
-
-        textarea {
-            height: 300px;
-            width: 100%;
-            max-width: 100%;
-            min-width: 100%;
-        }
-
+        /*WRAPPER*/
+        /*MAIN WRAPPER*/
         #main-wrapper {
             margin-top: 50px;
-            padding-top: 20px;
+            padding-top: 5px;
             height: calc(100vh - 50px);
             overflow: auto;
         }
 
-        #file-upload-wrapper {
-            padding: 5px;
+        #txtQuery {
+            height: 300px;
+            width: 100%;
+        }
+
+        .internal-wrappers {
+            padding: 5px 10px 5px 10px;
             overflow: hidden;
             width: 100%;
         }
 
-        #query-wrapper {
-            padding: 5px;
+        .colour-wrappers {
+            padding: 10px 10px 10px 10px;
             overflow: hidden;
             width: 100%;
+            background-color: #f8f8f8;
+            border: 1px solid #e7e7e7;
         }
 
         .float-left {
@@ -71,6 +69,12 @@
         #btnUpload {
             padding-top: 7px;
             padding-bottom: 7px;
+        }
+
+        #btnSubmit {
+            padding-top: 7px;
+            padding-bottom: 7px;
+            margin-top: 10px;
         }
     </style>
 
@@ -108,15 +112,23 @@
         <!--MAIN-->
         <main id="main-wrapper">
             <!--Upload Interface-->
-            <div id="file-upload-wrapper">
-                <input type="file" name="fileUpload" class="float-left btn btn-default" id="fileUpload" />
-                <button class="float-right btn btn-default" id="btnUpload">Upload</button>
+            <div id="file-upload-wrapper" class="internal-wrappers">
+                <div class="colour-wrappers">
+                    <input type="file" name="fileUpload" class="float-left btn btn-default" id="fileUpload" />
+                    <button class="float-right btn btn-default" id="btnUpload">Upload</button>
+                </div>
             </div>
             <!--Query Interface-->
-            <div id="query-wrapper">
-                <textarea id="txtQuery"></textarea><br />
-                <button id="btnSubmit">Submit</button>
-                <table id="tblResults"></table>
+            <div id="query-wrapper" class="internal-wrappers">
+                <div class="colour-wrappers">
+                    <!--Query selectors go here-->
+                    <!--<div id="queryArea">
+
+                    </div>-->
+                    <textarea id="txtQuery"></textarea><br />
+                    <button id="btnSubmit" class="btn btn-default float-right">Submit Query</button>
+                    <table id="tblResults"></table>
+                </div>
             </div>
         </main>
 
@@ -150,8 +162,8 @@
             }
         });
 
-        $('btnSubmit').click(function () {
-            var query = $("txtQuery").val();
+        $('#btnSubmit').click(function () {
+            var query = $("#txtQuery").val();
             console.log("query", query);
 
             $.ajax({
