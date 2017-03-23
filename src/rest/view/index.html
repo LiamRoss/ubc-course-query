@@ -43,6 +43,15 @@
             margin-top: 50px;
             padding-top: 20px;
         }
+        
+
+        .float-left {
+            float: left;
+        }
+
+        .float-right {
+            float: right;
+        }
     </style>
 
 </head>
@@ -80,12 +89,12 @@
         <!--MAIN-->
         <main id="main-wrapper">
             <!--Upload Interface-->
-            <div>
-                <input type="file" name="fileUpload" id="fileUpload" />
-                <button id="btnUpload">Upload</button>
+            <div id="file-upload-wrapper">
+                <input type="file" name="fileUpload" class="float-left btn btn-default" id="fileUpload" />
+                <button class="float-right btn btn-default" id="btnUpload">Upload</button>
             </div>
 
-            <div>
+            <div id="query-wrapper">
                 <textarea id="txtQuery"></textarea><br />
                 <button id="btnSubmit">Submit</button>
                 <table id="tblResults"></table>
