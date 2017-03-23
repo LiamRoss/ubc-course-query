@@ -158,12 +158,12 @@ export default class Server {
      */
     public static POST(req: restify.Request, res: restify.Response, next: restify.Next) {
         Log.trace("Server::POST(..) starting...");
-        let query = req.body;
-        Log.trace("Server::POST(..) req.data: " + req.params);
+        let query = req.params;
+        Log.trace("Server::POST(..) query: " + query);
 
         let insightFacade: InsightFacade = new InsightFacade();
 
-        insightFacade.performQuery(query)
+        insightFacade.performQuery(JSON.parse(query))
             .then(function(ret: any) {
                 Log.trace("Server::POST(..) successful");
                 res.json(ret.code, ret.body);
