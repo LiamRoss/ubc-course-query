@@ -1,3 +1,5 @@
+// First script loaded, sets initial state and updates CSS
+
 // global currentID variable
 var currentID = "";
 

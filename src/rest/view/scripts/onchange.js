@@ -1,3 +1,5 @@
+// Functions that concern changes to selectors
+
 // changes the currentID if the selector is changed
 $("#currentID-selector").change(function () {
     // clear query

@@ -1,3 +1,5 @@
+// Functions that control button click actions
+
 $("#btnUpload").click(function () {
     var fileToLoad = document.getElementById("fileUpload").files[0];
     var fileReader = new FileReader();

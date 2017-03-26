@@ -1,4 +1,4 @@
-
+// Functions that build HTML elements
 
 function makeFilter(uniqueId, filterColor) {
     console.log("creating filter");
