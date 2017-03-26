@@ -12,17 +12,18 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <!--<base href="src/rest/view/">-->
-
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
         crossorigin="anonymous"></script>
 
-    <!-- BOOTSTRAP STYLE SHEET -->
+    <!-- On Load Script -->
+    <script src="scripts/onload.js"></script>
+
+    <!-- Bootstrap Style Sheet -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
 
-    <!-- MAIN PAGE STYLE SHEET -->
+    <!-- Main Page Style Sheet -->
     <link href="css/style.css" rel="stylesheet">
 
 </head>
@@ -65,16 +66,6 @@
                     <button class="float-right btn btn-default" id="btnUpload">Upload</button>
                 </div>
             </div>
-            <!--Courses/Rooms selector-->
-            <!--<div id="file-upload-wrapper" class="internal-wrappers">
-                <div class="colour-wrappers">
-                    <select class="btn btn-default" id="currentID-selector">
-                        <option value="" selected id="placeholder">Choose a Database to Query</option>
-                        <option value="courses">Courses</option>
-                        <option value="rooms">Rooms</option>
-                    </select>
-                </div>
-            </div>-->
             <!--Query Interface-->
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
@@ -127,8 +118,14 @@
 
     </div>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-        crossorigin="anonymous"></script>
+    <!-- Bootstrap Script -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!-- File Upload Script -->
+    <script src="scripts/helpers.js"></script>
+
+    <!-- File Upload Script -->
+    <script src="scripts/onchange.js"></script>
 
     <!-- File Upload Script -->
     <script src="scripts/onclick.js"></script>
