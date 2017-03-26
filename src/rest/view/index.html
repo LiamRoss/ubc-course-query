@@ -207,7 +207,7 @@
                     <!--Query selectors go here-->
                     <div class="filter filter-color-0" id="initial-filter">
                         <select class="btn btn-default filter-selector" id="initial-filter-selector">
-                            <option value="" selected id="placeholder">Select a Filter</option>
+                            <option value="" selected id="placeholder">Select Query Filters</option>
                             <option value="AND">And</option>
                             <option value="OR">Or</option>
                             <option value="NOT">Not</option>
@@ -252,6 +252,8 @@
 
         // calls updateCSS on page load
         window.onload = function() {
+            // hide table on page load
+            $( "#results-table" ).css( "display", "none" );
             updateCSS();
         };
 
@@ -272,6 +274,8 @@
 
         // updates the css, hiding or revealing courses /rooms information
         function updateCSS() {
+            // hide table on any changes
+            $( "#results-table" ).css( "display", "none" );
             console.log("updating css");
             switch (currentID) {
                 case "courses":
@@ -328,6 +332,8 @@
         });
 
         $('#btnSubmit').click(function () {
+            // make table display again
+            $( "#results-table" ).css( "display", "table" );
             var query = $("#txtQuery").val();
             console.log("query", query);
 
