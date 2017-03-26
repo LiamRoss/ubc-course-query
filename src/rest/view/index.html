@@ -188,8 +188,8 @@
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
                     <!--Query selectors go here-->
-                    <div class="filter" id="initial-filter">
-                        <select class="btn btn-default filter-selector">
+                    <div class="filter filter-color-0" id="initial-filter">
+                        <select class="btn btn-default filter-selector" id="initial-filter-selector">
                             <option value="" selected id="placeholder">Select a Filter</option>
                             <option value="AND">And</option>
                             <option value="OR">Or</option>
@@ -232,6 +232,12 @@
 
     <script>
         var currentID = "";
+
+        // calls updateCSS on page load
+        window.onload = function() {
+            updateCSS();
+        };
+
         // changes the currentID if the selector is changed
         $("#currentID-selector").change(function () {
             // clear query
@@ -247,20 +253,30 @@
             updateCSS();
         });
 
+        // updates the css, hiding or revealing courses /rooms information
         function updateCSS() {
             console.log("updating css");
             switch (currentID) {
                 case "courses":
+                    // enable first selector and Submit Query
+                    $("#initial-filter-selector").removeAttr("disabled");
+                    $("#btnSubmit").removeAttr("disabled");
                     // show+hide
                     $( ".courses-selector" ).css( "display", "block" );
                     $( ".rooms-selector" ).css( "display", "none" );
                     break;
                 case "rooms":
+                    // enable first selector and Submit Query
+                    $("#initial-filter-selector").removeAttr("disabled");
+                    $("#btnSubmit").removeAttr("disabled");
                     // show+hide
                     $( ".courses-selector" ).css( "display", "none" );
                     $( ".rooms-selector" ).css( "display", "block" );
                     break;
                 default:
+                    // disable first selector and Submit Query
+                    $("#initial-filter-selector").attr("disabled", "disabled");
+                    $("#btnSubmit").attr("disabled", "disabled");
                     // show+hide
                     $( ".courses-selector" ).css( "display", "none" );
                     $( ".rooms-selector" ).css( "display", "none" );
