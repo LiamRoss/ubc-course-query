@@ -15,7 +15,8 @@
     <!--<base href="src/rest/view/">-->
 
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
 
     <!-- NAVBAR CSS -->
     <!-- TODO: implement once made -->
@@ -25,21 +26,56 @@
     <!--<link href="../cpsc310project_team46/blob/master/src/rest/css/style.css" rel="stylesheet">-->
 
     <!-- BOOTSTRAP STYLE SHEET -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+        crossorigin="anonymous">
 
     <style type="text/css">
         /*WRAPPER*/
         /*MAIN WRAPPER*/
+
         #main-wrapper {
             margin-top: 50px;
             padding-top: 5px;
             height: calc(100vh - 50px);
             overflow: auto;
         }
-
+        /*TODO: remove when not needed for testing*/
         #txtQuery {
             height: 300px;
             width: 100%;
+        }
+
+        .filter {
+            border-radius: 4px;
+            background-color: #fff;
+            /*height: 300px;*/
+            width: 100%;
+            padding: 4px;
+            padding-bottom: 0px;
+            margin-bottom: 4px;
+            border: 1px solid #e7e7e7;
+            overflow: hidden;
+        }
+
+        .filter-selector {
+            margin-bottom: 4px;
+            margin-right: 4px;
+        }
+
+        .form-control {
+            padding-top: 3px;
+            padding-bottom: 3px;
+            height: 32px;
+        }
+
+        .input-group-addon {
+            padding-top: 3px;
+            padding-bottom: 3px;
+            height: 32px;
+        }
+
+        #placeholder {
+            color: gray;
         }
 
         .internal-wrappers {
@@ -72,7 +108,17 @@
         #btnSubmit {
             padding-top: 7px;
             padding-bottom: 7px;
-            margin-top: 10px;
+            margin-top: 6px;
+        }
+
+        #results-table {
+            border-radius: 4px 4px 0 0;
+            background-color: #fff;
+            margin-top: 61px;
+        }
+
+        #tblResults {
+            border: 1px solid #e7e7e7;
         }
     </style>
 
@@ -120,12 +166,42 @@
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
                     <!--Query selectors go here-->
-                    <!--<div id="queryArea">
-
-                    </div>-->
-                    <textarea id="txtQuery"></textarea><br />
+                    <div class="filter" id="initial-filter">
+                        <select class="btn btn-default filter-selector">
+                            <option value="" selected id="placeholder">Select a Filter</option>
+                            <option value="AND">And</option>
+                            <option value="OR">Or</option>
+                            <option value="NOT">Not</option>
+                            <option value="LT">Less Than (number)</option>
+                            <option value="GT">Greater Than (number)</option>
+                            <option value="EQ">Equal To (number)</option>
+                            <option value="IS-s">Starts with (string)</option>
+                            <option value="IS-e">Ends with (string)</option>
+                            <option value="IS-c">Contains (string)</option>
+                            <option value="IS">Equal To (string)</option>
+                        </select>
+                    </div>
+                    <!--<textarea id="txtQuery">
+                        {
+                            "WHERE":{
+                                "GT":{
+                                    "courses_avg":97
+                                }
+                            },
+                            "OPTIONS":{
+                                "COLUMNS":[
+                                    "courses_dept",
+                                    "courses_avg"
+                                ],
+                                "ORDER":"courses_avg",
+                                "FORM":"TABLE"
+                            }
+                        }
+                    </textarea><br />-->
                     <button id="btnSubmit" class="btn btn-default float-right">Submit Query</button>
-                    <table id="tblResults"></table>
+                    <div id="results-table">
+                        <table id="tblResults" class="table table-striped"></table>
+                    </div>
                 </div>
             </div>
         </main>
@@ -193,10 +269,115 @@
                 })
                 document.getElementById("tblResults").appendChild(tbl_body);
             }
-        })
+        });
+
+        // update relevant UI based on filter-selector 
+        $('.filter-selector').change(function () {
+            console.log("filter-selector changed, calling function");
+            // find parent div id
+            var parentId = "#" + $(this).closest("div").prop("id");
+            console.log("parent id: " + parentId);
+            // remove existing filters
+            $(parentId + " > .filter").remove();
+            // get selected element value
+            var selected = $(this).children(":selected").val();
+            // switch statement for value
+            switch (selected) {
+                case "AND":
+                    // append two unique filters
+                    var uniqueId = new Date().getTime().toString();
+                    var filter = makeFilter(uniqueId);
+                    $(filter).appendTo(parentId);
+                    var uniqueId = new Date().getTime().toString();
+                    var filter = makeFilter(uniqueId);
+                    $(filter).appendTo(parentId);
+                    break;
+                case "OR":
+                    // append two unique filters
+                    var uniqueId = new Date().getTime().toString();
+                    var filter = makeFilter(uniqueId);
+                    $(filter).appendTo(parentId);
+                    var uniqueId = new Date().getTime().toString();
+                    var filter = makeFilter(uniqueId);
+                    $(filter).appendTo(parentId);
+                    break;
+                case "NOT":
+                    // append one unique filter
+                    var uniqueId = new Date().getTime().toString();
+                    var filter = makeFilter(uniqueId);
+                    $(filter).appendTo(parentId);
+                    break;
+                case "LT":
+                    // append one MComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var mc = makeMComparison(uniqueId, "is less than");
+                    $(mc).appendTo(parentId);
+                    break;
+                case "GT":
+                    // append one MComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var mc = makeMComparison(uniqueId, "is greater than");
+                    $(mc).appendTo(parentId);
+                    break;
+                case "EQ":
+                    // append one MComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var mc = makeMComparison(uniqueId, "is equal to");
+                    $(mc).appendTo(parentId);
+                    break;
+                case "IS-s":
+                    // append one SComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var sc = makeSComparison(uniqueId, "starts with");
+                    $(sc).appendTo(parentId);
+                    break;
+                case "IS-e":
+                    // append one SComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var sc = makeSComparison(uniqueId, "ends with");
+                    $(sc).appendTo(parentId);
+                    break;
+                case "IS-c":
+                    // append one SComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var sc = makeSComparison(uniqueId, "contains");
+                    $(sc).appendTo(parentId);
+                    break;
+                case "IS":
+                    // append one SComparison selector
+                    var uniqueId = new Date().getTime().toString();
+                    var sc = makeSComparison(uniqueId, "is equal to");
+                    $(sc).appendTo(parentId);
+                    break;
+                default:
+                    console.log("error: defaulted when trying to select filter" + "\n" + "value: " + selected);
+            }
+        });
+
+        function makeFilter(uniqueId) {
+            console.log("creating filter");
+            // initialize filter with first uniqueIdModifier
+            var filter = '<div class="filter" id="' + uniqueId + '"><select class="btn btn-default filter-selector"><option value="" selected id="placeholder">Select a Filter</option><option value="AND">And</option><option value="OR">Or</option><option value="NOT">Not</option><option value="LT">Less Than (number)</option><option value="GT">Greater Than (number)</option><option value="EQ">Equal To (number)</option><option value="IS-s">Starts with (string)</option><option value="IS-e">Ends with (string)</option><option value="IS-c">Contains (string)</option><option value="IS">Equal To (string)</option></select></div>';
+            return filter;
+        }
+
+        function makeMComparison(uniqueId, compPhrase) {
+            console.log("creating MComparison");
+            // initialize filter with first uniqueIdModifier
+            var mc = '<div class="filter" id="'+ uniqueId +'"><select class="btn btn-default filter-selector float-left"><option value="" selected id="placeholder">Select a Key</option><option value="courses_avg">Course average</option><option value="courses_pass">Number of passes</option><option value="courses_fail">Number of fails</option><option value="courses_audit">Number of audits</option><option value="rooms_lat">Latitude of room</option><option value="rooms_lon">Longitude of room</option><option value="rooms_seats">Number of seats in room</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' + compPhrase + '</span><input type="number" class="form-control" placeholder="Enter Number" aria-describedby="basic-addon1"></div></div>';
+            return mc;
+        }
+
+        function makeSComparison(uniqueId, compPhrase) {
+            console.log("creating SComparison");
+            // initialize filter with first uniqueIdModifier
+            var mc = '<div class="filter" id=""><select class="btn btn-default filter-selector float-left"><option value="" selected id="placeholder">Select a Key</option><option value="courses_dept">Course department</option><option value="courses_id">Course ID</option><option value="courses_instructor">Course instructor</option><option value="courses_title">Course title</option><option value="courses_uuid">Course unique ID</option><option value="rooms_fullname">Room full name</option><option value="rooms_shortname">Room short name</option><option value="rooms_number">Room number</option><option value="rooms_name">Room name</option><option value="rooms_address">Room address</option><option value="rooms_type">Room type</option><option value="rooms_furniture">Room furniture</option><option value="rooms_href">Room href</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' + compPhrase + '</span><input type="string" class="form-control" placeholder="Enter String" aria-describedby="basic-addon1"></div></div>';
+            return mc;
+        }
     </script>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
 
     <!-- File Upload Script -->
     <!--<script src="scripts/fileUpload.js"></script>-->
