@@ -1,0 +1,1 @@
+// Format query response based off of UI selectors

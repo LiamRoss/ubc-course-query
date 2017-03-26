@@ -37,6 +37,7 @@ $(document).on('change', '.filter-selector', function () {
     // get selected element value
     var selected = $(this).children(":selected").val();
     // switch statement for value
+    // TODO: set title of parent to value of query element
     switch (selected) {
         case "AND":
             // append two unique filters
