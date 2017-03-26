@@ -46,16 +46,27 @@
             width: 100%;
         }
 
+        #currentID-selector {
+            margin-bottom: 10px;
+        }
+
         .filter {
             border-radius: 4px;
-            background-color: #fff;
             /*height: 300px;*/
             width: 100%;
             padding: 4px;
             padding-bottom: 0px;
             margin-bottom: 4px;
-            border: 1px solid #e7e7e7;
+            border: 1px solid #ccc;
             overflow: hidden;
+        }
+
+        .filter-color-0 {
+            background-color: #fff;
+        }
+
+        .filter-color-1 {
+            background-color: #f8f8f8;
         }
 
         .comparison-override {
@@ -119,7 +130,7 @@
 
         #btnSubmit {
             padding-top: 7px;
-            padding-bottom: 7px;
+            padding-bottom: 6px;
             margin-top: 6px;
         }
 
@@ -175,7 +186,7 @@
                 </div>
             </div>
             <!--Courses/Rooms selector-->
-            <div id="file-upload-wrapper" class="internal-wrappers">
+            <!--<div id="file-upload-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
                     <select class="btn btn-default" id="currentID-selector">
                         <option value="" selected id="placeholder">Choose a Database to Query</option>
@@ -183,10 +194,16 @@
                         <option value="rooms">Rooms</option>
                     </select>
                 </div>
-            </div>
+            </div>-->
             <!--Query Interface-->
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
+                    <!--ID selector-->
+                    <select class="btn btn-default" id="currentID-selector">
+                        <option value="" selected id="placeholder">Choose a Database to Query</option>
+                        <option value="courses">Courses</option>
+                        <option value="rooms">Rooms</option>
+                    </select>
                     <!--Query selectors go here-->
                     <div class="filter filter-color-0" id="initial-filter">
                         <select class="btn btn-default filter-selector" id="initial-filter-selector">
@@ -354,6 +371,14 @@
             // find parent div id
             var parentId = "#" + $(this).closest("div").prop("id");
             console.log("parent id: " + parentId);
+            // find parent filter-color
+            var filterColor = "";
+            var isLight = $(parentId).hasClass( "filter-color-0" );
+            if (isLight) {
+                filterColor = "filter-color-1";
+            } else {
+                filterColor = "filter-color-0";
+            }
             // remove existing filters
             $(parentId + " > .filter").remove();
             // get selected element value
@@ -363,67 +388,67 @@
                 case "AND":
                     // append two unique filters
                     var uniqueId = new Date().getTime().toString() + "AND0";
-                    var filter = makeFilter(uniqueId);
+                    var filter = makeFilter(uniqueId, filterColor);
                     $(filter).appendTo(parentId);
                     var uniqueId = new Date().getTime().toString() + "AND1";
-                    var filter = makeFilter(uniqueId);
+                    var filter = makeFilter(uniqueId, filterColor);
                     $(filter).appendTo(parentId);
                     break;
                 case "OR":
                     // append two unique filters
                     var uniqueId = new Date().getTime().toString() + "OR0";
-                    var filter = makeFilter(uniqueId);
+                    var filter = makeFilter(uniqueId, filterColor);
                     $(filter).appendTo(parentId);
                     var uniqueId = new Date().getTime().toString() + "OR1";
-                    var filter = makeFilter(uniqueId);
+                    var filter = makeFilter(uniqueId, filterColor);
                     $(filter).appendTo(parentId);
                     break;
                 case "NOT":
                     // append one unique filter
                     var uniqueId = new Date().getTime().toString() + "NOT";
-                    var filter = makeFilter(uniqueId);
+                    var filter = makeFilter(uniqueId, filterColor);
                     $(filter).appendTo(parentId);
                     break;
                 case "LT":
                     // append one MComparison selector
                     var uniqueId = new Date().getTime().toString() + "LT";
-                    var mc = makeMComparison(uniqueId, "is less than");
+                    var mc = makeMComparison(uniqueId, "is less than", filterColor);
                     $(mc).appendTo(parentId);
                     break;
                 case "GT":
                     // append one MComparison selector
                     var uniqueId = new Date().getTime().toString() + "GT";
-                    var mc = makeMComparison(uniqueId, "is greater than");
+                    var mc = makeMComparison(uniqueId, "is greater than", filterColor);
                     $(mc).appendTo(parentId);
                     break;
                 case "EQ":
                     // append one MComparison selector
                     var uniqueId = new Date().getTime().toString() + "EQ";
-                    var mc = makeMComparison(uniqueId, "is equal to");
+                    var mc = makeMComparison(uniqueId, "is equal to", filterColor);
                     $(mc).appendTo(parentId);
                     break;
                 case "IS-s":
                     // append one SComparison selector
                     var uniqueId = new Date().getTime().toString() + "IS-s";
-                    var sc = makeSComparison(uniqueId, "starts with");
+                    var sc = makeSComparison(uniqueId, "starts with", filterColor);
                     $(sc).appendTo(parentId);
                     break;
                 case "IS-e":
                     // append one SComparison selector
                     var uniqueId = new Date().getTime().toString() + "IS-e";
-                    var sc = makeSComparison(uniqueId, "ends with");
+                    var sc = makeSComparison(uniqueId, "ends with", filterColor);
                     $(sc).appendTo(parentId);
                     break;
                 case "IS-c":
                     // append one SComparison selector
                     var uniqueId = new Date().getTime().toString() + "IS-c";
-                    var sc = makeSComparison(uniqueId, "contains");
+                    var sc = makeSComparison(uniqueId, "contains", filterColor);
                     $(sc).appendTo(parentId);
                     break;
                 case "IS":
                     // append one SComparison selector
                     var uniqueId = new Date().getTime().toString() + "IS";
-                    var sc = makeSComparison(uniqueId, "is equal to");
+                    var sc = makeSComparison(uniqueId, "is equal to", filterColor);
                     $(sc).appendTo(parentId);
                     break;
                 default:
@@ -431,29 +456,29 @@
             updateCSS();
         });
 
-        function makeFilter(uniqueId) {
+        function makeFilter(uniqueId, filterColor) {
             console.log("creating filter");
             // initialize filter with first uniqueIdModifier
-            var filter = '<div class="filter" id="' + uniqueId +
-                '"><select class="btn btn-default filter-selector"><option value="" selected id="placeholder">Select a Filter</option><option value="AND">And</option><option value="OR">Or</option><option value="NOT">Not</option><option value="LT">Less Than (number)</option><option value="GT">Greater Than (number)</option><option value="EQ">Equal To (number)</option><option value="IS-s">Starts with (string)</option><option value="IS-e">Ends with (string)</option><option value="IS-c">Contains (string)</option><option value="IS">Equal To (string)</option></select></div>';
+            var filter = '<div class="filter '+ filterColor +'" id="' + uniqueId +
+                '"><select class="btn btn-default filter-selector '+ filterColor +'"><option value="" selected id="placeholder">Select a Filter</option><option value="AND">And</option><option value="OR">Or</option><option value="NOT">Not</option><option value="LT">Less Than (number)</option><option value="GT">Greater Than (number)</option><option value="EQ">Equal To (number)</option><option value="IS-s">Starts with (string)</option><option value="IS-e">Ends with (string)</option><option value="IS-c">Contains (string)</option><option value="IS">Equal To (string)</option></select></div>';
             return filter;
         }
 
-        function makeMComparison(uniqueId, compPhrase) {
+        function makeMComparison(uniqueId, compPhrase, filterColor) {
             console.log("creating MComparison");
             // initialize filter with first uniqueIdModifier
-            var mc = '<div class="filter comparison-override" id="' + uniqueId +
-                '"><select class="btn btn-default comparison-selector float-left"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_avg">Course average</option><option class="courses-selector" value="courses_pass">Number of passes</option><option class="courses-selector" value="courses_fail">Number of fails</option><option class="courses-selector" value="courses_audit">Number of audits</option><option class="rooms-selector" value="rooms_lat">Latitude of room</option><option class="rooms-selector" value="rooms_lon">Longitude of room</option><option class="rooms-selector" value="rooms_seats">Number of seats in room</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
+            var mc = '<div class="filter '+ filterColor +' comparison-override" id="' + uniqueId +
+                '"><select class="btn btn-default comparison-selector float-left '+ filterColor +'"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_avg">Course average</option><option class="courses-selector" value="courses_pass">Number of passes</option><option class="courses-selector" value="courses_fail">Number of fails</option><option class="courses-selector" value="courses_audit">Number of audits</option><option class="rooms-selector" value="rooms_lat">Latitude of room</option><option class="rooms-selector" value="rooms_lon">Longitude of room</option><option class="rooms-selector" value="rooms_seats">Number of seats in room</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
                 compPhrase +
                 '</span><input type="number" class="form-control" placeholder="Enter Number" aria-describedby="basic-addon1"></div></div>';
             return mc;
         }
 
-        function makeSComparison(uniqueId, compPhrase) {
+        function makeSComparison(uniqueId, compPhrase, filterColor) {
             console.log("creating SComparison");
             // initialize filter with first uniqueIdModifier
-            var sc = '<div class="filter comparison-override" id="' + uniqueId +
-                '"><select class="btn btn-default comparison-selector float-left"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_dept">Course department</option><option class="courses-selector" value="courses_id">Course ID</option><option class="courses-selector" value="courses_instructor">Course instructor</option><option class="courses-selector" value="courses_title">Course title</option><option class="courses-selector" value="courses_uuid">Course unique ID</option><option class="rooms-selector" value="rooms_fullname">Room full name</option><option class="rooms-selector" value="rooms_shortname">Room short name</option><option class="rooms-selector" value="rooms_number">Room number</option><option class="rooms-selector" value="rooms_name">Room name</option><option class="rooms-selector" value="rooms_address">Room address</option><option class="rooms-selector" value="rooms_type">Room type</option><option class="rooms-selector" value="rooms_furniture">Room furniture</option><option class="rooms-selector" value="rooms_href">Room href</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
+            var sc = '<div class="filter '+ filterColor +' comparison-override" id="' + uniqueId +
+                '"><select class="btn btn-default comparison-selector float-left '+ filterColor +'"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_dept">Course department</option><option class="courses-selector" value="courses_id">Course ID</option><option class="courses-selector" value="courses_instructor">Course instructor</option><option class="courses-selector" value="courses_title">Course title</option><option class="courses-selector" value="courses_uuid">Course unique ID</option><option class="rooms-selector" value="rooms_fullname">Room full name</option><option class="rooms-selector" value="rooms_shortname">Room short name</option><option class="rooms-selector" value="rooms_number">Room number</option><option class="rooms-selector" value="rooms_name">Room name</option><option class="rooms-selector" value="rooms_address">Room address</option><option class="rooms-selector" value="rooms_type">Room type</option><option class="rooms-selector" value="rooms_furniture">Room furniture</option><option class="rooms-selector" value="rooms_href">Room href</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
                 compPhrase +
                 '</span><input type="string" class="form-control" placeholder="Enter String" aria-describedby="basic-addon1"></div></div>';
             return sc;
