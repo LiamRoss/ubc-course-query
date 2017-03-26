@@ -69,9 +69,14 @@ export default class Server {
 
                 that.rest.use(restify.bodyParser({mapParams: true, mapFiles: true}));
 
-                that.rest.get('/', restify.serveStatic({
-                   directory: __dirname + "/view",
-                   default: "index.html"
+                // that.rest.get('/', restify.serveStatic({
+                //    directory: __dirname + "/view",
+                //    default: "index.html"
+                // }));
+
+                that.rest.get(/^\/?.*/, restify.serveStatic({
+                    directory: __dirname + '/view',
+                    default: 'index.html'
                 }));
 
                 // provides the echo service

@@ -12,3 +12,6 @@ node_modules/
 .yarnclean
 coverage/
 .vscode/
+
+# don't ignore .js in javascript front end
+!src/rest/view/javascript/*.js
