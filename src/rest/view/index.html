@@ -44,6 +44,7 @@
         #txtQuery {
             height: 300px;
             width: 100%;
+            display: none;
         }
 
         #currentID-selector {
@@ -104,6 +105,10 @@
             height: 32px;
         }
 
+        thead {
+            font-weight: bold;
+        }
+
         #placeholder {
             color: gray;
         }
@@ -145,10 +150,12 @@
             border-radius: 4px 4px 0 0;
             background-color: #fff;
             margin-top: 61px;
+            width: 100%;
         }
 
         #tblResults {
             border: 1px solid #e7e7e7;
+            margin-bottom: 0;
         }
     </style>
 
@@ -227,7 +234,7 @@
                             <option value="IS">Equal To (string)</option>
                         </select>
                     </div>
-                    <!--<textarea id="txtQuery">
+                    <textarea id="txtQuery">
                         {
                             "WHERE":{
                                 "GT":{
@@ -243,7 +250,7 @@
                                 "FORM":"TABLE"
                             }
                         }
-                    </textarea><br />-->
+                    </textarea><br />
                     <button id="btnSubmit" class="btn btn-default float-right">Submit Query</button>
                     <div id="results-table">
                         <table id="tblResults" class="table table-striped"></table>
@@ -359,18 +366,26 @@
             });
 
             function generateTable(data) {
+                var tbl_head = document.createElement("thead");
                 var tbl_body = document.createElement("tbody");
-                var odd_even = false;
+                // var odd_even = false;
                 console.log("DATA", data);
+                var tbl_head_row = tbl_head.insertRow();
+                $.each(data[0], function (k, v) {
+                    var cell_head = tbl_head_row.insertCell();
+                    cell_head.appendChild(document.createTextNode(k.toString()));
+                    console.log("header value: " + k);
+                })
                 $.each(data, function () {
                     var tbl_row = tbl_body.insertRow();
-                    tbl_row.className = odd_even ? "odd" : "even";
+                    // tbl_row.className = odd_even ? "odd" : "even";
                     $.each(this, function (k, v) {
                         var cell = tbl_row.insertCell();
                         cell.appendChild(document.createTextNode(v.toString()));
                     })
-                    odd_even = !odd_even
+                    // odd_even = !odd_even
                 })
+                document.getElementById("tblResults").appendChild(tbl_head);
                 document.getElementById("tblResults").appendChild(tbl_body);
             }
         });
