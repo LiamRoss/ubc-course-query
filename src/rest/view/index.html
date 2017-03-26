@@ -50,6 +50,10 @@
             margin-bottom: 10px;
         }
 
+        .navbar-default {
+            background-color: #f2f2f2;
+        }
+
         .filter {
             border-radius: 4px;
             /*height: 300px;*/
@@ -57,6 +61,7 @@
             padding: 4px;
             padding-bottom: 0px;
             margin-bottom: 4px;
+            padding-left: 20px;
             border: 1px solid #ccc;
             overflow: hidden;
         }
@@ -66,7 +71,7 @@
         }
 
         .filter-color-1 {
-            background-color: #f8f8f8;
+            background-color: #f2f2f2;
         }
 
         .comparison-override {
@@ -78,11 +83,13 @@
         .filter-selector {
             margin-bottom: 4px;
             margin-right: 4px;
+            margin-left: -16px;
         }
 
         .comparison-selector {
             margin-bottom: 4px;
             margin-right: 4px;
+            background-color: transparent;
         }
 
         .form-control {
@@ -111,7 +118,7 @@
             padding: 10px 10px 10px 10px;
             overflow: hidden;
             width: 100%;
-            background-color: #f8f8f8;
+            background-color: #f2f2f2;
             border: 1px solid #e7e7e7;
         }
 
@@ -474,7 +481,7 @@
             console.log("creating MComparison");
             // initialize filter with first uniqueIdModifier
             var mc = '<div class="filter '+ filterColor +' comparison-override" id="' + uniqueId +
-                '"><select class="btn btn-default comparison-selector float-left '+ filterColor +'"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_avg">Course average</option><option class="courses-selector" value="courses_pass">Number of passes</option><option class="courses-selector" value="courses_fail">Number of fails</option><option class="courses-selector" value="courses_audit">Number of audits</option><option class="rooms-selector" value="rooms_lat">Latitude of room</option><option class="rooms-selector" value="rooms_lon">Longitude of room</option><option class="rooms-selector" value="rooms_seats">Number of seats in room</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
+                '"><select class="btn btn-default comparison-selector float-left"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_avg">Course average</option><option class="courses-selector" value="courses_pass">Number of passes</option><option class="courses-selector" value="courses_fail">Number of fails</option><option class="courses-selector" value="courses_audit">Number of audits</option><option class="rooms-selector" value="rooms_lat">Latitude of room</option><option class="rooms-selector" value="rooms_lon">Longitude of room</option><option class="rooms-selector" value="rooms_seats">Number of seats in room</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
                 compPhrase +
                 '</span><input type="number" class="form-control" placeholder="Enter Number" aria-describedby="basic-addon1"></div></div>';
             return mc;
@@ -484,7 +491,7 @@
             console.log("creating SComparison");
             // initialize filter with first uniqueIdModifier
             var sc = '<div class="filter '+ filterColor +' comparison-override" id="' + uniqueId +
-                '"><select class="btn btn-default comparison-selector float-left '+ filterColor +'"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_dept">Course department</option><option class="courses-selector" value="courses_id">Course ID</option><option class="courses-selector" value="courses_instructor">Course instructor</option><option class="courses-selector" value="courses_title">Course title</option><option class="courses-selector" value="courses_uuid">Course unique ID</option><option class="rooms-selector" value="rooms_fullname">Room full name</option><option class="rooms-selector" value="rooms_shortname">Room short name</option><option class="rooms-selector" value="rooms_number">Room number</option><option class="rooms-selector" value="rooms_name">Room name</option><option class="rooms-selector" value="rooms_address">Room address</option><option class="rooms-selector" value="rooms_type">Room type</option><option class="rooms-selector" value="rooms_furniture">Room furniture</option><option class="rooms-selector" value="rooms_href">Room href</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
+                '"><select class="btn btn-default comparison-selector float-left"><option value="" selected id="placeholder">Select a Key</option><option class="courses-selector" value="courses_dept">Course department</option><option class="courses-selector" value="courses_id">Course ID</option><option class="courses-selector" value="courses_instructor">Course instructor</option><option class="courses-selector" value="courses_title">Course title</option><option class="courses-selector" value="courses_uuid">Course unique ID</option><option class="rooms-selector" value="rooms_fullname">Room full name</option><option class="rooms-selector" value="rooms_shortname">Room short name</option><option class="rooms-selector" value="rooms_number">Room number</option><option class="rooms-selector" value="rooms_name">Room name</option><option class="rooms-selector" value="rooms_address">Room address</option><option class="rooms-selector" value="rooms_type">Room type</option><option class="rooms-selector" value="rooms_furniture">Room furniture</option><option class="rooms-selector" value="rooms_href">Room href</option></select><div class="input-group"><span class="input-group-addon" id="basic-addon1">' +
                 compPhrase +
                 '</span><input type="string" class="form-control" placeholder="Enter String" aria-describedby="basic-addon1"></div></div>';
             return sc;
