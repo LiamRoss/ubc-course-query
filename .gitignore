@@ -14,4 +14,4 @@ coverage/
 .vscode/
 
 # don't ignore .js in javascript front end
-!src/rest/view/javascript/*.js
+!src/rest/view/scripts/*.js
