@@ -271,8 +271,11 @@
             }
         });
 
+        // $(document).ready(function() {
         // update relevant UI based on filter-selector 
-        $('.filter-selector').change(function () {
+        $(document).on('change', '.filter-selector', function () {
+            // $('.filter-selector').on('change', "#appended", function () {
+            // $('.filter-selector').change(function () {
             console.log("filter-selector changed, calling function");
             // find parent div id
             var parentId = "#" + $(this).closest("div").prop("id");
@@ -350,7 +353,6 @@
                     $(sc).appendTo(parentId);
                     break;
                 default:
-                    console.log("error: defaulted when trying to select filter" + "\n" + "value: " + selected);
             }
         });
 
