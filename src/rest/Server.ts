@@ -89,6 +89,9 @@ export default class Server {
                 // GET
                 that.rest.get("/", Server.GET);
 
+                // GET_ID
+                that.rest.get("/dataset/:id", Server.GET_ID);
+
                 // PUT
                 that.rest.put("/dataset/:id", Server.PUT);
 
@@ -122,6 +125,28 @@ export default class Server {
      */
     public static GET(req: restify.Request, res: restify.Response, next: restify.Next) {
         let insightFacade: InsightFacade = new InsightFacade();
+
+    }
+
+    /**
+     * Checks if a dataset already exists on the server
+     * @constructor
+     */
+    public static GET_ID(req: restify.Request, res: restify.Response, next: restify.Next) {
+        let id = req.params.id;
+        Log.trace("Server::GET_ID(..) - id: " + id);
+
+        let insightFacade: InsightFacade = new InsightFacade();
+        let response = insightFacade.dataAlreadyExists(id);
+        Log.trace("Server::GET_ID(..) - response  = " + response);
+
+        if(response)  {
+            res.send(200);
+        } else {
+            res.send(404);
+        }
+
+        return next();
 
     }
 

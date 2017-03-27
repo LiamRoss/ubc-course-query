@@ -8,7 +8,7 @@ class schedule {
 
     // Global schedule object
     // Will be returned when progam terminates
-    // Format is [Day of Week][Hour][Room][Class][Section]
+    // Format is [Building][Room][Day][Hour]
     private schedule: any = {};
 
     // Global variables for keeping track of number of rooms and classes given
