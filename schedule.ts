@@ -7,7 +7,7 @@ import Log from "./src/Util";
 class schedule {
 
     // Global schedule object
-    // Will be returned when progam terminates
+    // Will be returned when program terminates
     // Format is [Building][Room][Day][Hour]
     private schedule: any = {};
 
@@ -41,7 +41,7 @@ class schedule {
         this.threshold = this.numRooms * 15;
 
         // Sort the rooms by their seat capacity, in decr. order
-        let sortedRooms = this.sortRooms(rooms.slice()); // .slice()copies the 'rooms' array
+        let sortedRooms = this.sortRooms(rooms.slice()); // .slice() copies the 'rooms' array
 
         // Sort the classes by number of students, from highest to lowest
         let sortedClasses = this.sortClassesToSched(classes.slice());
@@ -101,6 +101,10 @@ class schedule {
         // So this means we can just check Monday and not W/F
         for(let hour = 8; hour < 18; hour++) { // 24H time
             if(this.isRoomAvailable(availRooms, "Monday", hour)) {
+
+
+                // Now we can schedule on Tues/Thurs when it is full
+            } else if(this.isRoomAvailable(availRooms, "Tuesday", hour)) {
 
             }
         }

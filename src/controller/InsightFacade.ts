@@ -159,9 +159,12 @@ export default class InsightFacade implements IInsightFacade {
             var fail: number = sessionData.Fail;
             var audit: number = sessionData.Audit;
             var uuid: string = String(sessionData.id);
+
             // year property added in d2:
-            var year: number = sessionData.year;
-            if (sessionData.Section == "overall") year = 1900;
+            var year: number = Number(sessionData.Year);
+            if (sessionData.Section == "overall") {
+                year = 1900;
+            }
 
             obj[i] = {
                 dept,
