@@ -1,0 +1,79 @@
+/* Query-specific Style Sheet */
+
+/* selector for courses / rooms */
+#currentID-selector {
+    margin-bottom: 10px;
+}
+
+/* repeating filter format */
+.filter {
+    border-radius: 4px;
+    /*height: 300px;*/
+    width: 100%;
+    padding: 4px;
+    padding-bottom: 0px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+}
+
+/* selector for filters */
+.filter-selector {
+    margin-bottom: 10px;
+    margin-right: 10px;
+    margin-left: -16px;
+}
+
+/* override .filter for comparison filters */
+.comparison-override {
+    border: none;
+    padding-left: 0px;
+    background-color: transparent !important;
+}
+
+/* selector for comparisons */
+.comparison-selector {
+    margin-right: 4px;
+    background-color: transparent !important;
+}
+
+/* format bootstrap form for comparisons */
+.form-control {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    height: 32px;
+}
+
+/* format bootstrap form for comparisons */
+.input-group-addon {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    height: 32px;
+}
+
+/* button to submit query */
+#btnSubmit {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+/* container for results table */
+#results-table {
+    border-radius: 4px 4px 0 0;
+    background-color: #fff;
+    margin-top: 56px;
+    width: 100%;
+    display: none;
+}
+
+/* table of results */
+#tblResults {
+    border: 1px solid #e7e7e7;
+    margin-bottom: 0;
+}
+
+/* make table headers bold */
+thead {
+    font-weight: bold;
+}

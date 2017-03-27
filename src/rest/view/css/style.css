@@ -1,3 +1,5 @@
+/* Shared Style Sheet */
+
 /* Navbar */
 
 /* format bootstrap navbar */
@@ -38,81 +40,26 @@
     padding-bottom: 7px;
 }
 
-/* selector for courses / rooms */
-#currentID-selector {
-    margin-bottom: 10px;
-}
-
-/* repeating filter format */
-.filter {
-    border-radius: 4px;
-    /*height: 300px;*/
-    width: 100%;
-    padding: 4px;
-    padding-bottom: 0px;
-    margin-bottom: 10px;
-    padding-left: 20px;
-    border: 1px solid #ccc;
+/* uploaded jsons wrapper */
+#uploaded-jsons {
     overflow: hidden;
+    margin-top: 13px;
 }
 
-/* selector for filters */
-.filter-selector {
-    margin-bottom: 10px;
-    margin-right: 10px;
-    margin-left: -16px;
-}
-
-/* override .filter for comparison filters */
-.comparison-override {
-    border: none;
-    padding-left: 0px;
-    background-color: transparent;
-}
-
-/* selector for comparisons */
-.comparison-selector {
-    margin-right: 4px;
-    background-color: transparent;
-}
-
-/* format bootstrap form for comparisons */
-.form-control {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    height: 32px;
-}
-
-/* format bootstrap form for comparisons */
-.input-group-addon {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    height: 32px;
-}
-
-/* button to submit query */
-#btnSubmit {
-    padding-top: 7px;
-    padding-bottom: 7px;
-}
-
-/* container for results table */
-#results-table {
-    border-radius: 4px 4px 0 0;
-    background-color: #fff;
-    margin-top: 56px;
+/* make alerts full width */
+.alert {
+    margin-bottom: 0;
     width: 100%;
 }
 
-/* table of results */
-#tblResults {
-    border: 1px solid #e7e7e7;
-    margin-bottom: 0;
+#upload-indicators {
+    margin-left: -5px;
+    margin-right: -5px;
 }
 
-/* make table headers bold */
-thead {
-    font-weight: bold;
+.upload-indicator {
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 
@@ -141,6 +88,16 @@ thead {
 /* light grey */
 .filter-color-1 {
     background-color: #f2f2f2;
+}
+
+/* align select text left */
+select {
+    text-align: left;
+}
+
+/* overflow: hidden */
+.hide-overflow {
+    overflow: hidden;
 }
 
 /*TODO: remove when not needed for testing*/
