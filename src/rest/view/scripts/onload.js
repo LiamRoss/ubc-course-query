@@ -53,61 +53,58 @@ function updateCSS() {
 
 // updates the css of the uploaded datasets based on uploaded files
 function updateUploadedJson() {
-    if (hascourses) {
+    // if (hascourses) {
+    //     $("#courses-uploaded").removeClass("alert-success");
+    //     $("#courses-uploaded").removeClass("alert-danger");
+    //     $("#courses-uploaded").addClass("alert-success");
+    // } else {
+    //     $("#courses-uploaded").removeClass("alert-success");
+    //     $("#courses-uploaded").removeClass("alert-danger");
+    //     $("#courses-uploaded").addClass("alert-danger");
+    // }
+    //
+    //
+    // if (hasrooms) {
+    //     $("#rooms-uploaded").removeClass("alert-success");
+    //     $("#rooms-uploaded").removeClass("alert-danger");
+    //     $("#rooms-uploaded").addClass("alert-success");
+    // } else {
+    //     $("#rooms-uploaded").removeClass("alert-success");
+    //     $("#rooms-uploaded").removeClass("alert-danger");
+    //     $("#rooms-uploaded").addClass("alert-danger");
+    // }
+    // check if courses.json exists
+
+    $.ajax({
+        url: 'http://localhost:4321/dataset/courses',
+        type: 'get'
+    }).done(function(data) {
+        // file exists
         $("#courses-uploaded").removeClass("alert-success");
         $("#courses-uploaded").removeClass("alert-danger");
         $("#courses-uploaded").addClass("alert-success");
-    } else {
+    }).fail(function(data) {
+        // file doesn't exist
         $("#courses-uploaded").removeClass("alert-success");
         $("#courses-uploaded").removeClass("alert-danger");
         $("#courses-uploaded").addClass("alert-danger");
-    }
+    });
 
-    
-    if (hasrooms) {
+    // check if rooms.json exists
+    $.ajax({
+        url: 'http://localhost:4321/dataset/rooms',
+        type: 'get'
+    }).done(function(data) {
+        // file exists
         $("#rooms-uploaded").removeClass("alert-success");
         $("#rooms-uploaded").removeClass("alert-danger");
         $("#rooms-uploaded").addClass("alert-success");
-    } else {
+    }).fail(function(data) {
+        // file doesn't exist
         $("#rooms-uploaded").removeClass("alert-success");
         $("#rooms-uploaded").removeClass("alert-danger");
         $("#rooms-uploaded").addClass("alert-danger");
-    }
-    // check if courses.json exists
-    /*
-    $.ajax({
-        url: 'http://localhost:4321/dataset/courses.zip',
-        type: 'get',
-        error: function() {
-            // file doesn't exist
-            $("#courses-uploaded").removeClass("alert-success");
-            $("#courses-uploaded").removeClass("alert-danger");
-            $("#courses-uploaded").addClass("alert-danger");
-        },
-        success: function() {
-            // file exists
-            $("#courses-uploaded").removeClass("alert-success");
-            $("#courses-uploaded").removeClass("alert-danger");
-            $("#courses-uploaded").addClass("alert-success");
-        }
     });
-    
-    // check if rooms.json exists
-    $.ajax({
-        url: 'http://localhost:4321/dataset/rooms.zip',
-        type: 'get',
-        error: function() {
-            // file doesn't exist
-            $("#rooms-uploaded").removeClass("alert-success");
-            $("#rooms-uploaded").removeClass("alert-danger");
-            $("#rooms-uploaded").addClass("alert-danger");
-        },
-        success: function() {
-            // file exists
-            $("#rooms-uploaded").removeClass("alert-success");
-            $("#rooms-uploaded").removeClass("alert-danger");
-            $("#rooms-uploaded").addClass("alert-success");
-        }
-    });
-    */
+
+
 }

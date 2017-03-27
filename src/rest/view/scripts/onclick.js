@@ -20,17 +20,18 @@ $("#btnUpload").click(function () {
             processData: false
         }).done(function (data) {
             console.log(fileToLoad.name + " was successfully uploaded.");
-            if (fileToLoad.name === "courses.zip") {
-                $("#courses-uploaded").removeClass("alert-success");
-                $("#courses-uploaded").removeClass("alert-danger");
-                $("#courses-uploaded").addClass("alert-success");
-                hascourses = true;
-            } else if (fileToLoad.name === "rooms.zip") {
-                $("#rooms-uploaded").removeClass("alert-success");
-                $("#rooms-uploaded").removeClass("alert-danger");
-                $("#rooms-uploaded").addClass("alert-success");
-                hasrooms = true;
-            }
+            // if (fileToLoad.name === "courses.zip") {
+            //     $("#courses-uploaded").removeClass("alert-success");
+            //     $("#courses-uploaded").removeClass("alert-danger");
+            //     $("#courses-uploaded").addClass("alert-success");
+            //     hascourses = true;
+            // } else if (fileToLoad.name === "rooms.zip") {
+            //     $("#rooms-uploaded").removeClass("alert-success");
+            //     $("#rooms-uploaded").removeClass("alert-danger");
+            //     $("#rooms-uploaded").addClass("alert-success");
+            //     hasrooms = true;
+            // }
+            updateUploadedJson();
         }).fail(function (data) {
             console.log('ERROR - Failed to upload ' + fileToLoad.name + ". data = " + JSON.stringify(
                 data));
