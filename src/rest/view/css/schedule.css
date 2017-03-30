@@ -1,0 +1,44 @@
+.and-or-button {
+    width: 50%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.bottom-spacing {
+    margin-bottom: 10px;
+}
+
+.row {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.row > div {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+#building-selector {
+    width: 100%;
+}
+
+#department-selector {
+    width: 100%;
+}
+
+#course-selector {
+    width: 100%;
+}
+
+#upload-indicators {
+    padding: 0;
+}
+
+button.selected {
+    background-color: #e6e6e6;
+    border-color: rgb(173, 173, 173)
+}
+
+#btnSchedule {
+    float: right;
+}

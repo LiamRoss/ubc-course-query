@@ -10,7 +10,7 @@
     border-radius: 4px;
     /*height: 300px;*/
     width: 100%;
-    padding: 4px;
+    padding: 10px;
     padding-bottom: 0px;
     margin-bottom: 10px;
     padding-left: 20px;
@@ -18,11 +18,41 @@
     overflow: hidden;
 }
 
+/* container for sorting */
+#sorting-area {
+    border-radius: 4px;
+    /*height: 300px;*/
+    width: 100%;
+    padding: 10px;
+    padding-bottom: 0px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+}
+
+#sort-selector {
+    margin-bottom: 10px;
+    margin-right: 10px;
+    margin-left: -10px;
+    float: left;
+    /*max-width: calc(50% - 15px);*/
+    max-width: 50%;
+}
+
+#direction-selector {
+    margin-bottom: 10px;
+    margin-left: 0px;
+    float: right;
+    /*max-width: calc(50% - 15px);*/
+    max-width: 50%;
+}
+
 /* selector for filters */
 .filter-selector {
     margin-bottom: 10px;
     margin-right: 10px;
-    margin-left: -16px;
+    margin-left: -10px;
 }
 
 /* override .filter for comparison filters */
@@ -36,20 +66,6 @@
 .comparison-selector {
     margin-right: 4px;
     background-color: transparent !important;
-}
-
-/* format bootstrap form for comparisons */
-.form-control {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    height: 32px;
-}
-
-/* format bootstrap form for comparisons */
-.input-group-addon {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    height: 32px;
 }
 
 /* button to submit query */

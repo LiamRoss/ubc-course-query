@@ -20,35 +20,70 @@ window.onload = function () {
 
 // updates the css, hiding or revealing courses /rooms information
 function updateCSS() {
+    // update Submit Query button
+    checkSelected();
     // hide table on any changes, delete contents
     $("#results-table").css("display", "none");
     $("#tblResults").empty();
-    console.log("updating css");
+    //console.log("updating css");
+    // check main ID elector 
     switch (currentID) {
         case "courses":
             // enable first selector and Submit Query
             $("#initial-filter-selector").removeAttr("disabled");
-            $("#btnSubmit").removeAttr("disabled");
+            
+            // enable sorting
+            $("#sort-selector").removeAttr("disabled");
+            // enable sort direction
+            $("#direction-selector").removeAttr("disabled");
+
             // show+hide
-            $(".courses-selector").css("display", "block");
-            $(".rooms-selector").css("display", "none");
+            $(".courses-select").css("display", "block");
+            $(".rooms-select").css("display", "none");
             break;
         case "rooms":
             // enable first selector and Submit Query
             $("#initial-filter-selector").removeAttr("disabled");
-            $("#btnSubmit").removeAttr("disabled");
+
+            // enable sorting
+            $("#sort-selector").removeAttr("disabled");
+            // enable sort direction
+            $("#direction-selector").removeAttr("disabled");
+
             // show+hide
-            $(".courses-selector").css("display", "none");
-            $(".rooms-selector").css("display", "block");
+            $(".courses-select").css("display", "none");
+            $(".rooms-select").css("display", "block");
             break;
         default:
             // disable first selector and Submit Query
             $("#initial-filter-selector").attr("disabled", "disabled");
-            $("#btnSubmit").attr("disabled", "disabled");
+
+            // disable sorting
+            $("#sort-selector").attr("disabled", "disabled");
+            // disable sort direction
+            $("#direction-selector").attr("disabled", "disabled");
+
             // show+hide
-            $(".courses-selector").css("display", "none");
-            $(".rooms-selector").css("display", "none");
+            $(".courses-select").css("display", "none");
+            $(".rooms-select").css("display", "none");
     }
+}
+
+function checkSelected() {
+    // check to make sure all boxes are not defaulted
+    $(document).ready(function () {
+        var disableSubmit = false;
+        $("select option:selected ").each(function () {
+            //console.log("inside disableSubmit, " + this.id);
+            if (this.id == 'placeholder') {
+                $("#btnSubmit").attr("disabled", "disabled");
+                disableSubmit = true;
+            }
+        })
+        if (!disableSubmit) {
+            $("#btnSubmit").removeAttr("disabled");
+        }
+    });
 }
 
 // updates the css of the uploaded datasets based on uploaded files
@@ -78,12 +113,12 @@ function updateUploadedJson() {
     $.ajax({
         url: 'http://localhost:4321/dataset/courses',
         type: 'get'
-    }).done(function(data) {
+    }).done(function (data) {
         // file exists
         $("#courses-uploaded").removeClass("alert-success");
         $("#courses-uploaded").removeClass("alert-danger");
         $("#courses-uploaded").addClass("alert-success");
-    }).fail(function(data) {
+    }).fail(function (data) {
         // file doesn't exist
         $("#courses-uploaded").removeClass("alert-success");
         $("#courses-uploaded").removeClass("alert-danger");
@@ -94,12 +129,12 @@ function updateUploadedJson() {
     $.ajax({
         url: 'http://localhost:4321/dataset/rooms',
         type: 'get'
-    }).done(function(data) {
+    }).done(function (data) {
         // file exists
         $("#rooms-uploaded").removeClass("alert-success");
         $("#rooms-uploaded").removeClass("alert-danger");
         $("#rooms-uploaded").addClass("alert-success");
-    }).fail(function(data) {
+    }).fail(function (data) {
         // file doesn't exist
         $("#rooms-uploaded").removeClass("alert-success");
         $("#rooms-uploaded").removeClass("alert-danger");

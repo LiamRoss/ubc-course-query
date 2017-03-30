@@ -6,24 +6,24 @@ $("#currentID-selector").change(function () {
     $("#initial-filter > .filter").remove();
     // reset initial query selector
     $("#initial-filter select").val("");
-    // clear style for courses and rooms
-    // $(".courses-selector").removeAttr('style').css("display","");
-    // $(".rooms-selector").removeAttr('style').css("width","100px");
     // get value
     var selected = $(this).children(":selected").val();
     currentID = selected;
     updateCSS();
 });
 
+// call checkSelected when comparison-selector changes
+$(document).on('change', '.comparison-selector', function () {
+    checkSelected();
+});
+
 // $(document).ready(function() {
 // update relevant UI based on filter-selector 
 $(document).on('change', '.filter-selector', function () {
-    // $('.filter-selector').on('change', "#appended", function () {
-    // $('.filter-selector').change(function () {
-    console.log("filter-selector changed, calling function");
+    //console.log("filter-selector changed, calling function");
     // find parent div id
     var parentId = "#" + $(this).closest("div").prop("id");
-    console.log("parent id: " + parentId);
+    //console.log("parent id: " + parentId);
     // find parent filter-color
     var filterColor = "";
     var isLight = $(parentId).hasClass("filter-color-0");
@@ -36,8 +36,9 @@ $(document).on('change', '.filter-selector', function () {
     $(parentId + " > .filter").remove();
     // get selected element value
     var selected = $(this).children(":selected").val();
-    // switch statement for value
     // TODO: set title of parent to value of query element
+    $(parentId).prop('title', selected);
+    // switch statement for value
     switch (selected) {
         case "AND":
             // append two unique filters

@@ -69,19 +69,78 @@
             <div id="file-upload-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
                     <div class="hide-overflow">
-                        <input type="file" name="fileUpload" class="float-left btn btn-default" id="fileUpload" />
-                        <button class="float-right btn btn-default" id="btnUpload">Upload Dataset</button>
+                        <input type="file" name="fileUpload" class="btn btn-default" id="fileUpload" />
+                        <button class="btn btn-default" id="btnUpload">Upload Dataset</button>
                     </div>
                     <!--Show uploaded .jsons-->
                     <div id="uploaded-jsons" class="hide-overflow">
                         <h5 id="uploaded-title">Uploaded Datasets</h5>
                         <div class="row" id="upload-indicators">
-                            <div class="col-sm-6 upload-indicator">
+                            <div class="col-xs-6 upload-indicator">
                                 <div class="alert alert-danger float-left" id="courses-uploaded" role="alert">Courses</div>
                             </div>
-                            <div class="col-sm-6 upload-indicator">
+                            <div class="col-xs-6 upload-indicator">
                                 <div class="alert alert-danger float-right" id="rooms-uploaded" role="alert">Rooms</div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Filtering Interface-->
+            <div id="query-wrapper" class="internal-wrappers">
+                <div class="colour-wrappers">
+                    <!--Rooms-->
+                    <h5 id="uploaded-title">Filtering</h5>
+                    <div class="row bottom-spacing">
+                        <div class="col-xs-3 col-sm-5">
+                            <!--Building Name selector-->
+                            <select class="btn btn-default" id="building-selector">
+                                <option value="" selected id="placeholder">Building name</option>
+                                <option value="courses">AAC</option>
+                                <option value="rooms">DMP</option>
+                            </select>
+                        </div>
+                        <div class="btn-group col-xs-3 col-sm-2" role="group">
+                            <button type="button" value="AND" class="btn btn-default and-or-button selected room-button room-button-and">And</button>
+                            <button type="button"  value="OR" class="btn btn-default and-or-button room-button room-button-or">Or</button>
+                        </div>
+                        <div class="col-xs-3 col-sm-3">
+                            <!--Distance selector-->
+                            <select class="btn btn-default" id="building-selector">
+                                <option value="" selected id="placeholder">Distance from</option>
+                                <option value="courses">AAC</option>
+                                <option value="rooms">DMP</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-3 col-sm-2">
+                            <!--Distance selector-->
+                            <div class="input-group">
+                                <input type="number" class="form-control" placeholder="Distance">
+                                <span class="input-group-addon" id="basic-addon2">m</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Courses-->
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-5">
+                            <!--Department selector-->
+                            <select class="btn btn-default" id="department-selector">
+                                <option value="" selected id="placeholder">Department</option>
+                                <option value="courses">Science</option>
+                                <option value="rooms">Arts</option>
+                            </select>
+                        </div>
+                        <div class="btn-group col-xs-4 col-sm-2" role="group">
+                            <button type="button" value="AND" class="btn btn-default and-or-button selected course-button course-button-and">And</button>
+                            <button type="button" value="OR" class="btn btn-default and-or-button course-button course-button-or">Or</button>
+                        </div>
+                        <div class="col-xs-4 col-sm-5">
+                            <!--Department selector-->
+                            <select class="btn btn-default" id="course-selector">
+                                <option value="" selected id="placeholder">Course number</option>
+                                <option value="courses">A315</option>
+                                <option value="rooms">B214</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -89,7 +148,7 @@
             <!--Query Interface-->
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
-                    
+                    <button class="btn btn-default" id="btnSchedule">Generate Schedule</button>
                 </div>
             </div>
         </main>
@@ -99,17 +158,8 @@
     <!-- Bootstrap Script -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-    <!-- HTML Component and Helper Scripts -->
-    <script src="scripts/helpers.js"></script>
-
-    <!-- On Change Scripts -->
-    <script src="scripts/onchange.js"></script>
-
     <!-- On Click Scripts -->
     <script src="scripts/onclick.js"></script>
-
-    <!-- Query Creation Script -->
-    <script src="scripts/query.js"></script>
 
 </body>
 

@@ -19,7 +19,7 @@ $("#btnUpload").click(function () {
             contentType: false,
             processData: false
         }).done(function (data) {
-            console.log(fileToLoad.name + " was successfully uploaded.");
+            //console.log(fileToLoad.name + " was successfully uploaded.");
             // if (fileToLoad.name === "courses.zip") {
             //     $("#courses-uploaded").removeClass("alert-success");
             //     $("#courses-uploaded").removeClass("alert-danger");
@@ -45,7 +45,8 @@ $('#btnSubmit').click(function () {
     // clear table
     $("#tblResults").empty();
     var query = $("#txtQuery").val();
-    console.log("query", query);
+    //console.log("query", query);
+    // TODO: form query
 
     $.ajax({
         url: 'http://localhost:4321/query',
@@ -54,7 +55,7 @@ $('#btnSubmit').click(function () {
         contentType: 'application/json',
         dataType: 'json'
     }).done(function (data) {
-        console.log("Response: ", data);
+        //console.log("Response: ", data);
         generateTable(data.result);
 
     }).fail(function () {
@@ -65,12 +66,12 @@ $('#btnSubmit').click(function () {
         var tbl_head = document.createElement("thead");
         var tbl_body = document.createElement("tbody");
         // var odd_even = false;
-        console.log("DATA", data);
+        //console.log("DATA", data);
         var tbl_head_row = tbl_head.insertRow();
         $.each(data[0], function (k, v) {
             var cell_head = tbl_head_row.insertCell();
             cell_head.appendChild(document.createTextNode(k.toString()));
-            console.log("header value: " + k);
+            //console.log("header value: " + k);
         })
         $.each(data, function () {
             var tbl_row = tbl_body.insertRow();
@@ -83,5 +84,29 @@ $('#btnSubmit').click(function () {
         })
         document.getElementById("tblResults").appendChild(tbl_head);
         document.getElementById("tblResults").appendChild(tbl_body);
+    }
+});
+
+$('.and-or-button').click(function () {
+    if ($(this).hasClass("room-button")) {
+        $('.room-button').removeClass("selected");
+        if ($(this).hasClass("room-button-and")) {
+            $('.room-button-and').addClass("selected");
+        } else if ($(this).hasClass("room-button-or")) {
+            $('.room-button-or').addClass("selected");
+        } else {
+            console.log("ERROR: can't find and or for room");
+        }
+    } else if ($(this).hasClass("course-button")) {
+        $('.course-button').removeClass("selected");
+        if ($(this).hasClass("course-button-and")) {
+            $('.course-button-and').addClass("selected");
+        } else if ($(this).hasClass("course-button-or")) {
+            $('.course-button-or').addClass("selected");
+        } else {
+            console.log("ERROR: can't find and or for course");
+        }
+    } else {
+        console.log("ERROR: and-or selector does not have valid class");
     }
 });

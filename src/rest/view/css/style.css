@@ -62,6 +62,20 @@
     padding-right: 5px;
 }
 
+/* format bootstrap form for comparisons */
+.form-control {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    height: 32px;
+}
+
+/* format bootstrap form for comparisons */
+.input-group-addon {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    height: 32px;
+}
+
 
 /* Utilities */
 
@@ -103,4 +117,28 @@ select {
 /*TODO: remove when not needed for testing*/
 #txtQuery {
     display: none;
+}
+
+@media (min-width: 474px) {
+    #btnUpload {
+        float: right;
+    }
+
+    #fileUpload {
+        float: left;
+    }
+}
+
+@media (max-width: 768px) {
+    #courses-uploaded {
+        margin-bottom: 10px;
+    }
+    
+    #fileUpload {
+        margin-bottom: 10px;
+    }
+}
+
+.btn {
+    max-width: 100%;
 }
