@@ -11,6 +11,9 @@ class schedule {
     // Format is [Building][Room][Day][Hour]
     private schedule: any = {};
 
+    // Array of the rooms that were unable to be scheduled within 8am-5pm
+    private roomsFailedToSchedule: any[] = [];
+
     // Global variables for keeping track of number of rooms and classes given
     private numRooms: any = 0;
     private numClasses: any = 0;
@@ -161,6 +164,27 @@ class schedule {
         Log.trace("rooms sorted successfully!");
 
         return rooms.sort(compare);
+    }
+
+    /**
+     * Helper function
+     * Returns the number of sections to schedule for a given array of class sections
+     * @param classSections
+     * @returns {number}
+     */
+    private getNumSectionsToSchedule(classSections: any[]) {
+        let total = 0;
+
+        for(let i = 0; i < classSections.length; i++) {
+            if(classSections[i]['year'] == 2014) {
+                total += 1;
+            }
+        }
+
+        let retValue = Math.ceil(total / 3);
+        Log.trace("    * Found " + total + " 2014 sections");
+        Log.trace("    * Number of sections to schedule = " + retValue);
+        return retValue;
     }
 
     /**
