@@ -76,7 +76,7 @@
 
 /* container for results table */
 #results-table {
-    border-radius: 4px 4px 0 0;
+    border-radius: 4px;
     background-color: #fff;
     margin-top: 56px;
     width: 100%;

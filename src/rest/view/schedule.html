@@ -149,24 +149,103 @@
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
                     <button class="btn btn-default" id="btnSchedule">Generate Schedule</button>
+
+                    <div id="schedule-array">
+
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs nav-justified" role="tablist">
+
+                            <li role="presentation" class="active"><a href="#mwf" role="tab" data-toggle="tab">Monday/Wednesday/Friday</a></li>
+
+                            <li role="presentation"><a href="#tt" role="tab" data-toggle="tab">Tuesday/Thursday</a></li>
+
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="mwf">
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">8am-9am</div>
+                                    <div class="col-xs-10 schedule-time" id="8"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">9am-10am</div>
+                                    <div class="col-xs-10 schedule-time" id="9"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">10am-11am</div>
+                                    <div class="col-xs-10 schedule-time" id="10"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">11am-12pm</div>
+                                    <div class="col-xs-10 schedule-time" id="11"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">12pm-1pm</div>
+                                    <div class="col-xs-10 schedule-time" id="12"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">1pm-2pm</div>
+                                    <div class="col-xs-10 schedule-time" id="13"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">2pm-3pm</div>
+                                    <div class="col-xs-10 schedule-time" id="14"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">3pm-4pm</div>
+                                    <div class="col-xs-10 schedule-time" id="15"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">4pm-5pm</div>
+                                    <div class="col-xs-10 schedule-time" id="16"></div>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="tt">
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">8am-9:30am</div>
+                                    <div class="col-xs-10 schedule-time" id="8"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">9:30am-11am</div>
+                                    <div class="col-xs-10 schedule-time" id="95"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">11am-12:30pm</div>
+                                    <div class="col-xs-10 schedule-time" id="11"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">12:30pm-2pm</div>
+                                    <div class="col-xs-10 schedule-time" id="125"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">2pm-3:30pm</div>
+                                    <div class="col-xs-10 schedule-time" id="14"></div>
+                                    
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2 schedule-time">3:30pm-5pm</div>
+                                    <div class="col-xs-10 schedule-time" id="155"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                     <textarea id="scheduleQuery">
 {  
    "WHERE":{  
-      "AND":[  
-         {  
-            "IS":{  
-               "courses_dept":"anth"
+        "NOT":{  
+            "EQ":{  
+                "courses_year":1900
             }
-         },
-         {  
-            "NOT":{  
-               "EQ":{  
-                  "courses_year":1900
-               }
-            }
-         }
-      ]
-   },
+        }
+    },
    "OPTIONS":{  
       "COLUMNS":[  
          "courses_dept",
@@ -205,11 +284,7 @@
                     </textarea>
                     <textarea id="scheduleQueryRooms">
 {  
-   "WHERE":{
-        "IS":{  
-            "rooms_shortname":"ANGU"
-        }
-   },
+   "WHERE":{},
    "OPTIONS":{  
       "COLUMNS":[  
          "rooms_name",
@@ -231,12 +306,7 @@
                     <textarea id="scheduleQuerySection">
 {  
    "WHERE":{  
-      "AND":[  
-         {  
-            "IS":{  
-               "courses_dept":"anth"
-            }
-         },
+      "AND":[
          {  
             "EQ":{  
                 "courses_year":2014
