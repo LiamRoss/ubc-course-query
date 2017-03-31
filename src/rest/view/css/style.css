@@ -123,6 +123,16 @@ select {
     display: none;
 }
 
+#scheduleQuerySection {
+    display: none;
+}
+
+#scheduleQueryRooms {
+    display: none;
+}
+
+
+
 @media (min-width: 474px) {
     #btnUpload {
         float: right;

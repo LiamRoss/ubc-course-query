@@ -9,10 +9,12 @@ $("#btnSchedule").click(function () {
     // $("#tblResults").empty();
     var query = $("#scheduleQuery").val();
     var queryRooms = $("#scheduleQueryRooms").val();
+    var querySection = $("#scheduleQuerySection").val();
     // console.log(JSON.stringify(queryRooms));
     // var query = ""
     var courseResult;
     var roomResult;
+    var sectionResult;
     $.ajax({
         url: 'http://localhost:4321/query',
         type: 'post',
@@ -22,20 +24,37 @@ $("#btnSchedule").click(function () {
     }).done(function (data) {
         console.log("Response: ", data);
         courseResult = data.result;
+
+
         $.ajax({
             url: 'http://localhost:4321/query',
             type: 'post',
-            data: JSON.stringify(queryRooms),
+            data: JSON.stringify(querySection),
             contentType: 'application/json',
             dataType: 'json'
         }).done(function (data) {
             console.log("Response: ", data);
-            roomResult = data.result;
+            sectionResult = data.result;
             
-            generateSchedule(courseResult, roomResult);
+            $.ajax({
+                url: 'http://localhost:4321/query',
+                type: 'post',
+                data: JSON.stringify(queryRooms),
+                contentType: 'application/json',
+                dataType: 'json'
+            }).done(function (data) {
+                console.log("Response: ", data);
+                roomResult = data.result;
+                
+                generateSchedule(courseResult, roomResult, sectionResult);
+            }).fail(function () {
+                console.error("ERROR - Failed to submit query. ");
+            });
+
         }).fail(function () {
             console.error("ERROR - Failed to submit query. ");
         });
+
     }).fail(function () {
         console.error("ERROR - Failed to submit query. ");
     });
@@ -43,7 +62,7 @@ $("#btnSchedule").click(function () {
 
     
 
-    function generateSchedule(data, dataRooms) {
+    function generateSchedule(data, dataRooms, dataSection) {
         var passObject = [];
         var passObjectRooms = [];
         //console.log("DATA", data);
@@ -75,6 +94,22 @@ $("#btnSchedule").click(function () {
             // passObjectRooms[roomName] = passObjectRoom;
             passObjectRooms.push(passObjectRoom);
         })
+        // add numSections
+        $.each(dataSection, function () {
+            sectionInfo = this;
+            console.log("datasection result: " + JSON.stringify(this));
+            $.each(passObject, function () {
+                if (this["courses_dept"] == sectionInfo["courses_dept"] &&
+                this["courses_id"] == sectionInfo["courses_id"]) {
+                    var sectionNumber = Math.ceil(sectionInfo["numSections"] / 3);
+                    this["numSections"] = sectionNumber;
+
+                    console.log("sectionNumber: " + sectionNumber);
+                }
+            })
+        })
+
+
         console.log("passObjectRooms: " + JSON.stringify(passObjectRooms));
         // TODO: call function with two arrays:
         console.log("TEST OUTPUT: " + JSON.stringify(schedule.createSchedule(passObject, passObjectRooms)));

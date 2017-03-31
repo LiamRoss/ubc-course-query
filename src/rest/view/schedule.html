@@ -228,6 +228,52 @@
    }
 }
                     </textarea>
+                    <textarea id="scheduleQuerySection">
+{  
+   "WHERE":{  
+      "AND":[  
+         {  
+            "IS":{  
+               "courses_dept":"anth"
+            }
+         },
+         {  
+            "EQ":{  
+                "courses_year":2014
+            }
+         }
+      ]
+   },
+   "OPTIONS":{  
+      "COLUMNS":[  
+         "courses_dept",
+         "courses_id",
+         "numSections"
+      ],
+      "ORDER":{  
+         "dir":"UP",
+         "keys":[  
+            "courses_dept",
+            "courses_id"
+         ]
+      },
+      "FORM":"TABLE"
+   },
+   "TRANSFORMATIONS":{  
+      "GROUP":[  
+         "courses_dept",
+         "courses_id"
+      ],
+      "APPLY":[
+         {  
+            "numSections":{  
+               "COUNT":"courses_uuid"
+            }
+         }
+      ]
+   }
+}
+                    </textarea>
                 </div>
             </div>
         </main>
@@ -240,7 +286,9 @@
     <!-- On Click Scripts -->
     <script src="scripts/onclick.js"></script>
 
-    <!-- Query Scripts -->
+
+    <!--TODO: this is where I import them (acts like an import)-->
+    <!-- Schedule Scripts -->
     <script src="scripts/schedule.js"></script>
 
     <!-- Query Scripts -->
