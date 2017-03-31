@@ -112,7 +112,7 @@ $("#btnSchedule").click(function () {
 
         console.log("passObjectRooms: " + JSON.stringify(passObjectRooms));
         // TODO: call function with two arrays:
-        console.log("TEST OUTPUT: " + JSON.stringify(schedule.createSchedule(passObject, passObjectRooms)));
+        console.log("TEST OUTPUT: " + JSON.stringify(createSchedule(passObject, passObjectRooms)));
     }
 });
 
