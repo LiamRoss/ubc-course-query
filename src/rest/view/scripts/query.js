@@ -97,13 +97,18 @@ $("#btnSchedule").click(function () {
         // add numSections
         $.each(dataSection, function () {
             sectionInfo = this;
-            console.log("datasection result: " + JSON.stringify(this));
+            // console.log("datasection result: " + JSON.stringify(sectionInfo));
             $.each(passObject, function () {
                 if (this["courses_dept"] == sectionInfo["courses_dept"] &&
                 this["courses_id"] == sectionInfo["courses_id"]) {
                     var sectionNumber = Math.ceil(sectionInfo["numSections"] / 3);
                     this["numSections"] = sectionNumber;
-
+                    for (var i = 1; i < sectionNumber; i++) {
+                        var sectionCopy = jQuery.extend(true, {}, this);
+                        console.log("ORIGINAL: " + JSON.stringify(this));
+                        console.log("COPY: " + JSON.stringify(sectionCopy));
+                        passObject.push(sectionCopy);
+                    }
                     console.log("sectionNumber: " + sectionNumber);
                 }
             })
