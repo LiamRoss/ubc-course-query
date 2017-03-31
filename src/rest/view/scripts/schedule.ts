@@ -2,13 +2,13 @@
  * Created by Alice on 3/20/17.
  */
 
-import Log from "./src/Util";
+import Log from "../../../Util";
 
 class schedule {
 
     // Global schedule object
     // Will be returned when program terminates
-    // Format is [Room][Day][Hour]
+    // Format is [RoomName][Day][Hour]
     private sched: any = {};
 
     // Array of the classes that were unable to be scheduled within 8am-5pm
@@ -207,11 +207,6 @@ class schedule {
     private sortClassesToSched(classes: any[]) {
         Log.trace("    Sorting classesToSched...");
 
-        // First, add a property to each class' object that contains the number of students in the section
-        for(let section of classes) {
-            section['numStudents'] = this.getNumStudents(section);
-        }
-
         // Now, sort based on this new property in descending order
         // Comparison function for sorting
         function compare(a: any, b: any) {
@@ -277,16 +272,6 @@ class schedule {
      */
     private getAvailRoomsForDayAtHour(availRooms: any[], day: any, hour: number): any[] {
         return availRooms[day][hour];
-    }
-
-    /**
-     * Helper function
-     * Returns the total number of students in the given class section
-     * @param classSection
-     * @returns {any}
-     */
-    private getNumStudents(classSection: any): number {
-        return classSection['pass'] + classSection['fail'];
     }
 
     /**

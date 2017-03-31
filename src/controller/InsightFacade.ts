@@ -159,11 +159,15 @@ export default class InsightFacade implements IInsightFacade {
             var fail: number = sessionData.Fail;
             var audit: number = sessionData.Audit;
             var uuid: string = String(sessionData.id);
+            var numStudents: number;
 
             // year property added in d2:
             var year: number = Number(sessionData.Year);
             if (sessionData.Section == "overall") {
                 year = 1900;
+                numStudents = 0;
+            } else {
+                numStudents = sessionData.Pass + sessionData.Fail;
             }
 
             obj[i] = {
@@ -174,6 +178,7 @@ export default class InsightFacade implements IInsightFacade {
                 title,
                 pass,
                 fail,
+                numStudents,
                 audit,
                 uuid,
                 year
