@@ -52,7 +52,7 @@ export default class InsightFacade implements IInsightFacade {
      *      <course1name(file1name), file1data>,
      *      <course2name(file2name), file2data>, ...
      */
-    private dataSets: HashTable<HashTable<Object>> = {};
+    private dataSets: HashTable<HashTable<Object[]>> = {};
 
     // array of missing IDs for QueryRequest
     private missingIDs: string[];
@@ -144,8 +144,7 @@ export default class InsightFacade implements IInsightFacade {
      * @returns {Object[]}
      */
     createJsonObject(data: string): any {
-        var sections: Object[] = [];
-        var numSections = 0;
+        var obj: Object[] = [];
 
         let parsedData = JSON.parse(data);
         for (let i = 0; i < parsedData["result"].length; i++) {
@@ -171,12 +170,7 @@ export default class InsightFacade implements IInsightFacade {
                 numStudents = sessionData.Pass + sessionData.Fail;
             }
 
-            // num sections stuff
-            if(year == 2014) {
-                numSections += 1;
-            }
-
-            sections[i] = {
+            obj[i] = {
                 dept,
                 id,
                 avg,
@@ -191,9 +185,7 @@ export default class InsightFacade implements IInsightFacade {
             };
         }
 
-        numSections = Math.ceil(numSections / 3);
-
-        return {sections, numSections};
+        return obj;
     }
 
 
