@@ -1,13 +1,18 @@
 // Format query response based off of UI selectors
 
+// import schedule from "schedule.js";
+
 $("#btnSchedule").click(function () {
     // make table display again
     // $("#results-table").css("display", "table");
     // clear table
     // $("#tblResults").empty();
     var query = $("#scheduleQuery").val();
+    var queryRooms = $("#scheduleQueryRooms").val();
+    // console.log(JSON.stringify(queryRooms));
     // var query = ""
-
+    var courseResult;
+    var roomResult;
     $.ajax({
         url: 'http://localhost:4321/query',
         type: 'post',
@@ -16,46 +21,90 @@ $("#btnSchedule").click(function () {
         dataType: 'json'
     }).done(function (data) {
         console.log("Response: ", data);
-        // generateTable(data.result);
+        courseResult = data.result;
+        $.ajax({
+            url: 'http://localhost:4321/query',
+            type: 'post',
+            data: JSON.stringify(queryRooms),
+            contentType: 'application/json',
+            dataType: 'json'
+        }).done(function (data) {
+            console.log("Response: ", data);
+            roomResult = data.result;
+            
+            generateSchedule(courseResult, roomResult);
+        }).fail(function () {
+            console.error("ERROR - Failed to submit query. ");
+        });
     }).fail(function () {
         console.error("ERROR - Failed to submit query. ");
     });
 
-    // function generateTable(data) {
-    //     var tbl_head = document.createElement("thead");
-    //     var tbl_body = document.createElement("tbody");
-    //     // var odd_even = false;
-    //     //console.log("DATA", data);
-    //     var tbl_head_row = tbl_head.insertRow();
-    //     $.each(data[0], function (k, v) {
-    //         var cell_head = tbl_head_row.insertCell();
-    //         cell_head.appendChild(document.createTextNode(k.toString()));
-    //         //console.log("header value: " + k);
-    //     })
-    //     $.each(data, function () {
-    //         var tbl_row = tbl_body.insertRow();
-    //         // tbl_row.className = odd_even ? "odd" : "even";
-    //         $.each(this, function (k, v) {
-    //             var cell = tbl_row.insertCell();
-    //             cell.appendChild(document.createTextNode(v.toString()));
-    //         })
-    //         // odd_even = !odd_even
-    //     })
-    //     document.getElementById("tblResults").appendChild(tbl_head);
-    //     document.getElementById("tblResults").appendChild(tbl_body);
-    // }
+
+    
+
+    function generateSchedule(data, dataRooms) {
+        var passObject = [];
+        var passObjectRooms = [];
+        //console.log("DATA", data);
+        $.each(data, function () {
+            // console.log("data: " + JSON.stringify(data));
+
+            var passObjectCourse = {};
+            // var courseName;
+            $.each(this, function (k, v) {
+                passObjectCourse[k] = v;
+            })
+            // courseName = passObjectCourse["courses_dept"] + passObjectCourse["courses_id"].toString();
+            // console.log("courseName: " + courseName);
+            // passObject[courseName] = passObjectCourse;
+            passObject.push(passObjectCourse);
+        })
+        console.log("passObject: " + JSON.stringify(passObject));
+
+        $.each(dataRooms, function () {
+            // console.log("dataRooms: " + JSON.stringify(dataRooms));
+
+            var passObjectRoom = {};
+            // var roomName;
+            $.each(this, function (k, v) {
+                passObjectRoom[k] = v;
+            })
+            // roomName = passObjectRoom["rooms_name"];
+            // console.log("roomName: " + roomName);
+            // passObjectRooms[roomName] = passObjectRoom;
+            passObjectRooms.push(passObjectRoom);
+        })
+        console.log("passObjectRooms: " + JSON.stringify(passObjectRooms));
+        // TODO: call function with two arrays:
+        console.log("TEST OUTPUT: " + JSON.stringify(schedule.createSchedule(passObject, passObjectRooms)));
+    }
 });
 
-// TODO: fill where with params
+
 // {  
 //    "WHERE":{  
-
+//       "AND":[  
+//          {  
+//             "IS":{  
+//                "courses_dept":"anth"
+//             }
+//          },
+//          {  
+//             "NOT":{  
+//                "EQ":{  
+//                   "courses_year":1900
+//                }
+//             }
+//          }
+//       ]
 //    },
 //    "OPTIONS":{  
 //       "COLUMNS":[  
 //          "courses_dept",
 //          "courses_id",
-//          "maxStudents"
+//          "maxStudents",
+//          "maxStudentsCount"
 //       ],
 //       "ORDER":{  
 //          "dir":"UP",
@@ -75,6 +124,11 @@ $("#btnSchedule").click(function () {
 //          {  
 //             "maxStudents":{  
 //                "MAX":"courses_numStudents"
+//             }
+//          },
+//          {  
+//             "maxStudentsCount":{  
+//                "COUNT":"courses_numStudents"
 //             }
 //          }
 //       ]

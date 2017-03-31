@@ -152,15 +152,27 @@
                     <textarea id="scheduleQuery">
 {  
    "WHERE":{  
-        "IS": {
-            "courses_dept": "anth"
-       }
+      "AND":[  
+         {  
+            "IS":{  
+               "courses_dept":"anth"
+            }
+         },
+         {  
+            "NOT":{  
+               "EQ":{  
+                  "courses_year":1900
+               }
+            }
+         }
+      ]
    },
    "OPTIONS":{  
       "COLUMNS":[  
          "courses_dept",
          "courses_id",
-         "maxStudents"
+         "maxStudents",
+         "numSections"
       ],
       "ORDER":{  
          "dir":"UP",
@@ -181,8 +193,38 @@
             "maxStudents":{  
                "MAX":"courses_numStudents"
             }
+         },
+         {  
+            "numSections":{  
+               "COUNT":"courses_uuid"
+            }
          }
       ]
+   }
+}
+                    </textarea>
+                    <textarea id="scheduleQueryRooms">
+{  
+   "WHERE":{
+        "IS":{  
+            "rooms_shortname":"ANGU"
+        }
+   },
+   "OPTIONS":{  
+      "COLUMNS":[  
+         "rooms_name",
+         "rooms_shortname",
+         "rooms_seats",
+         "rooms_lat",
+         "rooms_lon"
+      ],
+      "ORDER":{  
+         "dir":"UP",
+         "keys":[  
+            "rooms_name"
+         ]
+      },
+      "FORM":"TABLE"
    }
 }
                     </textarea>
@@ -197,6 +239,9 @@
 
     <!-- On Click Scripts -->
     <script src="scripts/onclick.js"></script>
+
+    <!-- Query Scripts -->
+    <script src="scripts/schedule.js"></script>
 
     <!-- Query Scripts -->
     <script src="scripts/query.js"></script>
