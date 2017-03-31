@@ -79,7 +79,7 @@ $("#btnSchedule").click(function () {
             // passObject[courseName] = passObjectCourse;
             passObject.push(passObjectCourse);
         })
-        console.log("passObject: " + JSON.stringify(passObject));
+        //console.log("passObject: " + JSON.stringify(passObject));
 
         $.each(dataRooms, function () {
             // console.log("dataRooms: " + JSON.stringify(dataRooms));
@@ -116,8 +116,19 @@ $("#btnSchedule").click(function () {
 
 
         console.log("passObjectRooms: " + JSON.stringify(passObjectRooms));
-        // TODO: call function with two arrays:
-        console.log("TEST OUTPUT: " + JSON.stringify(createSchedule(passObject, passObjectRooms)));
+
+        // Contains object of classSchedule, classesNotScheduled, quality
+        var output = scheduleMaker(passObject, passObjectRooms);
+
+        var classSchedule = output['classSchedule'];
+
+        Object.keys(classSchedule).forEach(function(key) {
+            // Key is the room-name
+            // classSchedule[k] has the Monday/Tuesday hourly schedule, check console log for more details
+            console.log(key, classSchedule[key]);
+        });
+
+        //console.log("TEST OUTPUT: " + JSON.stringify(scheduleMaker(passObject, passObjectRooms)));
     }
 });
 
