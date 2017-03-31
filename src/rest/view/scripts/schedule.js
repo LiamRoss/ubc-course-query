@@ -1,5 +1,5 @@
 "use strict";
-var Util_1 = require("./src/Util");
+var Util_1 = require("../../../Util");
 var schedule = (function () {
     function schedule() {
         this.sched = {};
@@ -110,10 +110,6 @@ var schedule = (function () {
     };
     schedule.prototype.sortClassesToSched = function (classes) {
         Util_1.default.trace("    Sorting classesToSched...");
-        for (var _i = 0, classes_1 = classes; _i < classes_1.length; _i++) {
-            var section = classes_1[_i];
-            section['numStudents'] = this.getNumStudents(section);
-        }
         function compare(a, b) {
             if (a['numStudents'] < b['numStudents']) {
                 return 1;
@@ -150,9 +146,6 @@ var schedule = (function () {
     };
     schedule.prototype.getAvailRoomsForDayAtHour = function (availRooms, day, hour) {
         return availRooms[day][hour];
-    };
-    schedule.prototype.getNumStudents = function (classSection) {
-        return classSection['pass'] + classSection['fail'];
     };
     schedule.prototype.getNumRooms = function (rooms) {
         return rooms.length;

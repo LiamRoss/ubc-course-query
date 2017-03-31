@@ -1650,7 +1650,7 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("key: " + key + " - type of key: " + typeof key);
             //Log.trace("typeof key === string? " + String(typeof key === 'string'));
             if (typeof key === 'string' &&
-                /(.+_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid|lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
+                /(.+_(avg|pass|fail|numStudents|audit|year|dept|id|instructor|title|uuid|lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                 var keyParts = key.split("_");
                 var keyID = keyParts[0];
                 // adds to array of missingIDs if it doesn't exists
@@ -1664,7 +1664,7 @@ export default class InsightFacade implements IInsightFacade {
                 // try, catch if key is not valid string
                 //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
                 try {
-                    if (/(courses_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid))/.test(key) ||
+                    if (/(courses_(avg|pass|fail|numStudents|audit|year|dept|id|instructor|title|uuid))/.test(key) ||
                         /(rooms_(lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                         // sets activeDataset if not already set
                         if (this.activeDataset.length === 0) {
@@ -1698,7 +1698,7 @@ export default class InsightFacade implements IInsightFacade {
             //Log.trace("key: " + key + " - type of key: " + typeof key);
             //Log.trace("typeof key === string? " + String(typeof key === 'string'));
             if (typeof key === 'string' &&
-                /(.+_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid|lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
+                /(.+_(avg|pass|fail|numStudents|audit|year|dept|id|instructor|title|uuid|lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                 var keyParts = key.split("_");
                 var keyID = keyParts[0];
                 // adds to array of missingIDs if it doesn't exists
@@ -1712,7 +1712,7 @@ export default class InsightFacade implements IInsightFacade {
                 // try, catch if key is not valid string
                 //Log.trace("keyID = " + keyID + ", type = " + (keyID).constructor.name);
                 try {
-                    if (/(courses_(avg|pass|fail|audit|year|dept|id|instructor|title|uuid))/.test(key) ||
+                    if (/(courses_(avg|pass|fail|numStudents|audit|year|dept|id|instructor|title|uuid))/.test(key) ||
                         /(rooms_(lat|lon|seats|fullname|shortname|number|name|address|type|furniture|href))/.test(key)) {
                         // sets activeDataset if not already set
                         if (this.activeDataset.length === 0) {
@@ -1802,6 +1802,7 @@ export default class InsightFacade implements IInsightFacade {
                                 title: section["title"],
                                 pass: section["pass"],
                                 fail: section["fail"],
+                                numStudents: section["numStudents"],
                                 audit: section["audit"],
                                 uuid: section["uuid"],
                                 year: section["year"]
@@ -1957,7 +1958,7 @@ export default class InsightFacade implements IInsightFacade {
         var k = Object.keys(mC);
         var key = k[0];
         try {
-            if (/((courses|rooms)_(avg|pass|fail|audit|year|lat|lon|seats))/.test(key)) {
+            if (/((courses|rooms)_(avg|pass|fail|numStudents|audit|year|lat|lon|seats))/.test(key)) {
                 var keyType = this.keyToSection(key);
                 if (section.hasOwnProperty(keyType)) {
                     return [mC[key], section[keyType]];

@@ -119,6 +119,10 @@ select {
     display: none;
 }
 
+#scheduleQuery {
+    display: none;
+}
+
 @media (min-width: 474px) {
     #btnUpload {
         float: right;
