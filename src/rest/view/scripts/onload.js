@@ -36,6 +36,10 @@ function updateCSS() {
             $("#sort-selector").removeAttr("disabled");
             // enable sort direction
             $("#direction-selector").removeAttr("disabled");
+            // enable column
+            $("#column-selector").removeAttr("disabled");
+            // enable add column
+            $("#column-adder").removeAttr("disabled");
 
             // show+hide
             $(".courses-select").css("display", "block");
@@ -49,6 +53,10 @@ function updateCSS() {
             $("#sort-selector").removeAttr("disabled");
             // enable sort direction
             $("#direction-selector").removeAttr("disabled");
+            // enable column
+            $("#column-selector").removeAttr("disabled");
+            // enable add column
+            $("#column-adder").removeAttr("disabled");
 
             // show+hide
             $(".courses-select").css("display", "none");
@@ -62,6 +70,10 @@ function updateCSS() {
             $("#sort-selector").attr("disabled", "disabled");
             // disable sort direction
             $("#direction-selector").attr("disabled", "disabled");
+            // disable column
+            $("#column-selector").attr("disabled", "disabled");
+            // disable add column
+            $("#column-adder").attr("disabled", "disabled");
 
             // show+hide
             $(".courses-select").css("display", "none");
@@ -74,13 +86,13 @@ function checkSelected() {
     $(document).ready(function () {
         var disableSubmit = false;
         $("select option:selected ").each(function () {
-            //console.log("inside disableSubmit, " + this.id);
+            console.log("inside disableSubmit, " + this.id);
             if (this.id == 'placeholder') {
                 $("#btnSubmit").attr("disabled", "disabled");
                 disableSubmit = true;
             }
         })
-        if (!disableSubmit) {
+        if (disableSubmit) {
             $("#btnSubmit").removeAttr("disabled");
         }
     });

@@ -93,3 +93,29 @@
 thead {
     font-weight: bold;
 }
+
+/* button to upload file */
+.adder {
+    padding: 5px 8px 5px 8px !important;
+    float: right;
+}
+
+#column-selector {
+    margin-bottom: 10px;
+    margin-right: 10px;
+    margin-left: -10px;
+    float: left;
+    /*max-width: calc(50% - 15px);*/
+    max-width: 50%;
+}
+
+#column-list {
+    margin-top: 32px;
+    padding: 10px;
+    padding-left: 0px;
+    margin-left: -10px;
+}
+
+.column-item {
+    margin-right: 10px;
+}

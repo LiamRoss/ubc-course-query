@@ -17,6 +17,16 @@ $(document).on('change', '.comparison-selector', function () {
     checkSelected();
 });
 
+// call checkSelected when sort-selector changes
+$(document).on('change', '#sort-selector', function () {
+    checkSelected();
+});
+
+// call checkSelected when direction-selector changes
+$(document).on('change', '#direction-selector', function () {
+    checkSelected();
+});
+
 // $(document).ready(function() {
 // update relevant UI based on filter-selector 
 $(document).on('change', '.filter-selector', function () {
@@ -37,6 +47,7 @@ $(document).on('change', '.filter-selector', function () {
     // get selected element value
     var selected = $(this).children(":selected").val();
     // TODO: set title of parent to value of query element
+    $(parentId).data('ref', selected);
     $(parentId).prop('title', selected);
     // switch statement for value
     switch (selected) {
