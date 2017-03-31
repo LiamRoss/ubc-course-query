@@ -2151,7 +2151,7 @@ export default class InsightFacade implements IInsightFacade {
                                     foundMatchingGroup = true;
                                     var groupIndex = groups.indexOf(group);
                                     if (groupIndex !== -1) {
-                                        var returnedMerge: any = this.mergeSectionGroup(section, {}, query.TRANSFORMATIONS);
+                                        var returnedMerge: any = this.mergeSectionGroup(section, group, query.TRANSFORMATIONS);
                                         if (Object.keys(returnedMerge).length !== 1) {
                                             groups[groupIndex] = returnedMerge;
                                         } else {
@@ -2201,6 +2201,7 @@ export default class InsightFacade implements IInsightFacade {
     // returns a string error message if there is an error
     mergeSectionGroup(section: Section | Room, group: any, transformations: Transformations): Group {
         // return("timeouts are garbage");
+        Log.trace("group @ start: " + JSON.stringify(group));
         try {
             //Log.trace("inside mergeSectionGroup");
             let returnGroup: any;
@@ -2222,6 +2223,7 @@ export default class InsightFacade implements IInsightFacade {
             else {
                 //Log.trace("group is not empty object, already exists");
                 returnGroup = group;
+                Log.trace("returnGroup @ start: " + JSON.stringify(returnGroup));
             }
             // for each applyKey
             for (let applyKey of transformations.APPLY) {
@@ -2245,26 +2247,32 @@ export default class InsightFacade implements IInsightFacade {
                 } else {
                     returnGroup[key + "count"] = 1;
                 }
+                if (returnGroup.hasOwnProperty(key + "sum")) {
+                    
+                } else {
+                    returnGroup[key + "sum"] = 0;
+                }
                 //Log.trace("sectionKey: " + sectionKey);
 
                 switch (applyToken) {
                     case "MAX":
-                        //Log.trace("case: MAX");
+                        Log.trace("case: MAX");
                         // check if is numbers
                         if (typeof section[sectionKey] !== 'number') {
                             return {"error": "MAX key must be a number"};
                         } else {
                             returnGroup[key + "sum"] = returnGroup[key + "sum"] + section[sectionKey];
                             if (returnGroup.hasOwnProperty(key)) {
-                                //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
+                                Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
                                 if (section[sectionKey] > returnGroup[key]) {
                                     returnGroup[key] = section[sectionKey];
                                 }
                             } else {
-                                //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
+                                Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
                                 returnGroup[key] = section[sectionKey];
                             }
                         }
+                        Log.trace("returnGroup: " + JSON.stringify(returnGroup));
                         break;
                     case "MIN":
                         //Log.trace("case: MIN");
