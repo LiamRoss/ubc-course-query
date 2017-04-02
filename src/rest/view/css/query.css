@@ -46,6 +46,7 @@
     float: right;
     /*max-width: calc(50% - 15px);*/
     max-width: 50%;
+    display: none;
 }
 
 /* selector for filters */

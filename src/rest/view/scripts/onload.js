@@ -86,7 +86,7 @@ function checkSelected() {
     $(document).ready(function () {
         var disableSubmit = false;
         $("select option:selected ").each(function () {
-            console.log("inside disableSubmit, " + this.id);
+            // console.log("inside disableSubmit, " + this.id);
             if (this.id == 'placeholder') {
                 $("#btnSubmit").attr("disabled", "disabled");
                 disableSubmit = true;

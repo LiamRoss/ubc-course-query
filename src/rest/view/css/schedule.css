@@ -82,11 +82,18 @@ button.selected {
     padding: 10px;
     /*padding-bottom: 0px;*/
     margin-top: 10px;
-    padding-left: 20px;
     border: 1px solid #ccc;
     overflow: hidden;
 }
 
 .form-group {
-    width: 80%;
+    width: calc(100% - 42px);
+}
+
+#subsets-title {
+    margin-bottom: 0px;
+}
+
+.adder {
+    margin-top: -47px;
 }

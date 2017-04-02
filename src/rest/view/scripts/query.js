@@ -65,7 +65,7 @@ $("#btnSchedule").click(function () {
     function generateSchedule(data, dataRooms, dataSection) {
         var passObject = [];
         var passObjectRooms = [];
-        ////console.log("DATA", data);
+        //console.log("DATA", data);
         $.each(data, function () {
             // //console.log("data: " + JSON.stringify(data));
 
@@ -79,7 +79,7 @@ $("#btnSchedule").click(function () {
             // passObject[courseName] = passObjectCourse;
             passObject.push(passObjectCourse);
         })
-        ////console.log("passObject: " + JSON.stringify(passObject));
+        //console.log("passObject: " + JSON.stringify(passObject));
 
         $.each(dataRooms, function () {
             // //console.log("dataRooms: " + JSON.stringify(dataRooms));
@@ -111,13 +111,13 @@ $("#btnSchedule").click(function () {
                         //console.log("COPY: " + JSON.stringify(sectionCopy));
                         passObject.push(sectionCopy);
                     }
-                    console.log("sectionNumber: " + sectionNumber);
+                    //console.log("sectionNumber: " + sectionNumber);
                 }
             })
 
              if (!foundSection) {
                 var index = passObject.indexOf(this);
-                console.log("INDEX OF THIS: " + index);
+                //console.log("INDEX OF THIS: " + index);
                 if (index > -1) {
                     passObject.splice(index, 1);
                 }
@@ -132,6 +132,7 @@ $("#btnSchedule").click(function () {
 
         var classSchedule = output['classSchedule'];
         var classesNotScheduled = output["classesNotScheduled"];
+        //console.log("classesNotScheduled:\n" + JSON.stringify(classesNotScheduled));
         var quality = output["quality"];
 
         Object.keys(classSchedule).forEach(function(key) {
@@ -157,15 +158,15 @@ $("#btnSchedule").click(function () {
                 Object.keys(classSchedule[key]["Tuesday"]).forEach(function(tueKey) {
                     var day = "t";
                     var time = tueKey;
-                    //console.log("hitting if");
+                    // //console.log("hitting if");
                     if (tueKey == "9.5") {
-                        //console.log("===9.5");
+                        // //console.log("===9.5");
                         time = "95";
                     } else if (tueKey == "12.5") {
-                        //console.log("===12.5");
+                        // //console.log("===12.5");
                         time = "125";
                     } else if (tueKey == "15.5") {
-                        //console.log("===15.5");
+                        // //console.log("===15.5");
                         time = "155";
                     }
                     //console.log("tuesday time key: " + time);
@@ -181,13 +182,13 @@ $("#btnSchedule").click(function () {
 
 
 
-        ////console.log("TEST OUTPUT: " + JSON.stringify(scheduleMaker(passObject, passObjectRooms)));
+        //console.log("TEST OUTPUT: " + JSON.stringify(scheduleMaker(passObject, passObjectRooms)));
     }
 });
 
 function makeBlock (room, lat, lon, building, time, dept, id, day) {
     var uniqueId = new Date().getTime().toString() + "block";
-    var blockId = lat + "-" + lon + "-" + uniqueId;
+    var blockId = lat + "_" + lon + "_" + uniqueId;
 
     var block = '<div class="block" id="' + blockId + '"><h5>' + building + '</h5><h4>' + dept.toUpperCase() + id + '</h4><h5>' + room + '</h5></div>';
 
@@ -260,3 +261,71 @@ function makeBlock (room, lat, lon, building, time, dept, id, day) {
 //       ]
 //    }
 // }
+
+$("#course-subset-field").change(function () {
+    if ($(this).children(":selected").attr("id") == "placeholder") {
+        return;
+    }
+
+    var b = false;
+    var val = $(this).children(":selected").val();
+    //console.log("val: " + val);
+    var text = $(this).children(":selected").text();
+    //console.log("text: " + text);
+
+    $(".subset-list-item").each( function (i) {
+        //console.log("inside each, index = " + i);
+        //console.log("this value: " + $(this).text());
+        //console.log("text value: " + text);
+        if ($(this).text() == text) {
+            //console.log("values are equal!!");
+            b = true;
+        }
+    })
+
+    if (b) {
+        return;
+    }
+
+    // var uniqueId = new Date().getTime().toString() + "csubset";
+
+    var subset = '<li id="' + val + '" class="subset-list-item">' + text + '</li>';
+    $(subset).appendTo('#course-subset-list');
+})
+
+$("#room-subset-field").change(function () {
+    if ($(this).children(":selected").attr("id") == "placeholder") {
+        return;
+    }
+
+    var b = false;
+    var val = $(this).children(":selected").val();
+    //console.log("val: " + val);
+    var text = $(this).children(":selected").text();
+    //console.log("text: " + text);
+
+    $(".subset-list-item").each( function (i) {
+        //console.log("inside each, index = " + i);
+        //console.log("this value: " + $(this).text());
+        //console.log("text value: " + text);
+        if ($(this).text() == text) {
+            //console.log("values are equal!!");
+            b = true;
+        }
+    })
+
+    if (b) {
+        return;
+    }
+
+    // var uniqueId = new Date().getTime().toString() + "csubset";
+
+    var subset = '<li id="' + val + '" class="subset-list-item">' + text + '</li>';
+    $(subset).appendTo('#room-subset-list');
+})
+
+$(document).on('click', '.subset-list-item', function () {
+    var id = $(this).attr("id");
+    //console.log("id: " + id);
+    $("#" + id).remove();
+})

@@ -144,28 +144,44 @@
                                 <option value="courses">A315</option>
                                 <option value="rooms">B214</option>
                             </select>
+                            <!--<input type="string" class="form-control" id="course-selector" placeholder="Course number">-->
                         </div>
                     </div>
                     
                     <!--TODO: subsets go here-->
                     <!--Column selectors go here-->
-                    <h5 id="uploaded-title">Subsets</h5>
-                    <div class="filter-color-0 subset-area hide-overflow" id="course-subset-area">
-                        <div class="form-group float-left">
-                            <h5>Enter Course (ex. "CPSC 310" or "ANTH 210") and press plus to add to subset for schedule.</h5>
-                            <input type="search" class="form-control" id="" placeholder="Enter course">
+                    <h5 id="subsets-title">Subsets</h5>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="filter-color-0 subset-area" id="course-subset-area">
+                                <div class="form-group">
+                                    <p>Choose course to create subset for schedule. Click to remove.</p>
+                                    <!--<input type="search" class="form-control" id="course-subset-field" placeholder="Enter course">-->
+                                    <select class="btn btn-default" id="course-subset-field">
+                                        <option value="" selected id="placeholder">Enter course</option>
+                                        <option value="cpsc_210">CPSC 210</option>
+                                        <option value="cpsc_310">CPSC 310</option>
+                                    </select>
+                                </div>
+                                <ul id="course-subset-list" class="subset-list">
+                                </ul>
+                            </div>
                         </div>
-                        <button class="btn btn-default adder float-right" id="course-subset-adder"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                        <div id="column-list"></div>
-                    </div>
-
-                    <div class="filter-color-0 subset-area hide-overflow" id="room-subset-area">
-                        <div class="form-group float-left">
-                            <h5>Enter Room (ex. "ALRD_120" or "SCRF_1003") and press plus to add to subset for room.</h5>
-                            <input type="search" class="form-control" id="" placeholder="Enter course">
+                        <div class="col-sm-6">
+                            <div class="filter-color-0 subset-area" id="room-subset-area">
+                                <div class="form-group">
+                                    <p>Choose room to create subset for schedule. Click to remove.</p>
+                                    <!--<input type="search" class="form-control" id="room-subset-field" placeholder="Enter course">-->
+                                    <select class="btn btn-default" id="room-subset-field">
+                                        <option value="" selected id="placeholder">Enter room</option>
+                                        <option value="AERL_120">AERL_120</option>
+                                        <option value="ANSO_205">ANSO_205</option>
+                                    </select>
+                                </div>
+                                <ul id="room-subset-list" class="subset-list">
+                                </ul>
+                            </div>
                         </div>
-                        <button class="btn btn-default adder float-right" id="course-subset-adder"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                        <div id="column-list"></div>
                     </div>
                     <!--TODO: subsets end  here-->
                 </div>
@@ -272,11 +288,6 @@
                         "courses_year":1900
                     }
                 }
-            },
-            {
-                "IS":{  
-                    "courses_dept":"anth"
-                }
             }
         ]
     },
@@ -339,11 +350,6 @@
                 "EQ":{  
                     "courses_year":2014
                 }
-            },
-            {
-                "IS":{  
-                    "courses_dept":"anth"
-                }
             }
         ]
    },
@@ -377,6 +383,10 @@
    }
 }
                     </textarea>
+                </div>
+            </div>
+            <div id="results-wrapper" class="internal-wrappers">
+                <div class="colour-wrappers">
                 </div>
             </div>
         </main>
