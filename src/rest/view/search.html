@@ -16,6 +16,8 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
             crossorigin="anonymous"></script>
 
+    <script src="Chart.js"></script>
+
     <!-- Modernizr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 
@@ -50,6 +52,7 @@
         input[type=text]:focus {
             width: 100%;
         }
+
     </style>
 
 </head>
@@ -87,7 +90,7 @@
 
     <!--MAIN-->
     <main id="main-wrapper">
-        <div class="container">
+        <div class="container" id="containerThing">
             <h1>Course search</h1>
             <p>Type in a course and hit the enter key to obtain readable and neatly visualized information. Example searches: "CPSC 310", "ANTH 210".</p>
             <form id="searchForm" action="search">
@@ -97,6 +100,19 @@
                     </div>
                 </div>
             </form>
+
+            <div id="place">
+
+                <div id="dont">
+                    <div style="display: inline-block">
+                        <canvas id="myChart" width="500" height="500"></canvas>
+                    </div>
+                    <div style="display: inline-block">
+                        <canvas id="myChart2" width="500" height="500"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -107,7 +123,6 @@
         e.preventDefault();
         var searchText = $('#searchBox').val();
         // var searchText = search($("#searchText").get(0));
-        alert(searchText);
         var courseDept = searchText.split(" ")[0];
         var courseNumber = searchText.split(" ")[1];
         console.log("Searching for a " + courseDept + " course with number " + courseNumber);
@@ -152,16 +167,156 @@
             contentType: 'application/json',
             dataType: 'json'
         }).done(function(data) {
-            console.log("DATA: " + JSON.stringify(data));
-            $.each(data.result[0], function (k, v) {
-                console.log(k.toString() + v.toString());
-                //console.log("header value: " + k);
-            });
+            var courseName = courseDept + " " + courseNumber;
+            var totalSections = 0;
+            var passed = 0;
+            var failed = 0;
+            var minYear = 99999;
+            var maxYear = 0;
+            var avgs = [];
+            var years = [];
+
             $.each(data.result, function () {
+                totalSections += 1;
                 $.each(this, function (k, v) {
-                    console.log(k.toString() + v.toString());
+                    console.log("second thing: " + k.toString() + v.toString());
+                    if(k.toString() == "courses_pass") passed += v;
+                    if(k.toString() == "courses_fail") failed += v;
+                    if(k.toString() == "courses_year") {
+                        var year = v;
+                        years.push(year);
+                        if(year < minYear && year != 1900) {
+                            minYear = year;
+                        }
+                        if(year > maxYear) {
+                            maxYear = year;
+                        }
+                    }
+                    if(k.toString() == "courses_avg") {
+                        avgs.push(v);
+                    }
                 })
-            })
+            });
+
+
+            // Clean the data
+            for(var i=0; i<avgs.length; i++) {
+                if(years[i] == 1900) {
+                    years.splice(i, 1);
+                    avgs.splice(i, 1);
+                }
+            }
+
+            // Sort it
+            var all = [];
+
+            for (var i = 0; i < avgs.length; i++) {
+                all.push({ 'years': years[i], 'avgs': avgs[i] });
+            }
+
+            all.sort(function(a, b) {
+                return a.years - b.years;
+            });
+
+            years = [];
+            avgs = [];
+
+            for (var i = 0; i < all.length; i++) {
+                years.push(all[i].years);
+                avgs.push(all[i].avgs);
+            }
+
+
+            console.log(avgs);
+            console.log(years);
+
+            $('#place').contents(':not(div)').remove();
+
+            // DISPLAYING FOUND INFO
+
+            var passedRate = (passed/(passed + failed));
+            var failedRate = (failed/(passed + failed));
+            $('<p>').text("Here are some graphs I made:").prependTo("#place");
+            $('<p>').text("On average, " + Math.round(passedRate*100) + "% of students pass " + courseName + ", "
+            + "and " + Math.round(failedRate*100) + "% of students fail " + courseName + ".").prependTo("#place");
+            $('<p>').text("I found " + totalSections + " total sections for " + courseDept + " " + courseNumber + ".").prependTo('#place');
+            $('<p>').text("The first section of " + courseName + " was in " + minYear + "!").prependTo('#place');
+            $('<h1>').text(courseName).prependTo("#place");
+
+
+            var graphData = {
+                labels: [
+                    "Pass",
+                    "Fail",
+                ],
+                datasets: [
+                    {
+                        data: [passed, failed],
+                        backgroundColor: [
+                            "#75eb7e",
+                            "#FF6384",
+                        ],
+                        hoverBackgroundColor: [
+                            "#75eb7e",
+                            "#FF6384",
+                        ]
+                    }]
+            };
+
+            var lineData = {
+                labels: years,
+                datasets: [
+                    {
+                        label: "Class average in %",
+                        fill: false,
+                        lineTension: 0.1,
+                        backgroundColor: "rgba(75,192,192,0.4)",
+                        borderColor: "rgba(75,192,192,1)",
+                        borderCapStyle: 'butt',
+                        borderDash: [],
+                        borderDashOffset: 0.0,
+                        borderJoinStyle: 'miter',
+                        pointBorderColor: "rgba(75,192,192,1)",
+                        pointBackgroundColor: "#fff",
+                        pointBorderWidth: 1,
+                        pointHoverRadius: 5,
+                        pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                        pointHoverBorderColor: "rgba(220,220,220,1)",
+                        pointHoverBorderWidth: 2,
+                        pointRadius: 1,
+                        pointHitRadius: 10,
+                        data: avgs,
+                        spanGaps: false,
+                    }
+                ]
+            };
+
+            var ctx = $('#myChart');
+            var options = { maintainAspectRatio: false,
+                responsive: false,
+                title: {
+                display: true,
+                    text: "Pass and fail rate of students in " + courseName
+                }};
+            var myDoughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: graphData,
+                options: options
+            });
+
+            var options2 = { maintainAspectRatio: false,
+                responsive: false,
+                title: {
+                    display: true,
+                    text: "Class average over time for " + courseName
+                }};
+            var ctx2 = $('#myChart2');
+            var myLineChart = new Chart(ctx2, {
+                type: 'line',
+                data: lineData,
+                options: options2
+            });
+
         }).fail(function(err) {
            alert("Your search failed. " + JSON.stringify(err));
         });
