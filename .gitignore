@@ -12,6 +12,8 @@ node_modules/
 .yarnclean
 coverage/
 .vscode/
+courses.json
+rooms.json
 
 # don't ignore .js in javascript front end
 !src/rest/view/scripts/*.js
