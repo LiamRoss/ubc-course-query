@@ -94,12 +94,6 @@ thead {
     font-weight: bold;
 }
 
-/* button to upload file */
-.adder {
-    padding: 5px 8px 5px 8px !important;
-    float: right;
-}
-
 #column-selector {
     margin-bottom: 10px;
     margin-right: 10px;

@@ -73,3 +73,20 @@ button.selected {
     float: left;
     margin-bottom: 10px;
 }
+
+/* container for sorting */
+.subset-area {
+    border-radius: 4px;
+    /*height: 300px;*/
+    width: 100%;
+    padding: 10px;
+    /*padding-bottom: 0px;*/
+    margin-top: 10px;
+    padding-left: 20px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+}
+
+.form-group {
+    width: 80%;
+}

@@ -69,6 +69,7 @@
             <!--Upload Interface-->
             <div id="file-upload-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
+                    <h4 id="uploaded-title">Upload Datasets</h4>
                     <div class="hide-overflow">
                         <input type="file" name="fileUpload" class="btn btn-default" id="fileUpload" />
                         <button class="btn btn-default" id="btnUpload">Upload Dataset</button>
@@ -90,6 +91,7 @@
             <!--Filtering Interface-->
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
+                    <h4 id="uploaded-title">Schedule Parameters</h4>
                     <!--Rooms-->
                     <h5 id="uploaded-title">Filtering</h5>
                     <div class="row bottom-spacing">
@@ -147,31 +149,22 @@
                     
                     <!--TODO: subsets go here-->
                     <!--Column selectors go here-->
-                    <div class="filter-color-0" id="sorting-area">
-                        <select class="btn btn-default" id="column-selector">
-                            <option value="" selected id="placeholder">Select Column</option>
-                            <option class="courses-select" value="courses_avg">Average</option>
-                            <option class="courses-select" value="courses_pass">Passed</option>
-                            <option class="courses-select" value="courses_fail">Failed</option>
-                            <option class="courses-select" value="courses_audit">Audited</option>
-                            <option class="rooms-select" value="rooms_lat">Latitude</option>
-                            <option class="rooms-select" value="rooms_lon">Longitude</option>
-                            <option class="rooms-select" value="rooms_seats">Seats</option>
-                            <option class="courses-select" value="courses_dept">Department</option>
-                            <option class="courses-select" value="courses_id">ID</option>
-                            <option class="courses-select" value="courses_instructor">Instructor</option>
-                            <option class="courses-select" value="courses_title">Title</option>
-                            <option class="courses-select" value="courses_uuid">Unique ID</option>
-                            <option class="rooms-select" value="rooms_fullname">Full name</option>
-                            <option class="rooms-select" value="rooms_shortname">Short name</option>
-                            <option class="rooms-select" value="rooms_number">Room number</option>
-                            <option class="rooms-select" value="rooms_name">Room name</option>
-                            <option class="rooms-select" value="rooms_address">Room address</option>
-                            <option class="rooms-select" value="rooms_type">Room type</option>
-                            <option class="rooms-select" value="rooms_furniture">Room furniture</option>
-                            <option class="rooms-select" value="rooms_href">Room href</option>
-                        </select>
-                        <button class="btn btn-default adder" id="column-adder"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+                    <h5 id="uploaded-title">Subsets</h5>
+                    <div class="filter-color-0 subset-area hide-overflow" id="course-subset-area">
+                        <div class="form-group float-left">
+                            <h5>Enter Course (ex. "CPSC 310" or "ANTH 210") and press plus to add to subset for schedule.</h5>
+                            <input type="search" class="form-control" id="" placeholder="Enter course">
+                        </div>
+                        <button class="btn btn-default adder float-right" id="course-subset-adder"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+                        <div id="column-list"></div>
+                    </div>
+
+                    <div class="filter-color-0 subset-area hide-overflow" id="room-subset-area">
+                        <div class="form-group float-left">
+                            <h5>Enter Room (ex. "ALRD_120" or "SCRF_1003") and press plus to add to subset for room.</h5>
+                            <input type="search" class="form-control" id="" placeholder="Enter course">
+                        </div>
+                        <button class="btn btn-default adder float-right" id="course-subset-adder"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
                         <div id="column-list"></div>
                     </div>
                     <!--TODO: subsets end  here-->
@@ -272,18 +265,26 @@
                     <textarea id="scheduleQuery">
 {  
    "WHERE":{  
-        "NOT":{  
-            "EQ":{  
-                "courses_year":1900
+        "AND":[
+            {
+                "NOT":{  
+                    "EQ":{  
+                        "courses_year":1900
+                    }
+                }
+            },
+            {
+                "IS":{  
+                    "courses_dept":"anth"
+                }
             }
-        }
+        ]
     },
    "OPTIONS":{  
       "COLUMNS":[  
          "courses_dept",
          "courses_id",
-         "maxStudents",
-         "numSections"
+         "maxStudents"
       ],
       "ORDER":{  
          "dir":"UP",
@@ -303,11 +304,6 @@
          {  
             "maxStudents":{  
                "MAX":"courses_numStudents"
-            }
-         },
-         {  
-            "numSections":{  
-               "COUNT":"courses_uuid"
             }
          }
       ]
@@ -338,13 +334,18 @@
                     <textarea id="scheduleQuerySection">
 {  
    "WHERE":{  
-      "AND":[
-         {  
-            "EQ":{  
-                "courses_year":2014
+        "AND":[
+            {
+                "EQ":{  
+                    "courses_year":2014
+                }
+            },
+            {
+                "IS":{  
+                    "courses_dept":"anth"
+                }
             }
-         }
-      ]
+        ]
    },
    "OPTIONS":{  
       "COLUMNS":[  

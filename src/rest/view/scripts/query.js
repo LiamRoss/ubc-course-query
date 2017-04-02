@@ -95,12 +95,14 @@ $("#btnSchedule").click(function () {
             passObjectRooms.push(passObjectRoom);
         })
         // add numSections
-        $.each(dataSection, function () {
+        $.each(passObject, function () {
+            var foundSection = false;
             sectionInfo = this;
             // //console.log("datasection result: " + JSON.stringify(sectionInfo));
-            $.each(passObject, function () {
+            $.each(dataSection, function () {
                 if (this["courses_dept"] == sectionInfo["courses_dept"] &&
                 this["courses_id"] == sectionInfo["courses_id"]) {
+                    foundSection = true;
                     var sectionNumber = Math.ceil(sectionInfo["numSections"] / 3);
                     this["numSections"] = sectionNumber;
                     for (var i = 1; i < sectionNumber; i++) {
@@ -109,9 +111,17 @@ $("#btnSchedule").click(function () {
                         //console.log("COPY: " + JSON.stringify(sectionCopy));
                         passObject.push(sectionCopy);
                     }
-                    //console.log("sectionNumber: " + sectionNumber);
+                    console.log("sectionNumber: " + sectionNumber);
                 }
             })
+
+             if (!foundSection) {
+                var index = passObject.indexOf(this);
+                console.log("INDEX OF THIS: " + index);
+                if (index > -1) {
+                    passObject.splice(index, 1);
+                }
+            }
         })
 
 

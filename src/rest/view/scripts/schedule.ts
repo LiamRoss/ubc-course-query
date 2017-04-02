@@ -51,11 +51,11 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
      * @param rooms
      */
     function createSchedule(classes: any[], rooms: any[]): any {
-        //console.log("Creating schedule...");
+        console.log("Creating schedule...");
 
         numRooms = getNumRooms(rooms);
         numClasses = getNumClasses(classes);
-        //console.log("numClasses = " + numClasses + " numRooms = " + numRooms);
+        console.log("numClasses = " + numClasses + " numRooms = " + numRooms);
 
         let sortedRooms = sortRooms(rooms); // .slice() copies the 'rooms' array
         let sortedClasses = sortClassesToSched(classes);
@@ -74,7 +74,7 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
             availRoomsMWF[j] = sortedRooms.slice();
         }
 
-        //console.log("availRoomsMWF initialized...");
+        console.log("availRoomsMWF initialized...");
 
         // Initialize the TT available rooms object
         availRoomsTT = [];
@@ -82,7 +82,7 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
             availRoomsTT[j] = sortedRooms.slice();
         }
 
-        //console.log("availRoomsTT initialized...");
+        console.log("availRoomsTT initialized...");
 
         // Now we can start scheduling
         createScheduleHelper(sortedClasses);
@@ -96,9 +96,9 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
             quality = classesFailedToSchedule.length / numClasses;
         }
 
-        //console.log(sched);
-        //console.log("Number of classes that failed to be scheduled: " + classesNotScheduled.length);
-        //console.log("Quality: " + quality);
+        console.log(sched);
+        console.log("Number of classes that failed to be scheduled: " + classesNotScheduled.length);
+        console.log("Quality: " + quality);
 
         return {classSchedule, classesNotScheduled, quality};
     }
@@ -110,13 +110,13 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
      * @param availRooms
      */
     function createScheduleHelper(classes: any[]) {
-        //console.log("in createScheduleHelper");
+        console.log("in createScheduleHelper");
 
         for (let c = 0; c < numClasses; c++) {
             // The class that we are going to try and schedule
             let highestEnrollmentClass = classes[c];
 
-            //console.log("c = " + c, ", numStudents = " + highestEnrollmentClass['maxStudents']);
+            console.log("c = " + c, ", numStudents = " + highestEnrollmentClass['maxStudents']);
 
             let scheduledMWF: boolean = false;
             let scheduledTT: boolean = false;
@@ -127,17 +127,17 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
                 if (isRoomAvailableMWF(hour)) {
 
                     // They're already sorted so just grab the biggest one off of the top
-                    //console.log(availRoomsMWF[hour]);
+                    console.log(availRoomsMWF[hour]);
                     let highestCapacityRoom = availRoomsMWF[hour][0];
 
-                    //console.log("highestCapacityRoom seats = " + highestCapacityRoom['rooms_seats'] + ", name = " + highestCapacityRoom['rooms_name']);
+                    console.log("highestCapacityRoom seats = " + highestCapacityRoom['rooms_seats'] + ", name = " + highestCapacityRoom['rooms_name']);
 
                     if (highestEnrollmentClass['maxStudents'] <= highestCapacityRoom['rooms_seats']) {
                         scheduleMWF(highestEnrollmentClass, highestCapacityRoom, hour);
                         scheduledMWF = true;
                         break;
                     } else {
-                        //console.log("    The highest capacity room isn't big enough...");
+                        console.log("    The highest capacity room isn't big enough...");
                     }
                 }
             }
@@ -153,18 +153,18 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
                             scheduledTT = true;
                             break;
                         } else {
-                            //console.log("    The highest capacity room isn't big enough...");
+                            console.log("    The highest capacity room isn't big enough...");
                         }
                     }
                 }
             }
 
             if (!scheduledMWF && !scheduledTT) {
-                //console.log("    " + JSON.stringify(classes[c]) + " was not fitted into the schedule.");
+                console.log("    " + JSON.stringify(classes[c]) + " was not fitted into the schedule.");
                 classesFailedToSchedule.push(classes[c]);
             }
         }
-        //console.log("Done in createScheduleHelper");
+        console.log("Done in createScheduleHelper");
     }
 
     /**
@@ -181,11 +181,11 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
         sched[r['rooms_name']]['lat'] = r['rooms_lat'];
         sched[r['rooms_name']]['lon'] = r['rooms_lon'];
         sched[r['rooms_name']]['buildingName'] = r['rooms_shortname'];
-        //console.log("    Class " + name + " scheduled at " + hour + "h in room " + r['rooms_name'] + " on Monday/Wednesday/Friday");
+        console.log("    Class " + name + " scheduled at " + hour + "h in room " + r['rooms_name'] + " on Monday/Wednesday/Friday");
 
         // Remove the first element from the availRooms as we scheduled it now
         availRoomsMWF[hour].shift();
-        //console.log(availRoomsMWF[hour].length);
+        console.log(availRoomsMWF[hour].length);
     }
 
     /**
@@ -202,11 +202,11 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
         sched[r['rooms_name']]['lat'] = r['rooms_lat'];
         sched[r['rooms_name']]['lon'] = r['rooms_lon'];
         sched[r['rooms_name']]['buildingName'] = r['rooms_shortname'];
-        //console.log("    Class " + name + " scheduled at " + hour + "h in room " + r['rooms_name'] + " on Tuesday/Thursday");
+        console.log("    Class " + name + " scheduled at " + hour + "h in room " + r['rooms_name'] + " on Tuesday/Thursday");
 
         // Remove the first element from the availRooms as we scheduled it now
         availRoomsTT[hour].shift();
-        ////console.log(availRoomsTT[hour]);
+        console.log(availRoomsTT[hour]);
     }
 
     /**
@@ -216,7 +216,7 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
      * of students in the section
      */
     function sortClassesToSched(classes: any[]) {
-        //console.log("    Sorting classesToSched...");
+        console.log("    Sorting classesToSched...");
 
         // Now, sort based on this new property in descending order
         // Comparison function for sorting
@@ -229,7 +229,7 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
             return 0;
         }
 
-        //console.log("    classesToSched sorted successfully!");
+        console.log("    classesToSched sorted successfully!");
 
         return classes.sort(compare);
     }
@@ -240,7 +240,7 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
      * @param rooms
      */
     function sortRooms(rooms: any[]) {
-        //console.log("    Sorting rooms...");
+        console.log("    Sorting rooms...");
 
         // Comparison function for sorting
         function compare(a: any, b: any) {
@@ -252,8 +252,8 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
             return 0;
         }
 
-        //console.log("    rooms sorted successfully!");
-        //console.log(rooms.sort(compare));
+        console.log("    rooms sorted successfully!");
+        console.log(rooms.sort(compare));
 
         return rooms.sort(compare);
     }
@@ -267,21 +267,21 @@ function scheduleMaker(classes: any[], rooms: any[]): any {
      * @returns {boolean}
      */
     function isRoomAvailableMWF(hour: number): boolean {
-        //console.log("Checking MWF" + " @ " + hour);
+        console.log("Checking MWF" + " @ " + hour);
         if (availRoomsMWF[hour].length == 0) {
             return false;
         } else {
-            //console.log("There's a free slot!");
+            console.log("There's a free slot!");
             return true;
         }
     }
 
     function isRoomAvailableTT(hour: number): boolean {
-        //console.log("Checking TT" + " @ " + hour);
+        console.log("Checking TT" + " @ " + hour);
         if (availRoomsTT[hour].length == 0) {
             return false;
         } else {
-            //console.log("There's a free slot!");
+            console.log("There's a free slot!");
             return true;
         }
     }

@@ -89,6 +89,7 @@
     float: right;
 }
 
+
 /* select placeholders grey to indicate not real selection */
 #placeholder {
     color: gray;
@@ -155,4 +156,10 @@ select {
 
 .btn {
     max-width: 100%;
+}
+
+/* button to upload file */
+.adder {
+    padding: 5px 8px 5px 8px !important;
+    float: right;
 }
