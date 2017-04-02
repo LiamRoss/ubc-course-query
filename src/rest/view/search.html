@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Scheduler - UBC Insight</title>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+
+    <!-- Modernizr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+
+    <!-- On Load Script -->
+    <script src="scripts/onload.js"></script>
+
+    <!-- Bootstrap Style Sheet -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+
+    <!-- Style Sheet -->
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- Schedule Style Sheet -->
+    <link href="css/schedule.css" rel="stylesheet">
+
+    <style>
+        input[type=text] {
+            width: 130px;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+            background-position: 10px 10px;
+            background-repeat: no-repeat;
+            padding: 12px 20px 12px 40px;
+            -webkit-transition: width 0.4s ease-in-out;
+            transition: width 0.4s ease-in-out;
+        }
+
+        input[type=text]:focus {
+            width: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="wrapper">
+
+    <!--NAVBAR-->
+    <nav class="navbar navbar-default navbar-fixed-top" id="navbar-wrapper">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand">UBC Insight</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="index.html">Query</a></li>
+                    <li><a href="schedule.html">Scheduling</a></li>
+                    <li class="active"><a href="search.html">Search</a></li>
+                </ul>
+            </div>
+
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+    <!--MAIN-->
+    <main id="main-wrapper">
+        <div class="container">
+            <h1>Course search</h1>
+            <p>Type in a course and hit the enter key to obtain readable and neatly visualized information. Example searches: "CPSC 310", "ANTH 210".</p>
+            <form id="searchForm" action="search">
+                <div class="row">
+                    <div class="form-group">
+                        <input type="search" id='searchBox' class="form-control input-lg">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+</div>
+
+<script>
+    $("#searchForm").submit(function(){
+        var searchText = $('#searchBox').val();
+        alert(searchText);
+        var courseDept = searchText.split(" ")[0];
+        var courseNumber = searchText.split(" ")[1];
+        console.log("Searching for a " + courseDept + " course with number " + courseNumber);
+
+        var query = {
+        "WHERE":{
+            "AND":[
+                {
+                    "IS":{
+                        "courses_dept":courseDept.toString()
+                    }
+                },
+                {
+                    "IS":{
+                        "courses_id":courseNumber.toString()
+                    }
+                }
+            ]
+        },
+        "OPTIONS":{
+            "COLUMNS":[
+                "courses_dept",
+                "courses_avg",
+                "courses_pass",
+                "courses_fail",
+                "courses_instructor",
+                "courses_year",
+                "courses_audit"
+            ],
+                "FORM":"TABLE"
+        }
+    };
+
+        console.log(query);
+
+        <!-- Performing query -->
+        $.ajax({
+            url: 'http://localhost:4321/query',
+            type: 'post',
+            data: JSON.stringify(query),
+            contentType: 'application/json',
+            dataType: 'json'
+        }).done(function(data) {
+            $.each(data.result[0], function (k, v) {
+                console.log(k.toString() + v.toString());
+                //console.log("header value: " + k);
+            });
+            $.each(data.result, function () {
+                $.each(this, function (k, v) {
+                    console.log(k.toString() + v.toString());
+                })
+            })
+        }).fail(function(err) {
+           alert("Your search failed. " + JSON.stringify(err));
+        });
+    });
+</script>
+
+<!-- Bootstrap Script -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<!-- On Click Scripts -->
+<script src="scripts/onclick.js"></script>
+
+
+<!--TODO: this is where I import them (acts like an import)-->
+<!-- Schedule Scripts -->
+<script src="scripts/schedule.js"></script>
+
+<!-- Query Scripts -->
+<script src="scripts/query.js"></script>
+
+</body>
+
+</html>
