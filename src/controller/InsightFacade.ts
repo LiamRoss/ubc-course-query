@@ -2200,9 +2200,9 @@ export default class InsightFacade implements IInsightFacade {
     // dataTransformer helper, merges section to group, or create new group if passed group is {}
     // returns a string error message if there is an error
     mergeSectionGroup(section: Section | Room, group: any, transformations: Transformations): Group {
-        return {"error": "commented out to stop timeouts"};
+        // return {"error": "commented out to stop timeouts"};
         // return("timeouts are garbage");
-        /*
+    
         //Log.trace("group @ start: " + JSON.stringify(group));
         try {
             //Log.trace("inside mergeSectionGroup");
@@ -2351,7 +2351,6 @@ export default class InsightFacade implements IInsightFacade {
         } catch (error) {
             return {"error": "error in mergeSectionGroup"};
         }
-    */
     }
     // TODO: fix before here
     sortHelper(courseKey: string | Sort, query: QueryRequest): any {

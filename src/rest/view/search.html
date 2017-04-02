@@ -103,8 +103,10 @@
 </div>
 
 <script>
-    $("#searchForm").submit(function(){
+    $("#searchForm").submit(function(e){
+        e.preventDefault();
         var searchText = $('#searchBox').val();
+        // var searchText = search($("#searchText").get(0));
         alert(searchText);
         var courseDept = searchText.split(" ")[0];
         var courseNumber = searchText.split(" ")[1];
