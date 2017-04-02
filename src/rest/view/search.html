@@ -112,12 +112,12 @@
         var courseNumber = searchText.split(" ")[1];
         console.log("Searching for a " + courseDept + " course with number " + courseNumber);
 
-        var query = {
+        var query_raw = {
         "WHERE":{
             "AND":[
                 {
                     "IS":{
-                        "courses_dept":courseDept.toString()
+                        "courses_dept":courseDept.toString().toLowerCase()
                     }
                 },
                 {
@@ -140,10 +140,11 @@
                 "FORM":"TABLE"
         }
     };
-
+        var query = JSON.stringify(query_raw);
         console.log(query);
+        console.log("QUERY: " + JSON.stringify(query));
 
-        <!-- Performing query -->
+        // Performing query
         $.ajax({
             url: 'http://localhost:4321/query',
             type: 'post',
@@ -151,6 +152,7 @@
             contentType: 'application/json',
             dataType: 'json'
         }).done(function(data) {
+            console.log("DATA: " + JSON.stringify(data));
             $.each(data.result[0], function (k, v) {
                 console.log(k.toString() + v.toString());
                 //console.log("header value: " + k);
