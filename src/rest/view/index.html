@@ -112,6 +112,34 @@
                             <option value="IS">Equal To (string)</option>
                         </select>
                     </div>
+                    <!--Column selectors go here-->
+                    <div class="filter-color-0" id="sorting-area">
+                        <select class="btn btn-default" id="column-selector">
+                            <option value="" selected id="placeholder">Select Column</option>
+                            <option class="courses-select" value="courses_avg">Average</option>
+                            <option class="courses-select" value="courses_pass">Passed</option>
+                            <option class="courses-select" value="courses_fail">Failed</option>
+                            <option class="courses-select" value="courses_audit">Audited</option>
+                            <option class="rooms-select" value="rooms_lat">Latitude</option>
+                            <option class="rooms-select" value="rooms_lon">Longitude</option>
+                            <option class="rooms-select" value="rooms_seats">Seats</option>
+                            <option class="courses-select" value="courses_dept">Department</option>
+                            <option class="courses-select" value="courses_id">ID</option>
+                            <option class="courses-select" value="courses_instructor">Instructor</option>
+                            <option class="courses-select" value="courses_title">Title</option>
+                            <option class="courses-select" value="courses_uuid">Unique ID</option>
+                            <option class="rooms-select" value="rooms_fullname">Full name</option>
+                            <option class="rooms-select" value="rooms_shortname">Short name</option>
+                            <option class="rooms-select" value="rooms_number">Room number</option>
+                            <option class="rooms-select" value="rooms_name">Room name</option>
+                            <option class="rooms-select" value="rooms_address">Room address</option>
+                            <option class="rooms-select" value="rooms_type">Room type</option>
+                            <option class="rooms-select" value="rooms_furniture">Room furniture</option>
+                            <option class="rooms-select" value="rooms_href">Room href</option>
+                        </select>
+                        <button class="btn btn-default adder" id="column-adder"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+                        <div id="column-list"></div>
+                    </div>
                     <!--Query selectors go here-->
                     <div class="filter-color-0" id="sorting-area">
                         <select class="btn btn-default" id="sort-selector">
@@ -181,6 +209,9 @@
 
     <!-- On Change Scripts -->
     <script src="scripts/onchange.js"></script>
+
+    <!-- On Click Scripts -->
+    <script src="scripts/generateQuery.js"></script>
 
     <!-- On Click Scripts -->
     <script src="scripts/onclick.js"></script>

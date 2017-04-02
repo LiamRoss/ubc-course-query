@@ -44,9 +44,10 @@ $('#btnSubmit').click(function () {
     $("#results-table").css("display", "table");
     // clear table
     $("#tblResults").empty();
-    var query = $("#txtQuery").val();
+    // var query = $("#txtQuery").val();
     //console.log("query", query);
     // TODO: form query
+    var query = generateQuery();
 
     $.ajax({
         url: 'http://localhost:4321/query',
@@ -110,3 +111,38 @@ $('.and-or-button').click(function () {
         console.log("ERROR: and-or selector does not have valid class");
     }
 });
+
+$('#column-adder').click(function () {
+
+    var b = false;
+
+    if ($('#column-selector').children(":selected").attr("id") == "placeholder") {
+        return;
+    }
+
+    var uniqueId = new Date().getTime().toString() + "column";
+
+    var val = $('#column-selector').children(":selected").val();
+    var text = $('#column-selector').children(":selected").text();
+
+    $(".column-item").each( function (i) {
+        console.log("inside each, index = " + i);
+        if ($(this).val() == val) {
+            console.log("values are equal!!");
+            b = true;
+        }
+    })
+
+    if (b) {
+        return;
+    }
+
+    var column = '<button id="' + uniqueId + '" value="' + val + '" class="column-item btn btn-default">' + text + '</button>';
+    $(column).appendTo('#column-list');
+})
+
+$(document).on('click', '.column-item', function () {
+    var id = $(this).attr("id");
+    console.log("id: " + id);
+    $("#" + id).remove();
+})

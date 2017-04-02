@@ -1614,7 +1614,7 @@ export default class InsightFacade implements IInsightFacade {
                                         // TODO: check if the value of this is something that should be ONLY a number
                                         fulfill();
                                     } else {
-                                        Log.trace(at + " is not valid key");
+                                        //Log.trace(at + " is not valid key");
                                         reject(at + " is not valid key");
                                     }
                                     //Log.trace("validApplyKey fulfills");
@@ -2200,8 +2200,10 @@ export default class InsightFacade implements IInsightFacade {
     // dataTransformer helper, merges section to group, or create new group if passed group is {}
     // returns a string error message if there is an error
     mergeSectionGroup(section: Section | Room, group: any, transformations: Transformations): Group {
+        return {"error": "commented out to stop timeouts"};
         // return("timeouts are garbage");
-        // Log.trace("group @ start: " + JSON.stringify(group));
+        /*
+        //Log.trace("group @ start: " + JSON.stringify(group));
         try {
             //Log.trace("inside mergeSectionGroup");
             let returnGroup: any;
@@ -2223,7 +2225,7 @@ export default class InsightFacade implements IInsightFacade {
             else {
                 //Log.trace("group is not empty object, already exists");
                 returnGroup = group;
-                // Log.trace("returnGroup @ start: " + JSON.stringify(returnGroup));
+                //Log.trace("returnGroup @ start: " + JSON.stringify(returnGroup));
             }
             // for each applyKey
             for (let applyKey of transformations.APPLY) {
@@ -2256,23 +2258,23 @@ export default class InsightFacade implements IInsightFacade {
 
                 switch (applyToken) {
                     case "MAX":
-                        Log.trace("case: MAX");
+                        //Log.trace("case: MAX");
                         // check if is numbers
                         if (typeof section[sectionKey] !== 'number') {
                             return {"error": "MAX key must be a number"};
                         } else {
                             returnGroup[key + "sum"] = returnGroup[key + "sum"] + section[sectionKey];
                             if (returnGroup.hasOwnProperty(key)) {
-                                // Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
+                                //Log.trace("section[sectionKey] " + section[sectionKey] + " > " + "returnGroup[key] " + returnGroup[key]);
                                 if (section[sectionKey] > returnGroup[key]) {
                                     returnGroup[key] = section[sectionKey];
                                 }
                             } else {
-                                // Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
+                                //Log.trace("returnGroup[key] = section[sectionKey]: " + section[sectionKey]);
                                 returnGroup[key] = section[sectionKey];
                             }
                         }
-                        Log.trace("returnGroup (MAX): " + JSON.stringify(returnGroup));
+                        //Log.trace("returnGroup (MAX): " + JSON.stringify(returnGroup));
                         break;
                     case "MIN":
                         //Log.trace("case: MIN");
@@ -2312,7 +2314,7 @@ export default class InsightFacade implements IInsightFacade {
                         }
                         break;
                     case "COUNT":
-                        Log.trace("case: COUNT");
+                        //Log.trace("case: COUNT");
                         if (typeof section[sectionKey] !== 'number') {
                             //Log.trace("COUNT is not a number");
                         } else {
@@ -2323,7 +2325,7 @@ export default class InsightFacade implements IInsightFacade {
                             }
                         }
                         returnGroup[key] = returnGroup[key + "count"];
-                        Log.trace("returnGroup (COUNT): " + JSON.stringify(returnGroup));
+                        //Log.trace("returnGroup (COUNT): " + JSON.stringify(returnGroup));
                         break;
                     case "SUM":
                         //Log.trace("case: SUM");
@@ -2349,6 +2351,7 @@ export default class InsightFacade implements IInsightFacade {
         } catch (error) {
             return {"error": "error in mergeSectionGroup"};
         }
+    */
     }
     // TODO: fix before here
     sortHelper(courseKey: string | Sort, query: QueryRequest): any {
