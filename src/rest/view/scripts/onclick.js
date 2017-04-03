@@ -19,6 +19,7 @@ $("#btnUpload").click(function () {
             contentType: false,
             processData: false
         }).done(function (data) {
+            alert("Successfully uploaded file");
             //console.log(fileToLoad.name + " was successfully uploaded.");
             // if (fileToLoad.name === "courses.zip") {
             //     $("#courses-uploaded").removeClass("alert-success");
@@ -33,7 +34,8 @@ $("#btnUpload").click(function () {
             // }
             updateUploadedJson();
         }).fail(function (data) {
-            console.log('ERROR - Failed to upload ' + fileToLoad.name + ". data = " + JSON.stringify(
+            alert("Failed to upload file");
+            console.error('ERROR - Failed to upload ' + fileToLoad.name + ". data = " + JSON.stringify(
                 data));
         });
     }
@@ -56,10 +58,12 @@ $('#btnSubmit').click(function () {
         contentType: 'application/json',
         dataType: 'json'
     }).done(function (data) {
+        alert("Successfully uploaded file");
         //console.log("Response: ", data);
         generateTable(data.result);
 
     }).fail(function () {
+        alert("Failed to upload file");
         console.error("ERROR - Failed to submit query.");
     });
 

@@ -31,9 +31,15 @@ window.onload = function () {
 
 function populateDept() {
     return new Promise((fulfill, reject) => {
-        console.log("inside populateDept");
+        //console.log("inside populateDept");
         var query_raw = {
-            "WHERE": {},
+            "WHERE": {
+                "NOT":{  
+                    "EQ":{  
+                        "courses_year":1900
+                    }
+                }
+            },
             "OPTIONS": {
                 "COLUMNS": [
                     "courses_dept"
@@ -49,7 +55,7 @@ function populateDept() {
             }
         };
         var query = JSON.stringify(query_raw);
-        console.log("query: \n" + JSON.stringify(query));
+        //console.log("query: \n" + JSON.stringify(query));
 
         $.ajax({
             url: 'http://localhost:4321/query',
@@ -81,7 +87,13 @@ function populateDept() {
 function populateClass() {
     return new Promise((fulfill, reject) => {
     var query_raw = {
-        "WHERE": {},
+        "WHERE": {
+            "NOT":{  
+                "EQ":{  
+                    "courses_year":1900
+                }
+            }
+        },
         "OPTIONS": {
             "COLUMNS": [
                 "courses_dept",
@@ -99,7 +111,7 @@ function populateClass() {
         }
     };
     var query = JSON.stringify(query_raw);
-    console.log("query: \n" + JSON.stringify(query));
+    //console.log("query: \n" + JSON.stringify(query));
 
     $.ajax({
         url: 'http://localhost:4321/query',
@@ -138,7 +150,13 @@ function populateClass() {
 function populateCourseNum() {
     return new Promise((fulfill, reject) => {
     var query_raw = {
-        "WHERE": {},
+        "WHERE": {
+            "NOT":{  
+                "EQ":{  
+                    "courses_year":1900
+                }
+            }
+        },
         "OPTIONS": {
             "COLUMNS": [
                 "courses_id"
@@ -154,7 +172,7 @@ function populateCourseNum() {
         }
     };
     var query = JSON.stringify(query_raw);
-    console.log("query: \n" + JSON.stringify(query));
+    //console.log("query: \n" + JSON.stringify(query));
 
     $.ajax({
         url: 'http://localhost:4321/query',
@@ -202,7 +220,7 @@ function populateRoom() {
         }
     };
     var query = JSON.stringify(query_raw);
-    console.log("query: \n" + JSON.stringify(query));
+    //console.log("query: \n" + JSON.stringify(query));
 
     $.ajax({
         url: 'http://localhost:4321/query',
@@ -251,7 +269,7 @@ function populateBuilding() {
         }
     };
     var query = JSON.stringify(query_raw);
-    console.log("query: \n" + JSON.stringify(query));
+    //console.log("query: \n" + JSON.stringify(query));
 
     $.ajax({
         url: 'http://localhost:4321/query',
@@ -284,7 +302,7 @@ function populateBuilding() {
 
 function updateBar(value) {
     updateBarNum = value;
-    console.log("updating bar");
+    //console.log("updating bar");
     var id = "#progressbar";
     $(id).css("width", value.toString() + "%");
     if (value == 100 && $(id).hasClass("active")) {
@@ -297,7 +315,7 @@ function updateBar(value) {
 
 function failBar() {
     updateBarNum = 100;
-    console.log("fail bar");
+    //console.log("fail bar");
     var id = "#progressbar";
     $(id).css("width", "100%");
     $(id).removeClass("progress-bar-striped active");
