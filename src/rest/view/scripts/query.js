@@ -272,6 +272,11 @@ $("#btnSchedule").click(function () {
                 console.log("lon: " + lon);
 
                 // TODO: put function name here, and you're good to go
+                if(isWithinDistance([baseLat, baseLon], [lat, lon], distance)) {
+
+                } else {
+                    $(id).css("display", "none");
+                }
                 // if (distancefunction(baseLat, baseLon, lat, lon, distance)) {
                 //     // dunno if your thing returns true if it's within
                 //     //  range or outside of range, but this is true

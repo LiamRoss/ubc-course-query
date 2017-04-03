@@ -10,10 +10,10 @@ function isWithinDistance(point1, point2, dist) {
 
     // { lat: 1920312, lon: 123123214 }
 
-    var lat1 = point1['lat'];
-    var lon1 = point1['lon'];
-    var lat2 = point2['lat'];
-    var lon2 = point2['lon'];
+    var lat1 = point1[0];
+    var lon1 = point1[1];
+    var lat2 = point2[0];
+    var lon2 = point2[1];
     // Source: http://www.movable-type.co.uk/scripts/latlong.html
     var R = 6371e3; // metres
     var φ1 = lat1.toRadians();
