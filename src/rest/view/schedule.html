@@ -22,6 +22,9 @@
     <!-- On Load Script -->
     <script src="scripts/onload.js"></script>
 
+    <!-- On Load Script -->
+    <script src="scripts/populate-onload.js"></script>
+
     <!-- Bootstrap Style Sheet -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
         crossorigin="anonymous">
@@ -76,13 +79,17 @@
                     </div>
                     <!--Show uploaded .jsons-->
                     <div id="uploaded-jsons" class="hide-overflow">
-                        <h5 id="uploaded-title">Uploaded Datasets</h5>
-                        <div class="row" id="upload-indicators">
+                        <h5 id="uploaded-title">Compiling Datasets</h5>
+                        <!--<div class="row" id="upload-indicators">
                             <div class="col-xs-6 upload-indicator">
                                 <div class="alert alert-danger float-left" id="courses-uploaded" role="alert">Courses</div>
                             </div>
                             <div class="col-xs-6 upload-indicator">
                                 <div class="alert alert-danger float-right" id="rooms-uploaded" role="alert">Rooms</div>
+                            </div>
+                        </div>-->
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped active" id="progressbar" role="progressbar" style="width: 0%">
                             </div>
                         </div>
                     </div>
@@ -92,6 +99,39 @@
             <div id="query-wrapper" class="internal-wrappers">
                 <div class="colour-wrappers">
                     <h4 id="uploaded-title">Schedule Parameters</h4>
+
+                    <!--TODO: subsets go here-->
+                    <!--Column selectors go here-->
+                    <h5 id="subsets-title">Subsets</h5>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="filter-color-0 subset-area" id="course-subset-area">
+                                <div class="form-group">
+                                    <p>Choose course to create subset for schedule. Click to remove.</p>
+                                    <!--<input type="search" class="form-control" id="course-subset-field" placeholder="Enter course">-->
+                                    <select class="btn btn-default" id="course-subset-field">
+                                        <option value="" selected id="placeholder">Enter course</option>
+                                    </select>
+                                </div>
+                                <ul id="course-subset-list" class="subset-list">
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="filter-color-0 subset-area" id="room-subset-area">
+                                <div class="form-group">
+                                    <p>Choose room to create subset for schedule. Click to remove.</p>
+                                    <!--<input type="search" class="form-control" id="room-subset-field" placeholder="Enter course">-->
+                                    <select class="btn btn-default" id="room-subset-field">
+                                        <option value="" selected id="placeholder">Enter room</option>
+                                    </select>
+                                </div>
+                                <ul id="room-subset-list" class="subset-list">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!--TODO: subsets end  here-->
                     <!--Rooms-->
                     <h5 id="uploaded-title">Filtering</h5>
                     <div class="row bottom-spacing">
@@ -99,20 +139,16 @@
                             <!--Building Name selector-->
                             <select class="btn btn-default" id="building-selector">
                                 <option value="" selected id="placeholder">Building name</option>
-                                <option value="courses">AAC</option>
-                                <option value="rooms">DMP</option>
                             </select>
                         </div>
                         <div class="btn-group col-xs-3 col-sm-2" role="group">
                             <button type="button" value="AND" class="btn btn-default and-or-button selected room-button room-button-and">And</button>
-                            <button type="button"  value="OR" class="btn btn-default and-or-button room-button room-button-or">Or</button>
+                            <button type="button" value="OR" class="btn btn-default and-or-button room-button room-button-or">Or</button>
                         </div>
                         <div class="col-xs-3 col-sm-3">
                             <!--Distance selector-->
-                            <select class="btn btn-default" id="building-selector">
+                            <select class="btn btn-default" id="distance-selector">
                                 <option value="" selected id="placeholder">Distance from</option>
-                                <option value="courses">AAC</option>
-                                <option value="rooms">DMP</option>
                             </select>
                         </div>
                         <div class="col-xs-3 col-sm-2">
@@ -129,8 +165,6 @@
                             <!--Department selector-->
                             <select class="btn btn-default" id="department-selector">
                                 <option value="" selected id="placeholder">Department</option>
-                                <option value="courses">Science</option>
-                                <option value="rooms">Arts</option>
                             </select>
                         </div>
                         <div class="btn-group col-xs-4 col-sm-2" role="group">
@@ -141,49 +175,10 @@
                             <!--Department selector-->
                             <select class="btn btn-default" id="course-selector">
                                 <option value="" selected id="placeholder">Course number</option>
-                                <option value="courses">A315</option>
-                                <option value="rooms">B214</option>
                             </select>
                             <!--<input type="string" class="form-control" id="course-selector" placeholder="Course number">-->
                         </div>
                     </div>
-                    
-                    <!--TODO: subsets go here-->
-                    <!--Column selectors go here-->
-                    <h5 id="subsets-title">Subsets</h5>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div class="filter-color-0 subset-area" id="course-subset-area">
-                                <div class="form-group">
-                                    <p>Choose course to create subset for schedule. Click to remove.</p>
-                                    <!--<input type="search" class="form-control" id="course-subset-field" placeholder="Enter course">-->
-                                    <select class="btn btn-default" id="course-subset-field">
-                                        <option value="" selected id="placeholder">Enter course</option>
-                                        <option value="cpsc_210">CPSC 210</option>
-                                        <option value="cpsc_310">CPSC 310</option>
-                                    </select>
-                                </div>
-                                <ul id="course-subset-list" class="subset-list">
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="filter-color-0 subset-area" id="room-subset-area">
-                                <div class="form-group">
-                                    <p>Choose room to create subset for schedule. Click to remove.</p>
-                                    <!--<input type="search" class="form-control" id="room-subset-field" placeholder="Enter course">-->
-                                    <select class="btn btn-default" id="room-subset-field">
-                                        <option value="" selected id="placeholder">Enter room</option>
-                                        <option value="AERL_120">AERL_120</option>
-                                        <option value="ANSO_205">ANSO_205</option>
-                                    </select>
-                                </div>
-                                <ul id="room-subset-list" class="subset-list">
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <!--TODO: subsets end  here-->
                 </div>
             </div>
             <!--Query Interface-->
@@ -208,7 +203,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">8am-9am</div>
                                     <div class="col-xs-10 schedule-time" id="8"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">9am-10am</div>
@@ -217,7 +212,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">10am-11am</div>
                                     <div class="col-xs-10 schedule-time" id="10"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">11am-12pm</div>
@@ -226,7 +221,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">12pm-1pm</div>
                                     <div class="col-xs-10 schedule-time" id="12"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">1pm-2pm</div>
@@ -235,7 +230,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">2pm-3pm</div>
                                     <div class="col-xs-10 schedule-time" id="14"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">3pm-4pm</div>
@@ -250,7 +245,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">8am-9:30am</div>
                                     <div class="col-xs-10 schedule-time" id="8"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">9:30am-11am</div>
@@ -259,7 +254,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">11am-12:30pm</div>
                                     <div class="col-xs-10 schedule-time" id="11"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">12:30pm-2pm</div>
@@ -268,7 +263,7 @@
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">2pm-3:30pm</div>
                                     <div class="col-xs-10 schedule-time" id="14"></div>
-                                    
+
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-2 schedule-time">3:30pm-5pm</div>
@@ -394,7 +389,8 @@
     </div>
 
     <!-- Bootstrap Script -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
 
     <!-- On Click Scripts -->
     <script src="scripts/onclick.js"></script>

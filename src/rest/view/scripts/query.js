@@ -35,7 +35,7 @@ $("#btnSchedule").click(function () {
         }).done(function (data) {
             //console.log("Response: ", data);
             sectionResult = data.result;
-            
+
             $.ajax({
                 url: 'http://localhost:4321/query',
                 type: 'post',
@@ -45,7 +45,7 @@ $("#btnSchedule").click(function () {
             }).done(function (data) {
                 //console.log("Response: ", data);
                 roomResult = data.result;
-                
+
                 generateSchedule(courseResult, roomResult, sectionResult);
             }).fail(function () {
                 console.error("ERROR - Failed to submit query. ");
@@ -60,7 +60,7 @@ $("#btnSchedule").click(function () {
     });
 
 
-    
+
 
     function generateSchedule(data, dataRooms, dataSection) {
         var passObject = [];
@@ -101,7 +101,7 @@ $("#btnSchedule").click(function () {
             // //console.log("datasection result: " + JSON.stringify(sectionInfo));
             $.each(dataSection, function () {
                 if (this["courses_dept"] == sectionInfo["courses_dept"] &&
-                this["courses_id"] == sectionInfo["courses_id"]) {
+                    this["courses_id"] == sectionInfo["courses_id"]) {
                     foundSection = true;
                     var sectionNumber = Math.ceil(sectionInfo["numSections"] / 3);
                     this["numSections"] = sectionNumber;
@@ -115,7 +115,7 @@ $("#btnSchedule").click(function () {
                 }
             })
 
-             if (!foundSection) {
+            if (!foundSection) {
                 var index = passObject.indexOf(this);
                 //console.log("INDEX OF THIS: " + index);
                 if (index > -1) {
@@ -135,7 +135,7 @@ $("#btnSchedule").click(function () {
         //console.log("classesNotScheduled:\n" + JSON.stringify(classesNotScheduled));
         var quality = output["quality"];
 
-        Object.keys(classSchedule).forEach(function(key) {
+        Object.keys(classSchedule).forEach(function (key) {
             // //console.log(classSchedule[key]);
             if (classSchedule[key].hasOwnProperty("buildingName")) {
                 var room = key;
@@ -146,7 +146,7 @@ $("#btnSchedule").click(function () {
                 //console.log(key, classSchedule[key]);
 
                 // schedule monday
-                Object.keys(classSchedule[key]["Monday"]).forEach(function(monKey) {
+                Object.keys(classSchedule[key]["Monday"]).forEach(function (monKey) {
                     var day = "m";
                     var time = monKey;
                     var dept = classSchedule[key]["Monday"][monKey]["dept"];
@@ -155,7 +155,7 @@ $("#btnSchedule").click(function () {
                 })
 
                 // schedule tuesday
-                Object.keys(classSchedule[key]["Tuesday"]).forEach(function(tueKey) {
+                Object.keys(classSchedule[key]["Tuesday"]).forEach(function (tueKey) {
                     var day = "t";
                     var time = tueKey;
                     // //console.log("hitting if");
@@ -186,13 +186,13 @@ $("#btnSchedule").click(function () {
     }
 });
 
-function makeBlock (room, lat, lon, building, time, dept, id, day) {
+function makeBlock(room, lat, lon, building, time, dept, id, day) {
     var uniqueId = new Date().getTime().toString() + "block";
     var blockId = lat + "_" + lon + "_" + uniqueId;
 
     var block = '<div class="block" id="' + blockId + '"><h5>' + building + '</h5><h4>' + dept.toUpperCase() + id + '</h4><h5>' + room + '</h5></div>';
 
-    if(day == "m") {
+    if (day == "m") {
         $(block).appendTo("#mwf .row #" + time);
     } else {
         $(block).appendTo("#tt .row #" + time);
@@ -208,60 +208,6 @@ function makeBlock (room, lat, lon, building, time, dept, id, day) {
     $(blockId).data('id', id);
 }
 
-
-// {  
-//    "WHERE":{  
-//       "AND":[  
-//          {  
-//             "IS":{  
-//                "courses_dept":"anth"
-//             }
-//          },
-//          {  
-//             "NOT":{  
-//                "EQ":{  
-//                   "courses_year":1900
-//                }
-//             }
-//          }
-//       ]
-//    },
-//    "OPTIONS":{  
-//       "COLUMNS":[  
-//          "courses_dept",
-//          "courses_id",
-//          "maxStudents",
-//          "maxStudentsCount"
-//       ],
-//       "ORDER":{  
-//          "dir":"UP",
-//          "keys":[  
-//             "courses_dept",
-//             "courses_id"
-//          ]
-//       },
-//       "FORM":"TABLE"
-//    },
-//    "TRANSFORMATIONS":{  
-//       "GROUP":[  
-//          "courses_dept",
-//          "courses_id"
-//       ],
-//       "APPLY":[  
-//          {  
-//             "maxStudents":{  
-//                "MAX":"courses_numStudents"
-//             }
-//          },
-//          {  
-//             "maxStudentsCount":{  
-//                "COUNT":"courses_numStudents"
-//             }
-//          }
-//       ]
-//    }
-// }
-
 $("#course-subset-field").change(function () {
     if ($(this).children(":selected").attr("id") == "placeholder") {
         return;
@@ -273,7 +219,7 @@ $("#course-subset-field").change(function () {
     var text = $(this).children(":selected").text();
     //console.log("text: " + text);
 
-    $(".subset-list-item").each( function (i) {
+    $(".subset-list-item").each(function (i) {
         //console.log("inside each, index = " + i);
         //console.log("this value: " + $(this).text());
         //console.log("text value: " + text);
@@ -304,7 +250,7 @@ $("#room-subset-field").change(function () {
     var text = $(this).children(":selected").text();
     //console.log("text: " + text);
 
-    $(".subset-list-item").each( function (i) {
+    $(".subset-list-item").each(function (i) {
         //console.log("inside each, index = " + i);
         //console.log("this value: " + $(this).text());
         //console.log("text value: " + text);
